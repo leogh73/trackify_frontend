@@ -189,7 +189,7 @@ class ActionsMenu extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
-                    if (action == "remove")
+                    if (action == "eliminar")
                       Container(
                         width: 110,
                         padding: const EdgeInsets.only(bottom: 9, top: 2),
@@ -204,7 +204,7 @@ class ActionsMenu extends StatelessWidget {
                               : _removeTracking(context, tracking, screen),
                         ),
                       ),
-                    if (action == "archive")
+                    if (action == "archivar")
                       Container(
                         width: 110,
                         padding: const EdgeInsets.only(bottom: 9, top: 2),
@@ -284,10 +284,10 @@ class ActionsMenu extends StatelessWidget {
                     // _editTracking(context);
                     break;
                   case 'Archivar':
-                    _displayDialog(context, screen, "archive", false);
+                    _displayDialog(context, screen, "archivar", false);
                     break;
                   case 'Eliminar':
-                    _displayDialog(context, screen, "remove", false);
+                    _displayDialog(context, screen, "eliminar", false);
                     break;
                 }
               },
@@ -312,7 +312,7 @@ class ActionsMenu extends StatelessWidget {
                     icon: const Icon(Icons.delete),
                     iconSize: icon,
                     onPressed: () =>
-                        _displayDialog(context, screen, "remove", true),
+                        _displayDialog(context, screen, "eliminar", true),
                   ),
                   "remove"),
               Button(
@@ -320,7 +320,7 @@ class ActionsMenu extends StatelessWidget {
                     icon: const Icon(Icons.archive),
                     iconSize: icon,
                     onPressed: () =>
-                        _displayDialog(context, screen, "archive", true),
+                        _displayDialog(context, screen, "archivar", true),
                   ),
                   "archive"),
             ],
@@ -354,7 +354,7 @@ class ActionsMenu extends StatelessWidget {
                     break;
 
                   case 'Eliminar':
-                    _displayDialog(context, screen, "remove", false);
+                    _displayDialog(context, screen, "eliminar", false);
                     break;
                 }
               },
@@ -378,7 +378,7 @@ class ActionsMenu extends StatelessWidget {
                     icon: const Icon(Icons.delete),
                     iconSize: icon,
                     onPressed: () =>
-                        _displayDialog(context, screen, "remove", true),
+                        _displayDialog(context, screen, "eliminar", true),
                   ),
                   "remove"),
             ],

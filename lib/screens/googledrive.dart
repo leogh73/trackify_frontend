@@ -155,9 +155,9 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       false,
                       'Error de consulta a GoogleDrive',
                       'REINTENTAR',
-                      null,
                       () => Provider.of<Preferences>(context, listen: false)
                           .toggleGDErrorStatus(false),
+                      null,
                     )
                   : const GoogleDriveAccount()
               : DriveContent(
