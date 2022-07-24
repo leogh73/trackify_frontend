@@ -26,11 +26,12 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
   late Future checkDrive;
   bool restoringBackup = false;
 
-  List<Map<String, dynamic>> loadFetchedData(response) {
+  List<Map<String, dynamic>> loadFetchedData(response, bool login) {
     Map<String, dynamic> googleData = json.decode(response.body);
+    print(googleData);
     if (googleData['backups'].isNotEmpty) {
       Provider.of<Status>(context, listen: false)
-          .loadGoogleBackups(googleData['backups']);
+          .loadGoogleBackups(googleData['backups'], login);
     }
     Provider.of<Status>(context, listen: false)
         .setGoogleEmail(googleData['email']);
@@ -39,13 +40,12 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
 
   Future checkDriveAccount() async {
     String _userId = Provider.of<Preferences>(context, listen: false).userId;
-
     var response = await http.Client()
         .post(Uri.parse("${dotenv.env['API_URL']}/api/google/consult"), body: {
       'userId': _userId,
     });
     if (response.statusCode == 200) {
-      return loadFetchedData(response);
+      return loadFetchedData(response, true);
     } else {
       Provider.of<Preferences>(context, listen: false)
           .toggleGDErrorStatus(true);
@@ -70,7 +70,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
         backupsData.insert(1, {'date': null, 'currentDevice': false});
       }
       Provider.of<Status>(context, listen: false)
-          .loadGoogleBackups(backupsData);
+          .loadGoogleBackups(backupsData, false);
     } else {
       Provider.of<Preferences>(context, listen: false)
           .toggleGDErrorStatus(true);

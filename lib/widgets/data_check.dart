@@ -41,7 +41,6 @@ class DataCheck {
     //   'service': tracking.service,
     //   'code': tracking.code,
     // });
-    print(response.body);
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       ItemResponseData itemResponse = Response.start(tracking.service, data);

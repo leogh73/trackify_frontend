@@ -198,14 +198,17 @@ class Status with ChangeNotifier {
 
   List<dynamic> googleBackups = [];
   List<dynamic> get googleUserData => [...googleBackups];
-  void loadGoogleBackups(List<dynamic> data) {
+  void loadGoogleBackups(List<dynamic> data, bool login) {
     googleBackups = data;
-    // if (googleBackups.length == 1) {
-    //   googleBackups.insert(1, {'date': null, 'currentDevice': false});
-    // }
-    // if (googleBackups[0]['date'] == null && googleBackups[1]['date'] == null) {
-    //   googleBackups.clear();
-    // }
+    if (login) {
+      if (googleBackups.length == 1) {
+        googleBackups.insert(1, {'date': null, 'currentDevice': false});
+      }
+      if (googleBackups[0]['date'] == null &&
+          googleBackups[1]['date'] == null) {
+        googleBackups.clear();
+      }
+    }
     notifyListeners();
   }
 
@@ -226,7 +229,7 @@ class Status with ChangeNotifier {
       selectedBackupId = googleBackups[index]['id'];
       googleBackups[index]['selected'] = true;
     }
-    loadGoogleBackups(googleBackups);
+    loadGoogleBackups(googleBackups, false);
   }
 
   bool onGoogleProcess = false;
@@ -256,7 +259,7 @@ class Status with ChangeNotifier {
           googleBackups[1]['date'] == null) {
         googleBackups.clear();
       }
-      loadGoogleBackups(googleBackups);
+      loadGoogleBackups(googleBackups, false);
     } else {
       Provider.of<Preferences>(context, listen: false)
           .toggleGDErrorStatus(true);
