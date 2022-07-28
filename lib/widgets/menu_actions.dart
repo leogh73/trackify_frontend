@@ -124,26 +124,6 @@ class ActionsMenu extends StatelessWidget {
     _screenPopToast(context, "Selección archivada");
   }
 
-  // void _restoreTracking(context, String screen) {
-  //   tracking.archived = false;
-  //   selectProvider(context, "main").restoreTracking(tracking);
-  //   selectProvider(context, screen).removeTracking(tracking);
-  //   _screenPopToast(context, "Seguimiento restaurado");
-  // }
-
-  // void _restoreSelection(context, screen) {
-  //   List<ItemTracking> selection =
-  //       selectProvider(context, screen).selectionElements;
-  //   for (var element in selection) {
-  //     element.selected = false;
-  //     element.archived = false;
-  //     selectProvider(context, "main").restoreTracking(element);
-  //   }
-  //   selectProvider(context, screen).removeSelection();
-  //   selectProvider(context, screen).toggleSelectionMode();
-  //   _screenPopToast(context, "Selección restaurada");
-  // }
-
   void _displayDialog(context, String screen, String action, bool selection) {
     showDialog<String>(
       context: context,

@@ -52,7 +52,10 @@ class DataCheck {
       } else {
         return itemResponse;
       }
-    } else if (response.statusCode == 204) {
+    } else if (response.statusCode == 404) {
+      tracking.checkError = true;
+      Provider.of<ActiveTrackings>(context, listen: false)
+          .removeTracking([tracking], context);
       ShowDialog(context).trackingError(tracking.service);
     } else {
       ShowDialog(context).startCheckError();

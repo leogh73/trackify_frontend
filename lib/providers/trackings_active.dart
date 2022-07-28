@@ -92,9 +92,9 @@ class ActiveTrackings extends ChangeNotifier {
       List<ItemTracking> trackingList, BuildContext context) async {
     List<String> trackingIds = [];
     for (var tracking in trackingList) {
-      storedData.removeMainTracking(tracking);
       _trackings.remove(tracking);
       if (!tracking.checkError!) {
+        storedData.removeMainTracking(tracking);
         trackingIds.add(tracking.idMDB!);
       }
     }
@@ -190,7 +190,6 @@ class ActiveTrackings extends ChangeNotifier {
       body: {'trackingId': trackingId},
     );
     var response = json.decode(consult.body);
-    print(response);
     int index = _trackings.indexWhere((t) => t.idMDB == trackingId);
     trackingCheckUpdate(index, response);
     if (consult.statusCode == 200) {

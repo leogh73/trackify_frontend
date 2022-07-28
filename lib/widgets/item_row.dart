@@ -404,14 +404,14 @@ class _ItemRowState extends State<ItemRow> {
                                           children: [
                                             Container(
                                               width: isPortrait
-                                                  ? screenWidth * 0.404
+                                                  ? screenWidth * 0.441
                                                   : screenWidth * 0.275,
                                               padding: const EdgeInsets.only(
                                                   top: 2, bottom: 2),
                                               // width: 158,
                                               child: Text(
                                                 widget.tracking.startCheck!,
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow: TextOverflow.clip,
                                                 style: TextStyle(
                                                   fontSize: fullHD ? 16 : 15,
                                                 ),
