@@ -162,7 +162,7 @@ class _ContactFormState extends State<ContactForm> {
                   autofocus: false,
                   validator: (value) {
                     if (value == null || value.length < 3) {
-                      return 'Ingrese un nombre de servicio válido';
+                      return 'Ingrese un mensage';
                     }
                     return null;
                   },
