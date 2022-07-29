@@ -28,7 +28,6 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
 
   List<Map<String, dynamic>> loadFetchedData(response, bool login) {
     Map<String, dynamic> googleData = json.decode(response.body);
-    print(googleData);
     if (googleData['backups'].isNotEmpty) {
       Provider.of<Status>(context, listen: false)
           .loadGoogleBackups(googleData['backups'], login);
