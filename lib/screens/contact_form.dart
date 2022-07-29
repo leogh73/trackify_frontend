@@ -3,27 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/database.dart';
+import 'package:trackify/providers/classes.dart';
 
 import '../providers/preferences.dart';
+import '../providers/theme.dart';
 
 import '../widgets/ad_banner.dart';
 import '../widgets/dialog_and_toast.dart';
 
-class ServiceRequest extends StatefulWidget {
-  const ServiceRequest({Key? key}) : super(key: key);
+class ContactForm extends StatefulWidget {
+  const ContactForm({Key? key}) : super(key: key);
 
   @override
-  State<ServiceRequest> createState() => _ServiceRequestState();
+  State<ContactForm> createState() => _ContactFormState();
 }
 
-class _ServiceRequestState extends State<ServiceRequest> {
+class _ContactFormState extends State<ContactForm> {
   bool formSuccess = false;
   int index = 0;
+  late Color mainColor;
+
+  void loadColor() async {
+    mainColor =
+        ColorItem.load([...await StoredData().loadUserPreferences()][0].color);
+  }
 
   final _formKey = GlobalKey<FormState>();
 
-  final service = TextEditingController();
-  final code = TextEditingController();
+  final message = TextEditingController();
   final email = TextEditingController();
 
   void sendingDialog(fullHD) {
@@ -76,14 +84,13 @@ class _ServiceRequestState extends State<ServiceRequest> {
       sendingDialog(fullHD);
       var requestEmail = 'Sin datos';
       if (email.text.isNotEmpty) requestEmail = email.text;
-      String url = '${dotenv.env['API_URL']}/api/user/request/';
+      String url = '${dotenv.env['API_URL']}/api/user/contact/';
       String userId = Provider.of<Preferences>(context, listen: false).userId;
       var response = await http.Client().post(
         Uri.parse(url.toString()),
         body: {
           'userId': userId,
-          'service': service.text,
-          'code': code.text,
+          'message': message.text,
           'email': requestEmail,
         },
       );
@@ -102,7 +109,9 @@ class _ServiceRequestState extends State<ServiceRequest> {
     }
   }
 
-  Widget requestForm(fullHD) {
+  Widget requestForm(bool fullHD) {
+    MaterialColor mainColor =
+        Provider.of<UserTheme>(context, listen: false).startColor;
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(
@@ -118,8 +127,8 @@ class _ServiceRequestState extends State<ServiceRequest> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Sabemos que existen muchos más servicios de transporte de los que te ofrecemos. Si necesitás hacer un seguimiento de un servicio no disponible, podés completar el siguiente formulario, y de ser posible, agregaremos soporte para dicho servicio en una próxima actualización.",
-                    maxLines: 7,
+                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremmos soporte para el mismo, en una próxima actualización.",
+                    maxLines: 12,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: fullHD ? 17 : 16,
@@ -127,7 +136,7 @@ class _ServiceRequestState extends State<ServiceRequest> {
                   ),
                   Text(
                     "Advertencia: si haces mal uso de éste formulario, serás baneado.",
-                    maxLines: 7,
+                    maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.red[400],
@@ -137,15 +146,18 @@ class _ServiceRequestState extends State<ServiceRequest> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.only(top: 10),
                 child: TextFormField(
-                  focusNode: FocusNode(),
-                  decoration: const InputDecoration(
-                    labelText: "Nombre del servicio",
-                    hintText: 'Ejemplo: "Hacha de Piedra"',
-                    contentPadding: EdgeInsets.only(top: 5),
-                  ),
-                  controller: service,
+                  maxLines: 5,
+                  // focusNode: FocusNode(),
+                  decoration: InputDecoration(
+                      hintText: "Escriba su mensaje",
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        width: 1,
+                        color: mainColor,
+                      ))),
+                  controller: message,
                   textInputAction: TextInputAction.next,
                   autofocus: false,
                   validator: (value) {
@@ -159,30 +171,9 @@ class _ServiceRequestState extends State<ServiceRequest> {
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: TextFormField(
-                  focusNode: FocusNode(),
-                  decoration: const InputDecoration(
-                    labelText: "Código",
-                    hintText: 'Asegúrate de que funcione',
-                    contentPadding: EdgeInsets.only(top: 5),
-                  ),
-                  controller: code,
-                  textInputAction: TextInputAction.next,
-                  autofocus: false,
-                  validator: (value) {
-                    if (value == null || value.length < 8) {
-                      return 'Ingrese un código de seguimiento válido';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: TextFormField(
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.only(top: 5),
                     labelText: "Email de contacto (opcional)",
-                    hintText: "Por si hay problemas con los datos que mandes.",
                   ),
                   controller: email,
                   textInputAction: TextInputAction.next,
@@ -239,8 +230,17 @@ class _ServiceRequestState extends State<ServiceRequest> {
               const Icon(Icons.done_all, size: 80),
               const Padding(
                 child: Text(
-                  'Los datos fueron enviados correctamente. Muchísimas gracias por su colaboración.',
+                  'Su mensaje fue enviado correctamente.',
                   style: TextStyle(fontSize: 22),
+                  textAlign: TextAlign.center,
+                ),
+                padding: EdgeInsets.all(20),
+              ),
+              const Padding(
+                child: Text(
+                  'Muchas gracias por su colaboración.',
+                  style: TextStyle(fontSize: 22),
+                  textAlign: TextAlign.center,
                 ),
                 padding: EdgeInsets.all(20),
               ),
@@ -287,7 +287,7 @@ class _ServiceRequestState extends State<ServiceRequest> {
 
   @override
   Widget build(BuildContext context) {
-    // var listView = "main";
+    ;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -299,7 +299,7 @@ class _ServiceRequestState extends State<ServiceRequest> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: const Text('Ayúdanos a crecer'),
+        title: const Text('Contáctanos'),
         actions: [
           if (!formSuccess)
             IconButton(

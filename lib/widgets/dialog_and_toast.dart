@@ -1,7 +1,6 @@
-import 'dart:html';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 class ShowDialog {
@@ -149,6 +148,26 @@ class ShowDialog {
                     fontSize: fullHD ? 16 : 15,
                   ),
                 ),
+              ),
+              Container(
+                width: 245,
+                padding: const EdgeInsets.only(bottom: 12, top: 8),
+                child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(children: [
+                      TextSpan(
+                          text: 'Política de privacidad',
+                          style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pop(context);
+                              Navigator.of(context)
+                                  .pushNamed("/privacy_policy");
+                            })
+                    ])),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

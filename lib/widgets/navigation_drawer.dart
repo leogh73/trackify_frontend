@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:trackify/screens/service_request.dart';
+import 'package:trackify/screens/contact_form.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 
 import '../providers/preferences.dart';
@@ -117,8 +117,8 @@ class NavigationDrawer extends StatelessWidget {
               const Main(), true, false),
           DrawerOption(Icons.archive, "Archivados ($archivedAmount)",
               const Archived(), false, false),
-          const DrawerOption(Icons.tag_faces, 'Ayúdanos a crecer',
-              ServiceRequest(), false, false),
+          const DrawerOption(
+              Icons.mail_outline, 'Contáctanos', ContactForm(), false, false),
           DrawerOption(Icons.info_outline, 'Acerca de ésta aplicación',
               ShowDialog(context).about, false, true),
         ],

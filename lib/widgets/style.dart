@@ -214,7 +214,7 @@ class _StyleListState extends State<StyleList> {
                       .loadNewView(chosenView);
                   // ListaElegida(chosenView);
                 },
-                child: ListaTipo(viewTypes[index]),
+                child: ListType(viewTypes[index]),
               ),
             ),
           ),
@@ -224,10 +224,10 @@ class _StyleListState extends State<StyleList> {
   }
 }
 
-class ListaTipo extends StatelessWidget {
+class ListType extends StatelessWidget {
   final ListModelType _itemLista;
 
-  const ListaTipo(this._itemLista, {Key? key}) : super(key: key);
+  const ListType(this._itemLista, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
