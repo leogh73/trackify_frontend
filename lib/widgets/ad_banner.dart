@@ -16,21 +16,21 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    // banner = BannerAd(
-    //   adUnitId: "${dotenv.env['AD_BANNER_UNIT_ID']}",
-    //   size: AdSize.fullBanner,
-    //   request: const AdRequest(),
-    //   listener: BannerAdListener(onAdLoaded: (ad) {
-    //     setState(() {
-    //       isAdLoaded = true;
-    //     });
-    //     print('Ad loaded:${ad.adUnitId}');
-    //   }, onAdFailedToLoad: (ad, error) {
-    //     ad.dispose();
-    //     print('failedToLoad');
-    //   }),
-    // );
-    // banner.load();
+    banner = BannerAd(
+      adUnitId: "${dotenv.env['AD_BANNER_UNIT_ID']}",
+      size: AdSize.fullBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isAdLoaded = true;
+        });
+        print('Ad loaded:${ad.adUnitId}');
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print('failedToLoad');
+      }),
+    );
+    banner.load();
   }
 
   @override
