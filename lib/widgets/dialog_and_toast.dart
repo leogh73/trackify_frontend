@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 class ShowDialog {
@@ -12,6 +12,15 @@ class ShowDialog {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return fullHD;
+  }
+
+  Future<void> _launchUrl() async {
+    String url =
+        "https://github.com/leogh73/trackify_frontend/blob/master/PRIVACY_POLICY.md";
+    if (!await launchUrl(Uri.parse(url),
+        mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
   }
 
   void errorDialog(String message, bool disabledUser, bool fullHD) {
@@ -156,17 +165,13 @@ class ShowDialog {
                     textAlign: TextAlign.center,
                     text: TextSpan(children: [
                       TextSpan(
-                          text: 'Política de privacidad',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.pop(context);
-                              Navigator.of(context)
-                                  .pushNamed("/privacy_policy");
-                            })
+                        text: 'Política de privacidad',
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline),
+                        recognizer: TapGestureRecognizer()..onTap = _launchUrl,
+                      )
                     ])),
               ),
               Row(
