@@ -151,7 +151,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Versión 1.0.0",
+                  "Versión 1.0.1",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
