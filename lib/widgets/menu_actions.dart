@@ -260,9 +260,9 @@ class ActionsMenu extends StatelessWidget {
                   case 'Seleccionar':
                     _activateSelectionMode(context, tracking, screen);
                     break;
-                  case 'Compartir':
-                    // _editTracking(context);
-                    break;
+                  // case 'Compartir':
+                  //   _editTracking(context);
+                  //   break;
                   case 'Archivar':
                     _displayDialog(context, screen, "archivar", false);
                     break;
@@ -279,8 +279,8 @@ class ActionsMenu extends StatelessWidget {
                 optionMenu('Editar', context, Icons.edit),
                 if (!detail)
                   optionMenu('Seleccionar', context, Icons.select_all_sharp),
-                if (!tracking.checkError!)
-                  optionMenu('Compartir', context, Icons.share),
+                // if (!tracking.checkError!)
+                //   optionMenu('Compartir', context, Icons.share),
                 if (!tracking.checkError!)
                   optionMenu("Archivar", context, Icons.archive),
                 optionMenu('Eliminar', context, Icons.delete),
@@ -345,8 +345,8 @@ class ActionsMenu extends StatelessWidget {
                   optionMenu('Más datos', context, Icons.info),
                 if (!detail)
                   optionMenu('Seleccionar', context, Icons.select_all_sharp),
-                if (!tracking.checkError!)
-                  optionMenu('Compartir', context, Icons.share),
+                // if (!tracking.checkError!)
+                //   optionMenu('Compartir', context, Icons.share),
                 if (!tracking.checkError!)
                   optionMenu('Restaurar', context, Icons.restore),
                 optionMenu('Eliminar', context, Icons.delete),

@@ -28,8 +28,8 @@ class DataCheck {
 
   Future startCheck() async {
     String userId = Provider.of<Preferences>(context, listen: false).userId;
-    String url = "${dotenv.env['API_URL']}/api/user/$userId/add/";
-    // String url = "http://10.0.2.2:3000/api/user/$userId/add/";
+    // String url = "${dotenv.env['API_URL']}/api/user/trackingtest/";
+    String url = "http://10.0.2.2:3000/api/user/$userId/add/";
     var response = await http.Client().post(Uri.parse(url), body: {
       'title': tracking.title,
       'service': tracking.service,

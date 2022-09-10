@@ -6,7 +6,6 @@ import 'package:overlay_support/overlay_support.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:trackify/screens/privacy_policy.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -207,7 +206,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         Main.routeName: (context) => const Main(),
         Archived.routeName: (context) => const Archived(),
         Search.routeName: (context) => const Search(),
-        PrivacyPolicy.routeName: (context) => const PrivacyPolicy(),
       },
     );
   }
