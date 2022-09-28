@@ -114,7 +114,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         .getInitialMessage()
         .then((RemoteMessage? message) {
       if (message != null) {
-        print("initialMessage");
         activeTrackings.loadNotificationData(false, message,
             navigatorKey.currentState, navigatorKey.currentContext!);
       }
@@ -123,13 +122,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
-        print("onMessage");
         activeTrackings.loadNotificationData(true, message,
             navigatorKey.currentState, navigatorKey.currentContext!);
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("messageOpened");
       activeTrackings.loadNotificationData(false, message,
           navigatorKey.currentState, navigatorKey.currentContext!);
     });

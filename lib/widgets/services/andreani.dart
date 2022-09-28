@@ -32,7 +32,6 @@ class DataAndreani {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
-    print(events);
     List<String> lastVisit = [
       data["visits"]['visits'].isNotEmpty
           ? data["visits"]['visits'][0]["date"]
