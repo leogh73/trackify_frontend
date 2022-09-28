@@ -14,9 +14,18 @@ class ShowDialog {
     return fullHD;
   }
 
-  Future<void> _launchUrl() async {
+  Future<void> _launchPrivacyPolicy() async {
     String url =
         "https://github.com/leogh73/trackify_frontend/blob/master/PRIVACY_POLICY.md";
+    if (!await launchUrl(Uri.parse(url),
+        mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> _launchPlayStore() async {
+    String url =
+        "https://play.google.com/store/apps/details?id=com.leogh73.trackify";
     if (!await launchUrl(Uri.parse(url),
         mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
@@ -151,7 +160,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Versión 1.0.1",
+                  "Versión 1.0.2",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -170,7 +179,25 @@ class ShowDialog {
                             fontSize: 16,
                             color: Colors.blue,
                             decoration: TextDecoration.underline),
-                        recognizer: TapGestureRecognizer()..onTap = _launchUrl,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = _launchPrivacyPolicy,
+                      )
+                    ])),
+              ),
+              Container(
+                width: 245,
+                padding: const EdgeInsets.only(bottom: 12, top: 8),
+                child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: 'Califíquenos',
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = _launchPlayStore,
                       )
                     ])),
               ),

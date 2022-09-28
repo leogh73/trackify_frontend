@@ -310,8 +310,7 @@ class ActiveTrackings extends ChangeNotifier {
     var decodedData = json.decode(response.body);
     print(decodedData);
     if (decodedData['error'] == "User not found") {
-      changeStartError("User not found");
-      return;
+      return changeStartError("User not found");
     }
     if (decodedData['driveStatus'] == "Update required" ||
         decodedData['driveStatus'] == 'Backup not found') {

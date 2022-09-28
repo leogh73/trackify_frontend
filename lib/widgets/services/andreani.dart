@@ -14,6 +14,7 @@ class DataAndreani {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
+    // print(eventsResponse);
     eventsResponse.forEach((e) => {
           event = {
             "date": e["date"],
@@ -32,9 +33,15 @@ class DataAndreani {
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
     List<String> lastVisit = [
-      data["visits"]?["visits"][0]["date"] ?? "Sin datos",
-      data["visits"]?["visits"][0]["time"] ?? "Sin datos",
-      data["visits"]?["visits"][0]["motive"] ?? "Sin datos",
+      data["visits"]['visits'].isNotEmpty
+          ? data["visits"][0]["date"]
+          : "Sin datos",
+      data["visits"]['visits'].isNotEmpty
+          ? data["visits"][0]["time"]
+          : "Sin datos",
+      data["visits"]['visits'].isNotEmpty
+          ? data["visits"][0]["motive"]
+          : "Sin datos",
     ];
     List<String> pendingVisits = [
       data["visits"]?["pendingVisits"].toString() ?? "Sin datos"
