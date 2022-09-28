@@ -32,15 +32,16 @@ class DataAndreani {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
+    print(events);
     List<String> lastVisit = [
       data["visits"]['visits'].isNotEmpty
-          ? data["visits"][0]["date"]
+          ? data["visits"]['visits'][0]["date"]
           : "Sin datos",
       data["visits"]['visits'].isNotEmpty
-          ? data["visits"][0]["time"]
+          ? data["visits"]['visits'][0]["time"]
           : "Sin datos",
       data["visits"]['visits'].isNotEmpty
-          ? data["visits"][0]["motive"]
+          ? data["visits"]['visits'][0]["motive"]
           : "Sin datos",
     ];
     List<String> pendingVisits = [
