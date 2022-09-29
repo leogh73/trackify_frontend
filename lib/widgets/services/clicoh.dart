@@ -31,17 +31,12 @@ class DataClicOh {
     List<Map<String, String>> events = generateEventList(data['events']);
     List<String> origin = [
       data['origin']['address'],
-      data['origin']['locality'],
       data['origin']['country'],
-      data['origin']['street_number'],
-      data['origin']['administrative_area_level_1'],
-      data['origin']['postal_code']
     ];
     List<String> destiny = [
       data['destiny']['address'],
       data['destiny']['locality'],
       data['destiny']['country'],
-      data['destiny']['street_number'],
       data['destiny']['administrative_area_level_1'],
       data['destiny']['postal_code']
     ];
@@ -54,10 +49,7 @@ class DataClicOh {
       data['receiver']['address']
     ];
     List<String> other = [
-      data['otherData']['pickupPoint'],
       data['otherData']['clientName'],
-      data['otherData']['serviceType'],
-      data['otherData']['secretCodeConfirmed'],
     ];
     otherData.add(origin);
     otherData.add(destiny);
@@ -102,11 +94,7 @@ class MoreDataClicOh extends StatelessWidget {
               otherData![0],
               [
                 "Dirección",
-                "Localidad",
                 "País",
-                "Altura",
-                "Provincia",
-                "Código Postal"
               ],
             ).createTable(),
             "ORIGEN",
@@ -114,14 +102,7 @@ class MoreDataClicOh extends StatelessWidget {
           OtherData(
             DataRowHandler(
               otherData![1],
-              [
-                "Dirección",
-                "Localidad",
-                "País",
-                "Altura",
-                "Provincia",
-                "Código Postal"
-              ],
+              ["Dirección", "Localidad", "País", "Provincia", "Código Postal"],
             ).createTable(),
             "DESTINO",
           ),
@@ -143,10 +124,7 @@ class MoreDataClicOh extends StatelessWidget {
             DataRowHandler(
               otherData![3],
               [
-                "Punto de recogida",
                 "Nombre del remitente",
-                "Tipo de servicio",
-                "Codigo secreto confirmado",
               ],
             ).createTable(),
             "OTROS DATOS",

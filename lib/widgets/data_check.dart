@@ -45,7 +45,6 @@ class DataCheck {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       ItemResponseData itemResponse = Response.start(tracking.service, data);
-      print(itemResponse);
       if (retry) {
         Provider.of<ActiveTrackings>(context, listen: false)
             .loadStartData(tracking, itemResponse);
