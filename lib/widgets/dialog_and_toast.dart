@@ -148,7 +148,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Trackify",
+                  "TrackeAR",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -324,6 +324,14 @@ class ShowDialog {
     errorDialog(
       "Ésta instalación de la aplicación fue deshabilitada por inactividad. Para poder utilizarla nuevamente, eliminelá y vuelva a instalarla.",
       true,
+      fullHD(),
+    );
+  }
+
+  void serviceCAWarning() {
+    errorDialog(
+      "Éste servicio sólo funciona con códigos generados por MercadoLibre. Los códigos generados por Correo Argentino, no pueden agregarse ya que el sitio tiene verificación con reCaptcha. Disculpe las molestias.",
+      false,
       fullHD(),
     );
   }

@@ -27,8 +27,11 @@ class Status with ChangeNotifier {
   late String? loadedService;
   String? get chosenService => loadedService;
 
-  void loadService(ServiceItemModel service) {
+  void loadService(ServiceItemModel service, BuildContext context) {
     loadedService = service.chosen;
+    if (service.chosen == "Correo Argentino") {
+      ShowDialog(context).serviceCAWarning();
+    }
     notifyListeners();
   }
 

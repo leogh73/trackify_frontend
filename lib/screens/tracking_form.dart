@@ -288,7 +288,8 @@ class _SelectServiceState extends State<SelectService> {
           loadedService = service!;
         });
         if (widget.chosen == false) {
-          Provider.of<Status>(context, listen: false).loadService(service!);
+          Provider.of<Status>(context, listen: false)
+              .loadService(service!, context);
         }
       },
       items: services
@@ -306,17 +307,50 @@ class ServiceItemModel {
 }
 
 final List<ServiceItemModel> services = [
-  ServiceItemModel(Image.asset('assets/services/andreani.png'), "Andreani"),
-  ServiceItemModel(Image.asset('assets/services/clicoh.png'), "ClicOh"),
-  ServiceItemModel(Image.asset('assets/services/ca.png'), "Correo Argentino"),
-  ServiceItemModel(Image.asset('assets/services/dhl.png'), "DHL"),
-  ServiceItemModel(Image.asset('assets/services/ecapack.png'), "EcaPack"),
-  ServiceItemModel(Image.asset('assets/services/fasttrack.png'), "FastTrack"),
-  ServiceItemModel(Image.asset('assets/services/oca.png'), "OCA"),
-  ServiceItemModel(Image.asset('assets/services/ocasa.png'), "OCASA"),
-  ServiceItemModel(Image.asset('assets/services/renaper.png'), "Renaper"),
-  ServiceItemModel(Image.asset('assets/services/urbano.png'), "Urbano"),
-  ServiceItemModel(Image.asset('assets/services/via_cargo.png'), "ViaCargo"),
+  ServiceItemModel(
+    Image.asset('assets/services/andreani.png'),
+    "Andreani",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/clicoh.png'),
+    "ClicOh",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/ca.png'),
+    "Correo Argentino",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/dhl.png'),
+    "DHL",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/ecapack.png'),
+    "EcaPack",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/fasttrack.png'),
+    "FastTrack",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/oca.png'),
+    "OCA",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/ocasa.png'),
+    "OCASA",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/renaper.png'),
+    "Renaper",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/urbano.png'),
+    "Urbano",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/via_cargo.png'),
+    "ViaCargo",
+  ),
 ];
 
 class ServiceImage {

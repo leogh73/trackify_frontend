@@ -77,7 +77,7 @@ class NavigationDrawer extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Trackify',
+                      'TrackeAR',
                       style: TextStyle(
                           color: Theme.of(context).primaryColorDark,
                           fontSize: 25.0),

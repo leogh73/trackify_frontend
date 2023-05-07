@@ -127,7 +127,7 @@ class _ContactFormState extends State<ContactForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremmos soporte para el mismo, en una próxima actualización.",
+                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremos soporte para el mismo, en una próxima actualización.",
                     maxLines: 12,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

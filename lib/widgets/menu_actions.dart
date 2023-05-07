@@ -80,10 +80,9 @@ class ActionsMenu extends StatelessWidget {
       ),
     );
     ServiceItemModel serviceEdit = ServiceItemModel(
-      ServiceImage(tracking.service).load(),
-      tracking.service,
-    );
-    Provider.of<Status>(context, listen: false).loadService(serviceEdit);
+        ServiceImage(tracking.service).load(), tracking.service);
+    Provider.of<Status>(context, listen: false)
+        .loadService(serviceEdit, context);
   }
 
   void _activateSelectionMode(context, ItemTracking tracking, String screen) {
