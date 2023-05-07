@@ -166,7 +166,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
-      primary: mainColor,
+      backgroundColor: mainColor,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
