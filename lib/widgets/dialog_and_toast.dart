@@ -330,7 +330,7 @@ class ShowDialog {
 
   void serviceCAWarning() {
     errorDialog(
-      "Éste servicio sólo funciona con códigos generados por MercadoLibre. Los códigos generados por Correo Argentino, no pueden agregarse ya que el sitio tiene verificación con reCaptcha. Disculpe las molestias.",
+      "Éste servicio sólo funciona con códigos generados por MercadoLibre. Los códigos generados por Correo Argentino, no pueden agregarse ya que su sitio tiene verificación con reCaptcha. Disculpe las molestias.",
       false,
       fullHD(),
     );

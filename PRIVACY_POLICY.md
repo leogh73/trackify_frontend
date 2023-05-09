@@ -2,8 +2,8 @@
 
 ### Introducción
 
-Nuestra política de privacidad lo ayudará a comprender qué información recopila Trackify, cómo la usa y qué opciones tiene.
-El desarrollador creó la aplicación Trackify como una aplicación gratuita. Este SERVICIO es proporcionado por el desarrollador sin costo y está diseñado para usarse tal cual.
+Nuestra política de privacidad lo ayudará a comprender qué información recopila TrackeAR, cómo la usa y qué opciones tiene.
+El desarrollador creó la aplicación TrackeAR como una aplicación gratuita. Este SERVICIO es proporcionado por el desarrollador sin costo y está diseñado para usarse tal cual.
 Si elige utilizar nuestro Servicio, acepta la recopilación y el uso de información en relación con esta política. La información personal que recopilamos se utiliza para proporcionar y mejorar el Servicio. No usaremos ni compartiremos su información con nadie excepto como se describe en esta Política de privacidad.
 Los términos utilizados en esta Política de privacidad tienen los mismos significados que en nuestros Términos y condiciones, a los que se puede acceder en nuestra aplicación, a menos que se defina lo contrario en esta Política de privacidad.
 

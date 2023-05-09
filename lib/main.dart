@@ -36,12 +36,12 @@ void main() async {
       ));
 
   runApp(
-    Phoenix(child: const Trackify()),
+    Phoenix(child: const TrackeAR()),
   );
 }
 
-class Trackify extends StatelessWidget {
-  const Trackify({Key? key}) : super(key: key);
+class TrackeAR extends StatelessWidget {
+  const TrackeAR({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +174,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     );
 
     return MaterialApp(
-      title: 'Trackify',
+      title: 'TrackeAR',
       navigatorKey: navigatorKey,
       theme: ThemeData(
         floatingActionButtonTheme:
