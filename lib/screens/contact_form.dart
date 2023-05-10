@@ -79,7 +79,7 @@ class _ContactFormState extends State<ContactForm> {
 
   void _sendRequest(fullHD) async {
     if (_formKey.currentState?.validate() == false) {
-      ShowDialog(context).formError();
+      return ShowDialog(context).formError();
     } else {
       sendingDialog(fullHD);
       var requestEmail = 'Sin datos';
@@ -161,7 +161,9 @@ class _ContactFormState extends State<ContactForm> {
                   textInputAction: TextInputAction.next,
                   autofocus: false,
                   validator: (value) {
-                    if (value == null || value.length < 3) {
+                    if (value == null ||
+                        value.trim() == '' ||
+                        value.length < 3) {
                       return 'Ingrese un mensage';
                     }
                     return null;
