@@ -307,7 +307,6 @@ class ActiveTrackings extends ChangeNotifier {
       },
     );
     var decodedData = json.decode(response.body);
-    print(decodedData);
     if (decodedData['error'] == "User not found") {
       return changeStartError("User not found");
     }
