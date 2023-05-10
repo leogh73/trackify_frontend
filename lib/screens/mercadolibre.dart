@@ -147,15 +147,17 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
   late WebViewController controller;
 
   void urlChangeHandler(BuildContext context, String url) {
-    if (widget.action == "login" &&
-        url.startsWith("https://www.mercadolibre.com.ar/?code")) {
+    print(url);
+    if (widget.action == "login" && url.contains("code=")) {
       RegExp regExp = RegExp("code=(.*)");
       String? code = regExp.firstMatch(url)?.group(1);
+      print(code);
       Provider.of<Preferences>(context, listen: false)
           .initializeMeLi(context, code!);
       Navigator.of(context).pop();
-    } else if (widget.action == "logout" &&
-        url == 'https://www.mercadolibre.com.ar/') {
+    } else if (widget.action == "logout" ||
+        url ==
+            'meli://home?d2id=0b02946e-8b45-4ea4-aa85-cc1d037e8af3#in_app_all=true&in_app_d2id=0b02946e-8b45-4ea4-aa85-cc1d037e8af3') {
       Provider.of<Preferences>(context, listen: false).toggleMeLiStatus(false);
       Navigator.of(context).pop();
     }
@@ -168,7 +170,8 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
     if (Platform.isIOS) WebView.platform = CupertinoWebView();
     if (widget.action == "login") {
       destinyUrl =
-          "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://mercadolibre.com.ar";
+          // 'https://myaccount.mercadolibre.com.ar/';
+          "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://trackear.vercel.app";
     } else {
       destinyUrl = 'https://myaccount.mercadolibre.com.ar/';
     }
@@ -182,6 +185,7 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
         this.controller = controller;
       },
       onPageFinished: (url) {
+        print(url);
         urlChangeHandler(context, url);
       },
     );

@@ -53,7 +53,6 @@ class _MeLiCheckState extends State<MeLiCheck> {
   }
 
   Future loadMoreItems() async {
-    // String _userId = Provider.of<ActiveTrackings>(context, listen: false).userId;
     setState(() {
       indexLoadMore = indexLoadMore + 10;
     });
@@ -66,7 +65,6 @@ class _MeLiCheckState extends State<MeLiCheck> {
       Object id = totalShippingsData[i];
       shippingCheck.add(id);
     }
-    // String url = '';
     var response = await http.Client().post(
         Uri.parse("${dotenv.env['API_URL']}/api/mercadolibre/loadmore"),
         body: {
@@ -90,7 +88,6 @@ class _MeLiCheckState extends State<MeLiCheck> {
 
   Future checkData(String checkInput) async {
     String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    // String url = '';
     var response = await http.Client().post(
         Uri.parse("${dotenv.env['API_URL']}/api/mercadolibre/consult"),
         body: {
@@ -148,43 +145,58 @@ class _MeLiCheckState extends State<MeLiCheck> {
       future: checkInput,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Column(
-            children: [
-              Expanded(
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: checkRemainingItems,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 6),
-                    itemCount: itemsList.length,
-                    itemBuilder: (context, index) =>
-                        MercadoLibreItem(itemsList[index]),
-                  ),
-                ),
-              ),
-              if (endOfList)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8, top: 8),
-                    child: Text(
-                      'No hay más datos',
-                      style: TextStyle(
-                          color: Theme.of(context).primaryColor, fontSize: 14),
-                    ),
-                  ),
-                ),
-              if (loadMore)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 22, bottom: 22),
-                    child: SizedBox(
-                      height: 32,
-                      width: 32,
-                      child: CircularProgressIndicator(),
-                    ),
+          return itemsList.isEmpty && totalShippingsData.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.local_shipping_outlined, size: 80),
+                      const SizedBox(width: 40, height: 40),
+                      Text(
+                        "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                    ],
                   ),
                 )
-            ],
-          );
+              : Column(
+                  children: [
+                    Expanded(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: checkRemainingItems,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(top: 6),
+                          itemCount: itemsList.length,
+                          itemBuilder: (context, index) =>
+                              MercadoLibreItem(itemsList[index]),
+                        ),
+                      ),
+                    ),
+                    if (endOfList)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          child: Text(
+                            'No hay más datos',
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    if (loadMore)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 22, bottom: 22),
+                          child: SizedBox(
+                            height: 32,
+                            width: 32,
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      )
+                  ],
+                );
         } else {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,

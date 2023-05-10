@@ -278,7 +278,6 @@ class ActiveTrackings extends ChangeNotifier {
   void sincronizeUserData(BuildContext? context) async {
     print("sincronize trackings");
     String url = "${dotenv.env['API_URL']}/api/user/sincronize/";
-    print(url);
     List<Object> lastEventsList = [];
     if (_trackings.isNotEmpty) {
       for (var element in _trackings) {
