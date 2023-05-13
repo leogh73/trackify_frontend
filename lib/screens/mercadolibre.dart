@@ -147,9 +147,6 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
   late WebViewController controller;
 
   void urlChangeHandler(BuildContext context, String url) {
-    if (url.startsWith("meli://webview/?url")) {
-      Navigator.of(context).pop();
-    }
     if (widget.action == "login" && url.contains("code=")) {
       RegExp regExp = url.contains("&state")
           ? RegExp(r'code=([^]*?)&state=')
@@ -159,7 +156,8 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
           .initializeMeLi(context, code!);
       Navigator.of(context).pop();
     } else if (widget.action == "logout" &&
-        url.startsWith("meli://webview/?url")) {
+        (url.startsWith("meli://webview/?url") ||
+            url.startsWith("meli://webview/?url"))) {
       Provider.of<Preferences>(context, listen: false).toggleMeLiStatus(false);
       Navigator.of(context).pop();
     }
@@ -174,7 +172,7 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
       destinyUrl =
           "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://trackear.vercel.app";
     } else {
-      destinyUrl = 'http://myaccount.mercadolibre.com.ar/';
+      destinyUrl = 'https://myaccount.mercadolibre.com.ar/';
     }
 
     webView = WebView(
