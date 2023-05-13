@@ -156,8 +156,8 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
           .initializeMeLi(context, code!);
       Navigator.of(context).pop();
     } else if (widget.action == "logout" &&
-        (url.startsWith("meli://webview/?url") ||
-            url.startsWith("meli://webview/?url"))) {
+        (url.startsWith("https://www.mercadolibre.com.ar/") ||
+            url.startsWith("meli://webview"))) {
       Provider.of<Preferences>(context, listen: false).toggleMeLiStatus(false);
       Navigator.of(context).pop();
     }
