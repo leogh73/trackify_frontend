@@ -83,14 +83,14 @@ class _ContactFormState extends State<ContactForm> {
     } else {
       sendingDialog(fullHD);
       var requestEmail = 'Sin datos';
-      if (email.text.isNotEmpty) requestEmail = email.text;
+      if (email.text.isNotEmpty) requestEmail = email.text.trim();
       String url = '${dotenv.env['API_URL']}/api/user/contact/';
       String userId = Provider.of<Preferences>(context, listen: false).userId;
       var response = await http.Client().post(
         Uri.parse(url.toString()),
         body: {
           'userId': userId,
-          'message': message.text,
+          'message': message.text.trim(),
           'email': requestEmail,
         },
       );
