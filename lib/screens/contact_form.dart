@@ -79,18 +79,18 @@ class _ContactFormState extends State<ContactForm> {
 
   void _sendRequest(fullHD) async {
     if (_formKey.currentState?.validate() == false) {
-      return ShowDialog(context).formError();
+      ShowDialog(context).formError();
     } else {
       sendingDialog(fullHD);
       var requestEmail = 'Sin datos';
-      if (email.text.isNotEmpty) requestEmail = email.text.trim();
+      if (email.text.isNotEmpty) requestEmail = email.text;
       String url = '${dotenv.env['API_URL']}/api/user/contact/';
       String userId = Provider.of<Preferences>(context, listen: false).userId;
       var response = await http.Client().post(
         Uri.parse(url.toString()),
         body: {
           'userId': userId,
-          'message': message.text.trim(),
+          'message': message.text,
           'email': requestEmail,
         },
       );
@@ -161,9 +161,7 @@ class _ContactFormState extends State<ContactForm> {
                   textInputAction: TextInputAction.next,
                   autofocus: false,
                   validator: (value) {
-                    if (value == null ||
-                        value.trim() == '' ||
-                        value.length < 3) {
+                    if (value == null || value.length < 3) {
                       return 'Ingrese un mensage';
                     }
                     return null;

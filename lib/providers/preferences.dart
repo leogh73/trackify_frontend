@@ -54,7 +54,6 @@ class Preferences with ChangeNotifier {
       'userId': _userId,
       'code': code,
     });
-    print(response.body);
     if (response.statusCode == 200) {
       toggleMeLiStatus(true);
     } else {

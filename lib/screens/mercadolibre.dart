@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import "package:flutter_dotenv/flutter_dotenv.dart";
 
 import '../providers/preferences.dart';
 import '../widgets/meli_check.dart';
@@ -140,7 +141,10 @@ class MercadoLibreSite extends StatefulWidget {
 }
 
 class _MercadoLibreSiteState extends State<MercadoLibreSite> {
-  late final WebViewController _controller;
+  late String destinyUrl;
+  late String listenUrl;
+  late WebView webView;
+  late WebViewController controller;
 
   void urlChangeHandler(BuildContext context, String url) {
     if (widget.action == "login" && url.contains("code=")) {
@@ -152,7 +156,8 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
           .initializeMeLi(context, code!);
       Navigator.of(context).pop();
     } else if (widget.action == "logout" &&
-        (url.startsWith("https://www.mercadolibre.com.ar/"))) {
+        (url.startsWith("https://www.mercadolibre.com") ||
+            url.startsWith("meli://home"))) {
       Provider.of<Preferences>(context, listen: false).toggleMeLiStatus(false);
       Navigator.of(context).pop();
     }
@@ -161,52 +166,27 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
   @override
   void initState() {
     super.initState();
-
-    late final PlatformWebViewControllerCreationParams params;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    if (Platform.isIOS) WebView.platform = CupertinoWebView();
+    if (widget.action == "login") {
+      destinyUrl =
+          "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://trackear.vercel.app";
     } else {
-      params = const PlatformWebViewControllerCreationParams();
+      destinyUrl = 'https://myaccount.mercadolibre.com.ar/';
     }
 
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
-
-    String destinyUrl = widget.action == "login"
-        ? "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://trackear.vercel.app"
-        : 'https://myaccount.mercadolibre.com.ar/';
-
-    controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: (NavigationRequest request) {
-            if (!request.url.contains('mercadolibre.com') &&
-                !request.url.contains("trackear.vercel.app")) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-          onUrlChange: (UrlChange change) {
-            urlChangeHandler(context, change.url!);
-          },
-        ),
-      )
-      ..addJavaScriptChannel(
-        'Toaster',
-        onMessageReceived: (JavaScriptMessage message) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
-          );
-        },
-      )
-      ..loadRequest(Uri.parse(destinyUrl));
-
-    _controller = controller;
+    webView = WebView(
+      initialUrl: destinyUrl,
+      javascriptMode: JavascriptMode.unrestricted,
+      initialMediaPlaybackPolicy:
+          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+      onWebViewCreated: (controller) {
+        this.controller = controller;
+      },
+      onPageFinished: (url) {
+        urlChangeHandler(context, url);
+      },
+    );
   }
 
   @override
@@ -219,8 +199,8 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
             : const Text("Acceder a MercadoLibre"),
         titleSpacing: 1.0,
       ),
-      body: WebViewWidget(controller: _controller),
-      bottomNavigationBar: const BannerAdWidget(),
+      body: webView,
+      // bottomNavigationBar: BannerAdWidget(),
     );
   }
 }

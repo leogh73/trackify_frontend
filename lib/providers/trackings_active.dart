@@ -70,24 +70,6 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void reintentarTrackingError(ItemTracking tracking) {
-  //   final newTracking = Tracking(
-  //     title: tracking.title,
-  //     id: DateTime.now().millisecondsSinceEpoch,
-  //     code: tracking.code,
-  //     service: tracking.service,
-  //   );
-  //   agregarTracking(newTracking);
-  //   eliminarTracking(tracking);
-  //   notifyListeners();
-  // }
-
-  // void restoreTracking(ItemTracking tracking) {
-  //   storedData.newMainTracking(tracking);
-  //   _trackings.insert(0, tracking);
-  //   notifyListeners();
-  // }
-
   void removeTracking(
       List<ItemTracking> trackingList, BuildContext context) async {
     List<String> trackingIds = [];
@@ -307,6 +289,7 @@ class ActiveTrackings extends ChangeNotifier {
       },
     );
     var decodedData = json.decode(response.body);
+    print(decodedData);
     if (decodedData['error'] == "User not found") {
       return changeStartError("User not found");
     }
