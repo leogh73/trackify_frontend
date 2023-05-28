@@ -16,10 +16,25 @@ import '../screens/mercadolibre.dart';
 import '../screens/googledrive.dart';
 
 class NavigationDrawer extends StatelessWidget {
-  const NavigationDrawer({Key? key}) : super(key: key);
+  final AdInterstitial interstitialAd1;
+  final AdInterstitial interstitialAd2;
+  final AdInterstitial interstitialAd3;
+  final AdInterstitial interstitialAd4;
+  final AdInterstitial interstitialAd5;
+  final AdInterstitial interstitialAd6;
+
+  const NavigationDrawer(
+      this.interstitialAd1,
+      this.interstitialAd2,
+      this.interstitialAd3,
+      this.interstitialAd4,
+      this.interstitialAd5,
+      this.interstitialAd6,
+      {Key? key})
+      : super(key: key);
 
   Widget optionAPI(VoidCallback openPage, Image imagen, double altura,
-      double ancho, bool estadoCuenta) {
+      double ancho, bool accountState) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
       child: InkWell(
@@ -35,7 +50,7 @@ class NavigationDrawer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(height: altura, width: ancho, child: imagen),
-              estadoCuenta
+              accountState
                   ? const Icon(Icons.account_circle_rounded)
                   : const Icon(Icons.account_circle_outlined),
             ],
@@ -47,8 +62,6 @@ class NavigationDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AdInterstitial interstitialAd = AdInterstitial();
-    interstitialAd.createInterstitialAd();
     final bool meliStatus = Provider.of<Preferences>(context).meLiStatus;
     final bool googleStatus = Provider.of<Preferences>(context).gdStatus;
     int mainAmount = Provider.of<ActiveTrackings>(context).trackings.length;
@@ -89,13 +102,13 @@ class NavigationDrawer extends StatelessWidget {
               )),
           optionAPI(
               () => {
-                    interstitialAd.showInterstitialAd(),
                     Navigator.pop(context),
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const GoogleDrive(),
-                        ))
+                        )),
+                    interstitialAd1.showInterstitialAd()
                   },
               Image.asset('assets/other/googledrive.png'),
               40,
@@ -103,7 +116,6 @@ class NavigationDrawer extends StatelessWidget {
               googleStatus),
           optionAPI(
             () => {
-              interstitialAd.showInterstitialAd(),
               Navigator.pop(context),
               Navigator.push(
                 context,
@@ -111,6 +123,7 @@ class NavigationDrawer extends StatelessWidget {
                   builder: (_) => const MercadoLibre(),
                 ),
               ),
+              interstitialAd2.showInterstitialAd()
             },
             Image.asset('assets/other/mercadolibre.png'),
             38,
@@ -118,13 +131,13 @@ class NavigationDrawer extends StatelessWidget {
             meliStatus,
           ),
           DrawerOption(Icons.local_shipping, "Activos ($mainAmount)",
-              const Main(), true, false, interstitialAd),
+              const Main(), true, false, interstitialAd3),
           DrawerOption(Icons.archive, "Archivados ($archivedAmount)",
-              const Archived(), false, false, interstitialAd),
+              const Archived(), false, false, interstitialAd4),
           DrawerOption(Icons.mail_outline, 'Contáctanos', const ContactForm(),
-              false, false, interstitialAd),
+              false, false, interstitialAd5),
           DrawerOption(Icons.info_outline, 'Acerca de ésta aplicación',
-              ShowDialog(context).about, false, true, null),
+              ShowDialog(context).about, false, true, AdInterstitial()),
         ],
       ),
     );
@@ -137,7 +150,7 @@ class DrawerOption extends StatelessWidget {
   final dynamic destiny;
   final bool main;
   final bool about;
-  final AdInterstitial? interstitialAd;
+  final AdInterstitial interstitialAd;
 
   const DrawerOption(this.icon, this.text, this.destiny, this.main, this.about,
       this.interstitialAd,
@@ -156,7 +169,7 @@ class DrawerOption extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () => {
-            interstitialAd?.showInterstitialAd(),
+            interstitialAd.showInterstitialAd(),
             if (main) Navigator.pop(context),
             if (!main && !about)
               {

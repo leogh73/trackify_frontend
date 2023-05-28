@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
@@ -10,13 +8,13 @@ import '../providers/status.dart';
 import 'tracking_form.dart';
 import 'search.dart';
 
-import 'package:trackify/widgets/ad_interstitial.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
+import '../widgets/dialog_and_toast.dart';
 import '../widgets/navigation_drawer.dart';
 import '../widgets/menu_appereance.dart';
 import '../widgets/list_select.dart';
 import '../widgets/menu_actions.dart';
 import '../widgets/ad_banner.dart';
+import '../widgets/ad_interstitial.dart';
 
 class Main extends StatefulWidget {
   static const routeName = "/main";
@@ -30,6 +28,13 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   AdInterstitial interstitialAd = AdInterstitial();
 
+  AdInterstitial interstitialAd1 = AdInterstitial();
+  AdInterstitial interstitialAd2 = AdInterstitial();
+  AdInterstitial interstitialAd3 = AdInterstitial();
+  AdInterstitial interstitialAd4 = AdInterstitial();
+  AdInterstitial interstitialAd5 = AdInterstitial();
+  AdInterstitial interstitialAd6 = AdInterstitial();
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +44,12 @@ class _MainState extends State<Main> {
       if (error == 'User not found') ShowDialog(context).disabledUserError();
     });
     interstitialAd.createInterstitialAd();
+    interstitialAd1.createInterstitialAd();
+    interstitialAd2.createInterstitialAd();
+    interstitialAd3.createInterstitialAd();
+    interstitialAd4.createInterstitialAd();
+    interstitialAd5.createInterstitialAd();
+    interstitialAd6.createInterstitialAd();
   }
 
   @override
@@ -60,7 +71,16 @@ class _MainState extends State<Main> {
     }
 
     return Scaffold(
-      drawer: error.isEmpty ? const NavigationDrawer() : null,
+      drawer: error.isEmpty
+          ? NavigationDrawer(
+              interstitialAd1,
+              interstitialAd2,
+              interstitialAd3,
+              interstitialAd4,
+              interstitialAd5,
+              interstitialAd6,
+            )
+          : null,
       appBar: selectionMode
           ? AppBar(
               titleSpacing: 1.0,

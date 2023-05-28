@@ -6,7 +6,6 @@ import 'package:overlay_support/overlay_support.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -46,8 +45,6 @@ class TrackeAR extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AdInterstitial interstitialAd = AdInterstitial();
-    interstitialAd.createInterstitialAd();
     return OverlaySupport(
       child: FutureBuilder(
         future: Init.loadStartData(),
@@ -73,7 +70,7 @@ class TrackeAR extends StatelessWidget {
                       ArchivedTrackings(snapshot.data as StartData),
                 ),
               ],
-              child: App(interstitialAd),
+              child: const App(),
             );
           } else {
             return Material(
@@ -98,8 +95,7 @@ class TrackeAR extends StatelessWidget {
 }
 
 class App extends StatefulWidget {
-  final AdInterstitial interstitialAd;
-  const App(this.interstitialAd, {Key? key}) : super(key: key);
+  const App({Key? key}) : super(key: key);
 
   @override
   State<App> createState() => _AppState();
@@ -148,7 +144,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     startSettings(context);
     Future.delayed(const Duration(seconds: 2), () => startSync(context));
     print("RESTARTED!");
-    widget.interstitialAd.showInterstitialAd();
   }
 
   @override

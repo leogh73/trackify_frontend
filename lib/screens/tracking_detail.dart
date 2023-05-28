@@ -32,12 +32,6 @@ class TrackingDetail extends StatefulWidget {
 
 class _TrackingDetailState extends State<TrackingDetail> {
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     bool _checking = Provider.of<Status>(context).checkingStatus;
     bool _endList = Provider.of<Status>(context).endOfEvents;

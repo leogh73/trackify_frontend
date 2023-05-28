@@ -29,6 +29,7 @@ class AdInterstitial {
 
   void showInterstitialAd() {
     if (!isLoaded) return;
+    print("SHOW INTERSTITIAL AD!");
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) =>
           print('$ad onAdShowedFullScreenContent.'),
