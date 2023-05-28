@@ -160,7 +160,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Versión 1.0.1",
+                  "Versión 1.0.2",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -358,11 +358,10 @@ class GlobalToast {
       borderRadius: BorderRadius.circular(20),
       textAlign: TextAlign.center,
       textStyle: const TextStyle(color: Colors.white, fontSize: 17),
-      animation: StyledToastAnimation.slideFromTop,
-      reverseAnimation: StyledToastAnimation.slideToBottom,
-      startOffset: const Offset(0.0, 3.0),
-      reverseEndOffset: const Offset(0.0, 3.0),
-      position: StyledToastPosition.bottom,
+      animation: StyledToastAnimation.scale,
+      startOffset: const Offset(0.0, 5.0),
+      reverseEndOffset: const Offset(0.0, 5.0),
+      position: StyledToastPosition.center,
       duration: const Duration(seconds: 4),
       // Animation duration   animDuration * 2 <= duration
       animDuration: const Duration(seconds: 1),

@@ -8,6 +8,7 @@ import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/preferences.dart';
 
+import 'ad_interstitial.dart';
 import 'search_list.dart';
 import 'item_grid.dart';
 import 'item_row.dart';
@@ -41,7 +42,6 @@ class DataCheck {
     //   'service': tracking.service,
     //   'code': tracking.code,
     // });
-
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       ItemResponseData itemResponse = Response.start(tracking.service, data);
@@ -140,10 +140,12 @@ class Results extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AdInterstitial interstitialAd = AdInterstitial();
+    interstitialAd.createInterstitialAd();
     final List<WidgetList> widgetList = [
-      WidgetList(ItemRow(tracking, false), "row"),
-      WidgetList(ItemCard(tracking, false), "card"),
-      WidgetList(ItemGrid(tracking, false), "grid")
+      WidgetList(ItemRow(tracking, false, interstitialAd), "row"),
+      WidgetList(ItemCard(tracking, false, interstitialAd), "card"),
+      WidgetList(ItemGrid(tracking, false, interstitialAd), "grid")
     ];
     var startListView = Provider.of<Preferences>(context).startList;
     final widgetIndex =

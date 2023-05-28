@@ -151,7 +151,7 @@ class _ContactFormState extends State<ContactForm> {
                   maxLines: 5,
                   // focusNode: FocusNode(),
                   decoration: InputDecoration(
-                      hintText: "Escriba su mensaje",
+                      hintText: "Escriba su message",
                       border: OutlineInputBorder(
                           borderSide: BorderSide(
                         width: 1,
@@ -230,7 +230,7 @@ class _ContactFormState extends State<ContactForm> {
               const Icon(Icons.done_all, size: 80),
               const Padding(
                 child: Text(
-                  'Su mensaje fue enviado correctamente.',
+                  'Su message fue enviado correctamente.',
                   style: TextStyle(fontSize: 22),
                   textAlign: TextAlign.center,
                 ),
@@ -309,7 +309,7 @@ class _ContactFormState extends State<ContactForm> {
         ],
       ),
       body: page,
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

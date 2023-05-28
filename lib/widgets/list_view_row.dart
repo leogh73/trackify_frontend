@@ -6,6 +6,7 @@ import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 
+import 'ad_interstitial.dart';
 import 'item_row.dart';
 
 class ListRow extends StatelessWidget {
@@ -41,6 +42,7 @@ class ListRowNormal extends StatefulWidget {
 
 class _ListRowNormalState extends State<ListRowNormal> {
   late ScrollController _controller;
+  AdInterstitial interstitialAd = AdInterstitial();
 
   _scrollListener() {
     if (_controller.offset == _controller.position.maxScrollExtent &&
@@ -55,6 +57,7 @@ class _ListRowNormalState extends State<ListRowNormal> {
   void initState() {
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
+    interstitialAd.createInterstitialAd();
     super.initState();
   }
 
@@ -71,8 +74,8 @@ class _ListRowNormalState extends State<ListRowNormal> {
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       controller: _controller,
       itemCount: widget.trackingsData.length,
-      itemBuilder: (context, index) =>
-          ItemRow(widget.trackingsData[index], widget.selection),
+      itemBuilder: (context, index) => ItemRow(
+          widget.trackingsData[index], widget.selection, interstitialAd),
     );
   }
 }
@@ -103,9 +106,9 @@ class _ListRowSelectionState extends State<ListRowSelection> {
       _startSelection = Provider.of<ArchivedTrackings>(context, listen: false)
           .activatedSelection;
     }
-    int indiceInicial = widget.trackingsData
+    int startIndex = widget.trackingsData
         .indexWhere((element) => element.idSB == _startSelection);
-    widget.trackingsData[indiceInicial].selected = true;
+    widget.trackingsData[startIndex].selected = true;
   }
 
   @override
@@ -115,7 +118,7 @@ class _ListRowSelectionState extends State<ListRowSelection> {
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       itemCount: widget.trackingsData.length,
       itemBuilder: (context, index) =>
-          ItemRow(widget.trackingsData[index], widget.selection),
+          ItemRow(widget.trackingsData[index], widget.selection, null),
     );
   }
 }

@@ -170,7 +170,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
                 )
         ],
       ),
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

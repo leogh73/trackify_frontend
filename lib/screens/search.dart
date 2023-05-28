@@ -37,7 +37,7 @@ class Search extends StatelessWidget {
         ],
       ),
       body: const SearchList(),
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
@@ -50,7 +50,7 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       decoration: const InputDecoration(
-        hintText: 'Search...',
+        hintText: 'Buscar...',
       ),
       controller: controller,
       textInputAction: TextInputAction.search,

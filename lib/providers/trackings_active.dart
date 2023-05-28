@@ -286,6 +286,7 @@ class ActiveTrackings extends ChangeNotifier {
         'currentDate':
             "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
         'driveLoggedIn': driveStatus.toString(),
+        'version': '1.0.2'
       },
     );
     var decodedData = json.decode(response.body);
@@ -310,11 +311,11 @@ class ActiveTrackings extends ChangeNotifier {
       updatedItems.add(tracking);
     }
     if (updatedItems.isNotEmpty) {
-      String mensaje = '';
-      if (updatedItems.length == 1) mensaje = updatedItems[0];
-      if (updatedItems.length > 1) mensaje = "Varios seguimientos actualizados";
+      String message = '';
+      if (updatedItems.length == 1) message = updatedItems[0];
+      if (updatedItems.length > 1) message = "Varios seguimientos actualizados";
       Provider.of<Status>(context, listen: false)
-          .showNotificationOverlay("Datos sincronizados", mensaje);
+          .showNotificationOverlay("Datos sincronizados", message);
     }
     notifyListeners();
   }

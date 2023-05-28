@@ -7,11 +7,13 @@ import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 
+import 'ad_interstitial.dart';
 import 'item_card.dart';
 
 class ListCard extends StatelessWidget {
   final bool selectionMode;
   final List<ItemTracking> trackingsData;
+
   const ListCard(this.selectionMode, this.trackingsData, {Key? key})
       : super(key: key);
 
@@ -43,6 +45,7 @@ class ListCardNormal extends StatefulWidget {
 
 class _ListCardNormalState extends State<ListCardNormal> {
   late ScrollController _controller;
+  AdInterstitial interstitialAd = AdInterstitial();
 
   _scrollListener() {
     if (_controller.offset == _controller.position.maxScrollExtent &&
@@ -57,6 +60,7 @@ class _ListCardNormalState extends State<ListCardNormal> {
   void initState() {
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
+    interstitialAd.createInterstitialAd();
     super.initState();
   }
 
@@ -73,8 +77,8 @@ class _ListCardNormalState extends State<ListCardNormal> {
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       itemCount: widget.trackingsData.length,
       controller: _controller,
-      itemBuilder: (context, index) =>
-          ItemCard(widget.trackingsData[index], widget.selection),
+      itemBuilder: (context, index) => ItemCard(
+          widget.trackingsData[index], widget.selection, interstitialAd),
     );
   }
 }
@@ -109,9 +113,9 @@ class _ListCardSelectionState extends State<ListCardSelection> {
       _startSelection = Provider.of<ArchivedTrackings>(context, listen: false)
           .activatedSelection;
     }
-    int indiceInicial = widget.trackingsData
+    int startIndex = widget.trackingsData
         .indexWhere((element) => element.idSB == _startSelection);
-    widget.trackingsData[indiceInicial].selected = true;
+    widget.trackingsData[startIndex].selected = true;
   }
 
   @override
@@ -121,7 +125,7 @@ class _ListCardSelectionState extends State<ListCardSelection> {
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       itemCount: widget.trackingsData.length,
       itemBuilder: (context, index) =>
-          ItemCard(widget.trackingsData[index], widget.selection),
+          ItemCard(widget.trackingsData[index], widget.selection, null),
     );
   }
 }

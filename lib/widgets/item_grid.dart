@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
+import 'ad_interstitial.dart';
 import 'menu_actions.dart';
 import 'data_check.dart';
 // import './seleccionar_servicio.dart';
@@ -17,7 +18,9 @@ import '../providers/status.dart';
 class ItemGrid extends StatefulWidget {
   final ItemTracking tracking;
   final bool selectionMode;
-  const ItemGrid(this.tracking, this.selectionMode, {Key? key})
+  final AdInterstitial? interstitialAd;
+  const ItemGrid(this.tracking, this.selectionMode, this.interstitialAd,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -36,6 +39,7 @@ class _ItemGridState extends State<ItemGrid> {
   }
 
   void _seeTrackingDetail() {
+    widget.interstitialAd?.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(

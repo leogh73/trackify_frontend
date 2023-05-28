@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 
 import 'tracking_form.dart';
+import 'search.dart';
 
+import 'package:trackify/widgets/ad_interstitial.dart';
+import 'package:trackify/widgets/dialog_and_toast.dart';
 import '../widgets/navigation_drawer.dart';
 import '../widgets/menu_appereance.dart';
 import '../widgets/list_select.dart';
 import '../widgets/menu_actions.dart';
 import '../widgets/ad_banner.dart';
 
-import 'search.dart';
-
 class Main extends StatefulWidget {
   static const routeName = "/main";
+
   const Main({Key? key}) : super(key: key);
 
   @override
@@ -26,14 +28,17 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
   @override
   void initState() {
+    super.initState();
     Future.delayed(const Duration(seconds: 3), () {
       String error =
           Provider.of<ActiveTrackings>(context, listen: false).loadStartError;
       if (error == 'User not found') ShowDialog(context).disabledUserError();
     });
-    super.initState();
+    interstitialAd.createInterstitialAd();
   }
 
   @override
@@ -121,6 +126,7 @@ class _MainState extends State<Main> {
                   icon: const Icon(Icons.search),
                   iconSize: 20,
                   onPressed: () => {
+                    interstitialAd.showInterstitialAd(),
                     Provider.of<Status>(context, listen: false)
                         .loadMainController(null),
                     Navigator.of(context).push(
@@ -147,18 +153,19 @@ class _MainState extends State<Main> {
       floatingActionButton: selectionMode || endOfList || error != ''
           ? null
           : FloatingActionButton(
-              heroTag: 'agregar',
               onPressed: () => {},
-              child: const AddTracking(32),
+              child: AddTracking(32, interstitialAd),
             ),
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
 
 class AddTracking extends StatelessWidget {
-  final double icono;
-  const AddTracking(this.icono, {Key? key}) : super(key: key);
+  final double iconSize;
+  final AdInterstitial interstitialAd;
+  const AddTracking(this.iconSize, this.interstitialAd, {Key? key})
+      : super(key: key);
   void _addTracking(BuildContext context) {
     Navigator.push(
       context,
@@ -169,14 +176,14 @@ class AddTracking extends StatelessWidget {
         ),
       ),
     );
+    interstitialAd.showInterstitialAd();
   }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.add),
-      iconSize: icono,
-      onPressed: () => _addTracking(context),
-    );
+        icon: const Icon(Icons.add),
+        iconSize: iconSize,
+        onPressed: () => _addTracking(context));
   }
 }

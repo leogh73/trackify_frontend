@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
+import 'ad_interstitial.dart';
 import 'menu_actions.dart';
 import 'data_check.dart';
 import '../screens/tracking_form.dart';
@@ -15,7 +16,9 @@ import '../providers/status.dart';
 class ItemRow extends StatefulWidget {
   final ItemTracking tracking;
   final bool selectionMode;
-  const ItemRow(this.tracking, this.selectionMode, {Key? key})
+  final AdInterstitial? interstitialAd;
+  const ItemRow(this.tracking, this.selectionMode, this.interstitialAd,
+      {Key? key})
       : super(key: key);
   @override
   _ItemRowState createState() => _ItemRowState();
@@ -34,6 +37,7 @@ class _ItemRowState extends State<ItemRow> {
   }
 
   void _seeTrackingDetail() {
+    widget.interstitialAd?.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(

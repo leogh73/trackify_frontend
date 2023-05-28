@@ -7,6 +7,7 @@ import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 
+import 'ad_interstitial.dart';
 import 'item_grid.dart';
 
 class ListGrid extends StatelessWidget {
@@ -43,6 +44,7 @@ class ListGridNormal extends StatefulWidget {
 
 class _ListGridNormalState extends State<ListGridNormal> {
   late ScrollController _controller;
+  AdInterstitial interstitialAd = AdInterstitial();
 
   _scrollListener() {
     if (_controller.offset == _controller.position.maxScrollExtent &&
@@ -57,6 +59,7 @@ class _ListGridNormalState extends State<ListGridNormal> {
   void initState() {
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
+    interstitialAd.createInterstitialAd();
     super.initState();
   }
 
@@ -94,9 +97,7 @@ class _ListGridNormalState extends State<ListGridNormal> {
       children: List.generate(
         widget.trackingsData.length,
         (index) => ItemGrid(
-          widget.trackingsData[index],
-          widget.selection,
-        ),
+            widget.trackingsData[index], widget.selection, interstitialAd),
       ),
     );
   }
@@ -132,9 +133,9 @@ class _ListGridSelectionState extends State<ListGridSelection> {
       _startSelection = Provider.of<ArchivedTrackings>(context, listen: false)
           .activatedSelection;
     }
-    int indiceInicial = widget.trackingsData
+    int startIndex = widget.trackingsData
         .indexWhere((element) => element.idSB == _startSelection);
-    widget.trackingsData[indiceInicial].selected = true;
+    widget.trackingsData[startIndex].selected = true;
   }
 
   @override
@@ -163,7 +164,8 @@ class _ListGridSelectionState extends State<ListGridSelection> {
       crossAxisCount: isPortrait ? 2 : 3,
       children: List.generate(
         widget.trackingsData.length,
-        (index) => ItemGrid(widget.trackingsData[index], widget.selection),
+        (index) =>
+            ItemGrid(widget.trackingsData[index], widget.selection, null),
       ),
     );
   }

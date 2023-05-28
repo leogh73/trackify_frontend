@@ -77,7 +77,7 @@ class Archived extends StatelessWidget {
       body: Center(
         child: TrackingList(selectionMode, tracking),
       ),
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

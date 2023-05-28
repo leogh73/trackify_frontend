@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:trackify/screens/contact_form.dart';
+import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 
 import '../providers/preferences.dart';
@@ -46,9 +47,10 @@ class NavigationDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool estadoMercadoLibre =
-        Provider.of<Preferences>(context).meLiStatus;
-    final bool estadoGoogleDrive = Provider.of<Preferences>(context).gdStatus;
+    final AdInterstitial interstitialAd = AdInterstitial();
+    interstitialAd.createInterstitialAd();
+    final bool meliStatus = Provider.of<Preferences>(context).meLiStatus;
+    final bool googleStatus = Provider.of<Preferences>(context).gdStatus;
     int mainAmount = Provider.of<ActiveTrackings>(context).trackings.length;
     int archivedAmount =
         Provider.of<ArchivedTrackings>(context).trackings.length;
@@ -87,6 +89,7 @@ class NavigationDrawer extends StatelessWidget {
               )),
           optionAPI(
               () => {
+                    interstitialAd.showInterstitialAd(),
                     Navigator.pop(context),
                     Navigator.push(
                         context,
@@ -97,9 +100,10 @@ class NavigationDrawer extends StatelessWidget {
               Image.asset('assets/other/googledrive.png'),
               40,
               180,
-              estadoGoogleDrive),
+              googleStatus),
           optionAPI(
             () => {
+              interstitialAd.showInterstitialAd(),
               Navigator.pop(context),
               Navigator.push(
                 context,
@@ -111,16 +115,16 @@ class NavigationDrawer extends StatelessWidget {
             Image.asset('assets/other/mercadolibre.png'),
             38,
             155,
-            estadoMercadoLibre,
+            meliStatus,
           ),
           DrawerOption(Icons.local_shipping, "Activos ($mainAmount)",
-              const Main(), true, false),
+              const Main(), true, false, interstitialAd),
           DrawerOption(Icons.archive, "Archivados ($archivedAmount)",
-              const Archived(), false, false),
-          const DrawerOption(
-              Icons.mail_outline, 'Contáctanos', ContactForm(), false, false),
+              const Archived(), false, false, interstitialAd),
+          DrawerOption(Icons.mail_outline, 'Contáctanos', const ContactForm(),
+              false, false, interstitialAd),
           DrawerOption(Icons.info_outline, 'Acerca de ésta aplicación',
-              ShowDialog(context).about, false, true),
+              ShowDialog(context).about, false, true, null),
         ],
       ),
     );
@@ -133,8 +137,10 @@ class DrawerOption extends StatelessWidget {
   final dynamic destiny;
   final bool main;
   final bool about;
+  final AdInterstitial? interstitialAd;
 
   const DrawerOption(this.icon, this.text, this.destiny, this.main, this.about,
+      this.interstitialAd,
       {Key? key})
       : super(key: key);
 
@@ -150,6 +156,7 @@ class DrawerOption extends StatelessWidget {
         ),
         child: InkWell(
           onTap: () => {
+            interstitialAd?.showInterstitialAd(),
             if (main) Navigator.pop(context),
             if (!main && !about)
               {

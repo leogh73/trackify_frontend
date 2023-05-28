@@ -7,12 +7,13 @@ import '../providers/status.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
 
+import 'ad_interstitial.dart';
 import 'dialog_and_toast.dart';
 
 import '../screens/tracking_detail.dart';
 import '../screens/tracking_form.dart';
 
-class ActionsMenu extends StatelessWidget {
+class ActionsMenu extends StatefulWidget {
   final String screen;
   final bool menu;
   final String action;
@@ -30,11 +31,25 @@ class ActionsMenu extends StatelessWidget {
     required this.icon,
   }) : super(key: key);
 
-  void _screenPopToast(context, String mensaje) {
-    if (detail == true) Navigator.pop(context);
+  @override
+  State<ActionsMenu> createState() => _ActionsMenuState();
+}
+
+class _ActionsMenuState extends State<ActionsMenu> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    interstitialAd.createInterstitialAd();
+  }
+
+  void _screenPopToast(context, String message) {
+    interstitialAd.showInterstitialAd();
+    if (widget.detail == true) Navigator.pop(context);
     Provider.of<Status>(context, listen: false).restartListEnd();
     Navigator.pop(context);
-    GlobalToast(context, mensaje).displayToast();
+    GlobalToast(context, message).displayToast();
   }
 
   selectProvider(BuildContext context, String screen) {
@@ -46,27 +61,31 @@ class ActionsMenu extends StatelessWidget {
   }
 
   void _seeTrackingDetail(BuildContext context) {
+    interstitialAd.showInterstitialAd();
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrackingDetail(tracking),
+        builder: (_) => TrackingDetail(widget.tracking),
       ),
     );
   }
 
   void _seeMoreTrackingData(BuildContext context) {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => MoreData(
-          tracking.otherData!,
-          tracking.service,
+          widget.tracking.otherData!,
+          widget.tracking.service,
         ),
       ),
     );
   }
 
   void _editTracking(BuildContext context) {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -75,12 +94,12 @@ class ActionsMenu extends StatelessWidget {
           mercadoLibre: false,
           title: '',
           edit: true,
-          tracking: tracking,
+          tracking: widget.tracking,
         ),
       ),
     );
     ServiceItemModel serviceEdit = ServiceItemModel(
-        ServiceImage(tracking.service).load(), tracking.service);
+        ServiceImage(widget.tracking.service).load(), widget.tracking.service);
     Provider.of<Status>(context, listen: false)
         .loadService(serviceEdit, context);
   }
@@ -102,9 +121,9 @@ class ActionsMenu extends StatelessWidget {
   }
 
   void _archiveTracking(context, String screen) {
-    tracking.archived = true;
-    selectProvider(context, "archived").addTracking(tracking);
-    selectProvider(context, screen).removeTracking([tracking], context);
+    widget.tracking.archived = true;
+    selectProvider(context, "archived").addTracking(widget.tracking);
+    selectProvider(context, screen).removeTracking([widget.tracking], context);
     _screenPopToast(context, "Seguimiento archivado");
   }
 
@@ -180,7 +199,8 @@ class ActionsMenu extends StatelessWidget {
                           ),
                           onPressed: () => selection
                               ? _removeSelection(context, screen)
-                              : _removeTracking(context, tracking, screen),
+                              : _removeTracking(
+                                  context, widget.tracking, screen),
                         ),
                       ),
                     if (action == "archivar")
@@ -257,30 +277,31 @@ class ActionsMenu extends StatelessWidget {
                     _editTracking(context);
                     break;
                   case 'Seleccionar':
-                    _activateSelectionMode(context, tracking, screen);
+                    _activateSelectionMode(
+                        context, widget.tracking, widget.screen);
                     break;
                   // case 'Compartir':
                   //   _editTracking(context);
                   //   break;
                   case 'Archivar':
-                    _displayDialog(context, screen, "archivar", false);
+                    _displayDialog(context, widget.screen, "archivar", false);
                     break;
                   case 'Eliminar':
-                    _displayDialog(context, screen, "eliminar", false);
+                    _displayDialog(context, widget.screen, "eliminar", false);
                     break;
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                if (!detail && !tracking.checkError!)
+                if (!widget.detail && !widget.tracking.checkError!)
                   optionMenu('Detalles', context, Icons.info_outline),
-                if (!tracking.checkError!)
+                if (!widget.tracking.checkError!)
                   optionMenu('Más datos', context, Icons.info),
                 optionMenu('Editar', context, Icons.edit),
-                if (!detail)
+                if (!widget.detail)
                   optionMenu('Seleccionar', context, Icons.select_all_sharp),
                 // if (!tracking.checkError!)
                 //   optionMenu('Compartir', context, Icons.share),
-                if (!tracking.checkError!)
+                if (!widget.tracking.checkError!)
                   optionMenu("Archivar", context, Icons.archive),
                 optionMenu('Eliminar', context, Icons.delete),
               ],
@@ -289,17 +310,17 @@ class ActionsMenu extends StatelessWidget {
               Button(
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    iconSize: icon,
-                    onPressed: () =>
-                        _displayDialog(context, screen, "eliminar", true),
+                    iconSize: widget.icon,
+                    onPressed: () => _displayDialog(
+                        context, widget.screen, "eliminar", true),
                   ),
                   "remove"),
               Button(
                   IconButton(
                     icon: const Icon(Icons.archive),
-                    iconSize: icon,
-                    onPressed: () =>
-                        _displayDialog(context, screen, "archivar", true),
+                    iconSize: widget.icon,
+                    onPressed: () => _displayDialog(
+                        context, widget.screen, "archivar", true),
                   ),
                   "archive"),
             ],
@@ -326,27 +347,28 @@ class ActionsMenu extends StatelessWidget {
                     _seeMoreTrackingData(context);
                     break;
                   case 'Restaurar':
-                    _displayDialog(context, screen, "restaurar", false);
+                    _displayDialog(context, widget.screen, "restaurar", false);
                     break;
                   case 'Seleccionar':
-                    _activateSelectionMode(context, tracking, screen);
+                    _activateSelectionMode(
+                        context, widget.tracking, widget.screen);
                     break;
 
                   case 'Eliminar':
-                    _displayDialog(context, screen, "eliminar", false);
+                    _displayDialog(context, widget.screen, "eliminar", false);
                     break;
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                if (!detail && !tracking.checkError!)
+                if (!widget.detail && !widget.tracking.checkError!)
                   optionMenu('Detalles', context, Icons.info_outline),
-                if (!tracking.checkError!)
+                if (!widget.tracking.checkError!)
                   optionMenu('Más datos', context, Icons.info),
-                if (!detail)
+                if (!widget.detail)
                   optionMenu('Seleccionar', context, Icons.select_all_sharp),
                 // if (!tracking.checkError!)
                 //   optionMenu('Compartir', context, Icons.share),
-                if (!tracking.checkError!)
+                if (!widget.tracking.checkError!)
                   optionMenu('Restaurar', context, Icons.restore),
                 optionMenu('Eliminar', context, Icons.delete),
               ],
@@ -355,9 +377,9 @@ class ActionsMenu extends StatelessWidget {
               Button(
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    iconSize: icon,
-                    onPressed: () =>
-                        _displayDialog(context, screen, "eliminar", true),
+                    iconSize: widget.icon,
+                    onPressed: () => _displayDialog(
+                        context, widget.screen, "eliminar", true),
                   ),
                   "remove"),
             ],
@@ -365,12 +387,12 @@ class ActionsMenu extends StatelessWidget {
           "archived"),
     ];
     final int screenIndex =
-        optionsList.indexWhere((option) => option.screenName == screen);
+        optionsList.indexWhere((option) => option.screenName == widget.screen);
     final int buttonIndex = optionsList[screenIndex]
         .screenWidgets
         .buttons
-        .indexWhere((boton) => boton.action == action);
-    return menu
+        .indexWhere((boton) => boton.action == widget.action);
+    return widget.menu
         ? optionsList[screenIndex].screenWidgets.menuItem
         : optionsList[screenIndex].screenWidgets.buttons[buttonIndex].widget;
   }

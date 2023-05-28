@@ -22,9 +22,20 @@ import '../widgets/services/oca.dart';
 import '../widgets/services/ocasa.dart';
 import '../widgets/services/viacargo.dart';
 
-class TrackingDetail extends StatelessWidget {
+class TrackingDetail extends StatefulWidget {
   final ItemTracking tracking;
   const TrackingDetail(this.tracking, {Key? key}) : super(key: key);
+
+  @override
+  State<TrackingDetail> createState() => _TrackingDetailState();
+}
+
+class _TrackingDetailState extends State<TrackingDetail> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,27 +45,27 @@ class TrackingDetail extends StatelessWidget {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     var screenList = "main";
-    if (tracking.search!) {
+    if (widget.tracking.search!) {
       screenList = "search";
-    } else if (tracking.archived!) {
+    } else if (widget.tracking.archived!) {
       screenList = "archived";
     }
     List<DetailsWidget> responseList = [
-      DetailsWidget(EventListAndreani(tracking.events!), "Andreani"),
-      DetailsWidget(EventListClicOh(tracking.events!), "ClicOh"),
-      DetailsWidget(
-          EventListCorreoArgentino(tracking.events!), "Correo Argentino"),
-      DetailsWidget(EventListDHL(tracking.events!), "DHL"),
-      DetailsWidget(EventListEcaPack(tracking.events!), "EcaPack"),
-      DetailsWidget(EventListFastTrack(tracking.events!), "FastTrack"),
-      DetailsWidget(EventListOCA(tracking.events!), "OCA"),
-      DetailsWidget(EventListOCASA(tracking.events!), "OCASA"),
-      DetailsWidget(EventListRenaper(tracking.events!), "Renaper"),
-      DetailsWidget(EventListUrbano(tracking.events!), "Urbano"),
-      DetailsWidget(EventListViaCargo(tracking.events!), "ViaCargo")
+      DetailsWidget(EventListAndreani(widget.tracking.events!), "Andreani"),
+      DetailsWidget(EventListClicOh(widget.tracking.events!), "ClicOh"),
+      DetailsWidget(EventListCorreoArgentino(widget.tracking.events!),
+          "Correo Argentino"),
+      DetailsWidget(EventListDHL(widget.tracking.events!), "DHL"),
+      DetailsWidget(EventListEcaPack(widget.tracking.events!), "EcaPack"),
+      DetailsWidget(EventListFastTrack(widget.tracking.events!), "FastTrack"),
+      DetailsWidget(EventListOCA(widget.tracking.events!), "OCA"),
+      DetailsWidget(EventListOCASA(widget.tracking.events!), "OCASA"),
+      DetailsWidget(EventListRenaper(widget.tracking.events!), "Renaper"),
+      DetailsWidget(EventListUrbano(widget.tracking.events!), "Urbano"),
+      DetailsWidget(EventListViaCargo(widget.tracking.events!), "ViaCargo")
     ];
     int widgetIndex = responseList
-        .indexWhere((element) => element.service == tracking.service);
+        .indexWhere((element) => element.service == widget.tracking.service);
     Widget result = responseList[widgetIndex].dataList;
 
     return WillPopScope(
@@ -63,7 +74,7 @@ class TrackingDetail extends StatelessWidget {
         appBar: AppBar(
           titleSpacing: 1.0,
           title: Text(
-            tracking.title!,
+            widget.tracking.title!,
             maxLines: 2,
             style: TextStyle(fontSize: fullHD ? 18 : 17),
           ),
@@ -74,7 +85,7 @@ class TrackingDetail extends StatelessWidget {
                 screen: screenList,
                 menu: true,
                 detail: true,
-                tracking: tracking,
+                tracking: widget.tracking,
                 // accion: "eliminar",
                 icon: 24,
               ),
@@ -96,8 +107,8 @@ class TrackingDetail extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => MoreData(
-                            tracking.otherData!,
-                            tracking.service,
+                            widget.tracking.otherData!,
+                            widget.tracking.service,
                           ),
                         ),
                       );
@@ -172,11 +183,11 @@ class TrackingDetail extends StatelessWidget {
                 heroTag: 'events',
                 onPressed: () => {
                   Provider.of<ActiveTrackings>(context, listen: false)
-                      .searchUpdates(context, tracking.idMDB!)
+                      .searchUpdates(context, widget.tracking.idMDB!)
                 },
                 child: const Icon(Icons.update, size: 29),
               ),
-        bottomNavigationBar: const BannerAdWidget(),
+        bottomNavigationBar: const AdBanner(),
       ),
     );
   }
@@ -220,7 +231,7 @@ class MoreData extends StatelessWidget {
         title: const Text("Más datos"),
       ),
       body: result,
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

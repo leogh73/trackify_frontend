@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'package:trackify/widgets/ad_interstitial.dart';
 
 import '../providers/classes.dart';
 import '../providers/status.dart';
@@ -32,6 +35,7 @@ class TrackingForm extends StatefulWidget {
 final _formKey = GlobalKey<FormState>();
 
 class _TrackingFormState extends State<TrackingForm> {
+  AdInterstitial interstitialAd = AdInterstitial();
   ServiceItemModel? loadedService;
 
   @override
@@ -52,6 +56,7 @@ class _TrackingFormState extends State<TrackingForm> {
     } else {
       Provider.of<Status>(context, listen: false).clearStartService();
     }
+    interstitialAd.createInterstitialAd();
   }
 
   final title = TextEditingController();
@@ -62,6 +67,7 @@ class _TrackingFormState extends State<TrackingForm> {
     if (edit) {
       GlobalToast(context, "Seguimiento editado").displayToast();
     }
+    interstitialAd.showInterstitialAd();
   }
 
   selectProvider(BuildContext context, String listView) {
@@ -194,6 +200,7 @@ class _TrackingFormState extends State<TrackingForm> {
                               style: TextStyle(fontSize: 17),
                             ),
                             onPressed: () {
+                              interstitialAd.showInterstitialAd();
                               Navigator.pop(context);
                               // code.dispose();
                               // title.dispose();
@@ -223,7 +230,7 @@ class _TrackingFormState extends State<TrackingForm> {
           ),
         ),
       ),
-      bottomNavigationBar: const BannerAdWidget(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
@@ -252,7 +259,7 @@ class _SelectServiceState extends State<SelectService> {
     loadedService = widget.preLoadedService;
   }
 
-  opcionServicio(double optionWidth, ServiceItemModel service) {
+  serviceOption(double optionWidth, ServiceItemModel service) {
     return DropdownMenuItem<ServiceItemModel>(
       value: service,
       child: Container(
@@ -294,7 +301,7 @@ class _SelectServiceState extends State<SelectService> {
       },
       items: services
           .map<DropdownMenuItem<ServiceItemModel>>((ServiceItemModel service) {
-        return opcionServicio(widget.optionWidth!, service);
+        return serviceOption(widget.optionWidth!, service);
       }).toList(),
     );
   }
