@@ -193,8 +193,6 @@ class ActiveTrackings extends ChangeNotifier {
 
   void loadNotificationData(bool foreground, RemoteMessage message,
       NavigatorState? navigatorState, BuildContext? context) {
-    print("notification data");
-
     RemoteNotification notification = message.notification!;
     List<dynamic> response = json.decode(message.data['data']);
 
