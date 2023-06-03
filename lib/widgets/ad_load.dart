@@ -1,10 +1,13 @@
+import 'package:flutter/material.dart';
+
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AppLifecycleReactor {
   final AdOpen adOpenInstance;
-
-  AppLifecycleReactor({required this.adOpenInstance});
+  final VoidCallback syncronizeData;
+  AppLifecycleReactor(
+      {required this.adOpenInstance, required this.syncronizeData});
 
   void listenToAppStateChanges() {
     AppStateEventNotifier.startListening();
@@ -15,6 +18,7 @@ class AppLifecycleReactor {
   void _onAppStateChanged(AppState appState) {
     if (appState == AppState.foreground) {
       adOpenInstance.showAdIfAvailable();
+      syncronizeData();
     }
   }
 }

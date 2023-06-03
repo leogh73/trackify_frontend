@@ -258,7 +258,6 @@ class ActiveTrackings extends ChangeNotifier {
   }
 
   void sincronizeUserData(BuildContext? context) async {
-    print("sincronize trackings");
     String url = "${dotenv.env['API_URL']}/api/user/sincronize/";
     List<Object> lastEventsList = [];
     if (_trackings.isNotEmpty) {
@@ -290,7 +289,6 @@ class ActiveTrackings extends ChangeNotifier {
       },
     );
     var decodedData = json.decode(response.body);
-    print(decodedData);
     if (decodedData['error'] == "User not found") {
       return changeStartError("User not found");
     }
@@ -298,12 +296,10 @@ class ActiveTrackings extends ChangeNotifier {
         decodedData['driveStatus'] == 'Backup not found') {
       await updateCreateDriveBackup(true, context);
     }
-    List<dynamic> trackingsDB = decodedData['data'];
-    if (decodedData['data'].isEmpty) {
-      return;
-    }
+    print("API DECODED DATA: $decodedData");
+    if (decodedData['data'].isEmpty) return;
     List<String> updatedItems = [];
-    for (var tDB in trackingsDB) {
+    for (var tDB in decodedData['data']) {
       int index = _trackings.indexWhere((seg) => seg.idMDB == tDB['_id']);
       trackingCheckUpdate(index, tDB);
       trackingDataUpdate(index, tDB, true);

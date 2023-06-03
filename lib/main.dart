@@ -23,7 +23,6 @@ import 'screens/search.dart';
 import 'initial_data.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   tz.initializeTimeZones();
   MobileAds.instance.initialize();
@@ -105,7 +104,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
+class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   late AppLifecycleReactor _appLifecycleReactor;
 
@@ -137,37 +136,28 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
-  void startSync(BuildContext context) async {
+  void startSync(BuildContext context, bool start) async {
     Provider.of<ActiveTrackings>(context, listen: false)
         .sincronizeUserData(context);
+    if (start) {
+      String error =
+          Provider.of<ActiveTrackings>(context, listen: false).loadStartError;
+      if (error == 'User not found') {
+        ShowDialog(context).disabledUserError();
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     startSettings(context);
-    Future.delayed(const Duration(seconds: 2), () => startSync(context));
+    Future.delayed(const Duration(seconds: 2), () => startSync(context, true));
     widget.startAdOpen.showAdIfAvailable();
-    _appLifecycleReactor =
-        AppLifecycleReactor(adOpenInstance: AdOpen()..loadAd());
+    _appLifecycleReactor = AppLifecycleReactor(
+        adOpenInstance: AdOpen()..loadAd(),
+        syncronizeData: () => startSync(context, false));
     _appLifecycleReactor.listenToAppStateChanges();
-    print("RESTARTED!");
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed &&
-        navigatorKey.currentContext != null) {
-      startSync(navigatorKey.currentContext!);
-      String error = Provider.of<ActiveTrackings>(navigatorKey.currentContext!,
-              listen: false)
-          .loadStartError;
-      if (error == 'User not found') {
-        ShowDialog(navigatorKey.currentContext!).disabledUserError();
-      }
-    }
   }
 
   @override
