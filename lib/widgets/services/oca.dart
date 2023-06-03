@@ -33,14 +33,14 @@ class DataOCA {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [
       [
-        data['origin']['name'],
-        data['origin']['address'],
-        data['origin']['number'],
-        data['origin']['zipCode'],
-        data['origin']['locality'],
-        data['origin']['state'],
-        data['origin']['email'],
-        data['origin']['phone'],
+        data['origin']['name'] ?? "Sin datos",
+        data['origin']['address'] ?? "Sin datos",
+        data['origin']['number'] ?? "Sin datos",
+        data['origin']['zipCode'] ?? "Sin datos",
+        data['origin']['locality'] ?? "Sin datos",
+        data['origin']['state'] ?? "Sin datos",
+        data['origin']['email'] ?? "Sin datos",
+        data['origin']['phone'] ?? "Sin datos",
       ],
       [data["productNumber"]]
     ];

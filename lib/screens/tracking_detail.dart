@@ -177,7 +177,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                 heroTag: 'events',
                 onPressed: () => {
                   Provider.of<ActiveTrackings>(context, listen: false)
-                      .searchUpdates(context, widget.tracking.idMDB!)
+                      .searchUpdates(context, widget.tracking)
                 },
                 child: const Icon(Icons.update, size: 29),
               ),

@@ -164,15 +164,16 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void searchUpdates(BuildContext context, String trackingId) async {
+  void searchUpdates(BuildContext context, ItemTracking tracking) async {
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
+    String _userId = Provider.of<Preferences>(context, listen: false).userId;
     String url = '${dotenv.env['API_URL']}/api/user/check/';
     var consult = await http.Client().post(
       Uri.parse(url),
-      body: {'trackingId': trackingId},
+      body: {'userId': _userId, 'trackingData': json.encode(tracking.toMap())},
     );
     var response = json.decode(consult.body);
-    int index = _trackings.indexWhere((t) => t.idMDB == trackingId);
+    int index = _trackings.indexWhere((t) => t.idMDB == tracking.idMDB);
     trackingCheckUpdate(index, response);
     if (consult.statusCode == 200) {
       if (response['result']['events'].isEmpty) {
@@ -296,7 +297,7 @@ class ActiveTrackings extends ChangeNotifier {
         decodedData['driveStatus'] == 'Backup not found') {
       await updateCreateDriveBackup(true, context);
     }
-    print("API DECODED DATA: $decodedData");
+    print("SYNCRONIZATION");
     if (decodedData['data'].isEmpty) return;
     List<String> updatedItems = [];
     for (var tDB in decodedData['data']) {
