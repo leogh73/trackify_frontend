@@ -154,14 +154,6 @@ class _MainState extends State<Main> {
                         builder: (_) => const Search(),
                       ),
                     ),
-                    // Provider.of<Seguimientos>(context, listen: false)
-                    //     .nuevaPantallaLista("busqueda"),
-                    // Provider.of<ActiveTrackings>(context, listen: false)
-                    //     .cargarControladorMain(controladorPrimario),
-                    // showSearch(
-                    //   context: context,
-                    //   delegate: Busqueda(),
-                    // ),ooo
                   },
                 ),
                 const AppereanceMenu(),

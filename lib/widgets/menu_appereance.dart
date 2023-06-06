@@ -167,9 +167,9 @@ class AppereanceMenu extends StatelessWidget {
     );
   }
 
-  optionMenu(String texto, BuildContext context, IconData icono) {
+  optionMenu(String text, BuildContext context, IconData icono) {
     return PopupMenuItem<String>(
-      value: texto,
+      value: text,
       height: 35,
       child: Row(
         children: [
@@ -179,7 +179,7 @@ class AppereanceMenu extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.zero,
-            child: Text(texto),
+            child: Text(text),
           ),
         ],
       ),

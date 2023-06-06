@@ -62,7 +62,6 @@ class _ActionsMenuState extends State<ActionsMenu> {
 
   void _seeTrackingDetail(BuildContext context) {
     interstitialAd.showInterstitialAd();
-
     Navigator.push(
       context,
       MaterialPageRoute(

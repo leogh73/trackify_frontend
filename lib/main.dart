@@ -6,6 +6,7 @@ import 'package:overlay_support/overlay_support.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:trackify/widgets/ad_load.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -23,6 +24,7 @@ import 'screens/search.dart';
 import 'initial_data.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   tz.initializeTimeZones();
   MobileAds.instance.initialize();
@@ -104,9 +106,9 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-  late AppLifecycleReactor _appLifecycleReactor;
+  AdInterstitial interstitialAd = AdInterstitial();
 
   void startSettings(context) async {
     ActiveTrackings activeTrackings =
@@ -151,13 +153,27 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     startSettings(context);
     Future.delayed(const Duration(seconds: 2), () => startSync(context, true));
     widget.startAdOpen.showAdIfAvailable();
-    _appLifecycleReactor = AppLifecycleReactor(
-        adOpenInstance: AdOpen()..loadAd(),
-        syncronizeData: () => startSync(context, false));
-    _appLifecycleReactor.listenToAppStateChanges();
+    interstitialAd.createInterstitialAd();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed &&
+        navigatorKey.currentContext != null) {
+      startSync(navigatorKey.currentContext!, false);
+      interstitialAd.showInterstitialAd();
+      String error = Provider.of<ActiveTrackings>(navigatorKey.currentContext!,
+              listen: false)
+          .loadStartError;
+      if (error == 'User not found') {
+        ShowDialog(navigatorKey.currentContext!).disabledUserError();
+      }
+    }
   }
 
   @override

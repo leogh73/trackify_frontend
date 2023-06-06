@@ -256,16 +256,49 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool checkCompletedStatus(String service, String? lastEvent) {
+    bool status = false;
+    if (service == 'Andreani') {
+      if (lastEvent!.contains('Entregado') || lastEvent.contains('Devuelto')) {
+        status = true;
+      }
+    }
+    if (service == 'ClicOh' && lastEvent!.contains('Entregado')) status = true;
+    if (service == 'Correo Argentino') {
+      if (lastEvent!.contains('ENTREGADO') ||
+          lastEvent.contains('ENTREGA EN')) {
+        status = true;
+      }
+    }
+    if (service == 'DHL' && lastEvent!.contains('entregado')) status = true;
+    if (service == 'EcaPack' && lastEvent!.contains('ENTREGADO')) status = true;
+    if (service == 'FastTrack' && lastEvent!.contains('Entregado')) {
+      status = true;
+    }
+    if (service == 'OCA' && lastEvent!.contains('Entregado')) status = true;
+    if (service == 'OCASA' && lastEvent!.contains('Entregamos')) status = true;
+    if (service == 'Renaper' && lastEvent!.contains('ENTREGADO')) status = true;
+    if (service == 'Urbano' && lastEvent!.contains('entregado')) status = true;
+    if (service == 'ViaCargo' && lastEvent!.contains('ENTREGADA')) {
+      status = true;
+    }
+    return status;
+  }
+
   void sincronizeUserData(BuildContext? context) async {
     String url = "${dotenv.env['API_URL']}/api/user/sincronize/";
     List<Object> lastEventsList = [];
     if (_trackings.isNotEmpty) {
       for (var element in _trackings) {
+        bool completedTracking =
+            checkCompletedStatus(element.service, element.lastEvent);
         Object lastEvent = {
           'idMDB': element.idMDB,
           'eventDescription': element.lastEvent
         };
-        if (element.idMDB != null && element.lastEvent != null) {
+        if (element.idMDB != null &&
+            element.lastEvent != null &&
+            !completedTracking) {
           lastEventsList.add(lastEvent);
         }
       }
@@ -288,6 +321,7 @@ class ActiveTrackings extends ChangeNotifier {
       },
     );
     var decodedData = json.decode(response.body);
+    print("SINCRONIZATION");
     if (decodedData['error'] == "User not found") {
       return changeStartError("User not found");
     }
@@ -295,7 +329,6 @@ class ActiveTrackings extends ChangeNotifier {
         decodedData['driveStatus'] == 'Backup not found') {
       await updateCreateDriveBackup(true, context);
     }
-    print("SYNCRONIZATION");
     if (decodedData['data'].isEmpty) return;
     List<String> updatedItems = [];
     for (var tDB in decodedData['data']) {

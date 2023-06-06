@@ -23,7 +23,7 @@ class AdInterstitial {
   }
 
   void showInterstitialAd() {
-    if (!isLoaded) return;
+    if (!isLoaded || _interstitialAd == null) return;
     // print("SHOW INTERSTITIAL AD!");
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) {

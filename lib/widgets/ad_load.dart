@@ -1,27 +1,22 @@
-import 'package:flutter/material.dart';
-
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-class AppLifecycleReactor {
-  final AdOpen adOpenInstance;
-  final VoidCallback syncronizeData;
-  AppLifecycleReactor(
-      {required this.adOpenInstance, required this.syncronizeData});
+// class AppLifecycleReactor {
+//   final AdOpen adOpenInstance;
+//   AppLifecycleReactor({required this.adOpenInstance});
 
-  void listenToAppStateChanges() {
-    AppStateEventNotifier.startListening();
-    AppStateEventNotifier.appStateStream
-        .forEach((state) => _onAppStateChanged(state));
-  }
+//   void listenToAppStateChanges() {
+//     AppStateEventNotifier.startListening();
+//     AppStateEventNotifier.appStateStream
+//         .forEach((state) => _onAppStateChanged(state));
+//   }
 
-  void _onAppStateChanged(AppState appState) {
-    if (appState == AppState.foreground) {
-      adOpenInstance.showAdIfAvailable();
-      syncronizeData();
-    }
-  }
-}
+//   void _onAppStateChanged(AppState appState) {
+//     if (appState == AppState.foreground) {
+//       adOpenInstance.showAdIfAvailable();
+//     }
+//   }
+// }
 
 class AdOpen {
   AppOpenAd? _appOpenAd;

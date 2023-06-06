@@ -53,6 +53,7 @@ class ItemResponseData {
   final String? checkDate;
   final String? checkTime;
   final String? trackingId;
+
   ItemResponseData(
     this.events,
     this.lastEvent,

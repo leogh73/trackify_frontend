@@ -107,7 +107,7 @@ class _ItemGridState extends State<ItemGrid> {
       landscapeFullHD,
       portraitFullHD,
       screenHeight,
-      String texto,
+      String text,
       Widget? boton) {
     return _retrying
         ? Center(
@@ -186,7 +186,7 @@ class _ItemGridState extends State<ItemGrid> {
                                   maxHeight: 38,
                                 ),
                                 child: Text(
-                                  texto,
+                                  text,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

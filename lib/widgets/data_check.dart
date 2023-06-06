@@ -30,6 +30,7 @@ class DataCheck {
   Future startCheck() async {
     String userId = Provider.of<Preferences>(context, listen: false).userId;
     String url = "${dotenv.env['API_URL']}/api/user/$userId/add/";
+    // String url = "${dotenv.env['API_URL']}/api/user/test";
     var response = await http.Client().post(Uri.parse(url), body: {
       'title': tracking.title,
       'service': tracking.service,
