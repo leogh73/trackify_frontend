@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:timezone/standalone.dart' as tz;
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/providers/http_request_handler.dart';
 import 'package:trackify/providers/preferences.dart';
+import 'package:trackify/widgets/dialog_and_toast.dart';
 
 import '../database.dart';
 import '../initial_data.dart';
 
-import '../screens/tracking_detail.dart';
-
-import '../widgets/dialog_and_toast.dart';
 import '../widgets/data_response.dart';
 
 import 'classes.dart';
-import 'status.dart';
 
 class ActiveTrackings extends ChangeNotifier {
   StoredData storedData = StoredData();
@@ -82,9 +76,10 @@ class ActiveTrackings extends ChangeNotifier {
     }
     String _userId = Provider.of<Preferences>(context, listen: false).userId;
     notifyListeners();
-    String url = '${dotenv.env['API_URL']}/api/user/$_userId/remove/';
-    await http.Client()
-        .post(Uri.parse(url), body: {'trackingIds': json.encode(trackingIds)});
+    Object body = {'trackingIds': json.encode(trackingIds)};
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/user/$_userId/remove/', body);
+    if (response is Map) ShowDialog(context).connectionServerError(false);
   }
 
   void editTracking(ItemTracking tracking) {
@@ -162,202 +157,5 @@ class ActiveTrackings extends ChangeNotifier {
     removeTracking(_selection, context);
     _selection.clear();
     notifyListeners();
-  }
-
-  void searchUpdates(BuildContext context, ItemTracking tracking) async {
-    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    String url = '${dotenv.env['API_URL']}/api/user/check/';
-    var consult = await http.Client().post(
-      Uri.parse(url),
-      body: {'userId': _userId, 'trackingData': json.encode(tracking.toMap())},
-    );
-    var response = json.decode(consult.body);
-    int index = _trackings.indexWhere((t) => t.idMDB == tracking.idMDB);
-    trackingCheckUpdate(index, response);
-    if (consult.statusCode == 200) {
-      if (response['result']['events'].isEmpty) {
-        GlobalToast(context, "No hay actualizaciones").displayToast();
-      } else {
-        trackingDataUpdate(index, response, false);
-        GlobalToast(context, "Seguimiento actualizado").displayToast();
-      }
-    } else if (consult.statusCode == 204) {
-      ShowDialog(context).trackingError(_trackings[index].service);
-    } else {
-      ShowDialog(context).checkUpdateError();
-    }
-    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    notifyListeners();
-  }
-
-  void loadNotificationData(bool foreground, RemoteMessage message,
-      NavigatorState? navigatorState, BuildContext? context) {
-    RemoteNotification notification = message.notification!;
-    List<dynamic> response = json.decode(message.data['data']);
-
-    late int index;
-    for (var item in response) {
-      index = _trackings.indexWhere((t) => t.idMDB == item['idMDB']);
-      if (item['result']['lastEvent'] != _trackings[index].lastEvent) {
-        trackingCheckUpdate(index, item);
-        trackingDataUpdate(index, item, false);
-      }
-    }
-    if (!foreground) {
-      if (response.length == 1) {
-        navigatorState!.push(MaterialPageRoute(
-            builder: (_) => TrackingDetail(_trackings[index])));
-      }
-      if (response.length > 1) {
-        Provider.of<Status>(context!, listen: false)
-            .showNotificationOverlay(notification.title!, notification.body!);
-      }
-    }
-    if (foreground) {
-      Provider.of<Status>(context!, listen: false)
-          .showNotificationOverlay(notification.title!, notification.body!);
-    }
-    notifyListeners();
-  }
-
-  void trackingCheckUpdate(int index, dynamic itemDataTracking) {
-    String checkDate = itemDataTracking['checkDate'];
-    String checkTime = itemDataTracking['checkTime'];
-    _trackings[index].lastCheck = '$checkDate - $checkTime';
-  }
-
-  void trackingDataUpdate(
-      int index, dynamic itemDataTracking, bool syncronization) {
-    ItemResponseData itemResponseData =
-        Response.update(itemDataTracking['service'], itemDataTracking);
-    List<Map<String, String>> newEventList = [];
-    for (var newEvent in itemResponseData.events!) {
-      newEventList.add(newEvent);
-    }
-    if (syncronization == false) {
-      for (var event in _trackings[index].events!) {
-        newEventList.add(event);
-      }
-    }
-    _trackings[index].events = newEventList;
-    _trackings[index].lastEvent = itemDataTracking['result']['lastEvent'];
-    if (_trackings[index].service == 'DHL') {
-      _trackings[index].otherData![1] = itemResponseData.otherData![1]!;
-    }
-    storedData.updateMainTracking(_trackings[index]);
-  }
-
-  String startError = '';
-  String get loadStartError => startError;
-
-  void changeStartError(String newError) {
-    startError = newError;
-    notifyListeners();
-  }
-
-  bool checkCompletedStatus(String service, String? lastEvent) {
-    bool status = false;
-    if (service == 'Andreani') {
-      if (lastEvent!.contains('Entregado') || lastEvent.contains('Devuelto')) {
-        status = true;
-      }
-    }
-    if (service == 'ClicOh' && lastEvent!.contains('Entregado')) status = true;
-    if (service == 'Correo Argentino') {
-      if (lastEvent!.contains('ENTREGADO') ||
-          lastEvent.contains('ENTREGA EN')) {
-        status = true;
-      }
-    }
-    if (service == 'DHL' && lastEvent!.contains('entregado')) status = true;
-    if (service == 'EcaPack' && lastEvent!.contains('ENTREGADO')) status = true;
-    if (service == 'FastTrack' && lastEvent!.contains('Entregado')) {
-      status = true;
-    }
-    if (service == 'OCA' && lastEvent!.contains('Entregado')) status = true;
-    if (service == 'OCASA' && lastEvent!.contains('Entregamos')) status = true;
-    if (service == 'Renaper' && lastEvent!.contains('ENTREGADO')) status = true;
-    if (service == 'Urbano' && lastEvent!.contains('entregado')) status = true;
-    if (service == 'ViaCargo' && lastEvent!.contains('ENTREGADA')) {
-      status = true;
-    }
-    return status;
-  }
-
-  void sincronizeUserData(BuildContext? context) async {
-    String url = "${dotenv.env['API_URL']}/api/user/sincronize/";
-    List<Object> lastEventsList = [];
-    if (_trackings.isNotEmpty) {
-      for (var element in _trackings) {
-        bool completedTracking =
-            checkCompletedStatus(element.service, element.lastEvent);
-        Object lastEvent = {
-          'idMDB': element.idMDB,
-          'eventDescription': element.lastEvent
-        };
-        if (element.idMDB != null &&
-            element.lastEvent != null &&
-            !completedTracking) {
-          lastEventsList.add(lastEvent);
-        }
-      }
-    }
-    var now =
-        tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
-    bool driveStatus =
-        Provider.of<Preferences>(context!, listen: false).gdStatus;
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    var response = await http.Client().post(
-      Uri.parse(url.toString()),
-      body: {
-        'userId': _userId,
-        'token': await FirebaseMessaging.instance.getToken(),
-        'lastEvents': json.encode(lastEventsList),
-        'currentDate':
-            "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
-        'driveLoggedIn': driveStatus.toString(),
-        'version': '1.0.2'
-      },
-    );
-    var decodedData = json.decode(response.body);
-    print("SINCRONIZATION");
-    if (decodedData['error'] == "User not found") {
-      return changeStartError("User not found");
-    }
-    if (decodedData['driveStatus'] == "Update required" ||
-        decodedData['driveStatus'] == 'Backup not found') {
-      await updateCreateDriveBackup(true, context);
-    }
-    if (decodedData['data'].isEmpty) return;
-    List<String> updatedItems = [];
-    for (var tDB in decodedData['data']) {
-      int index = _trackings.indexWhere((seg) => seg.idMDB == tDB['_id']);
-      trackingCheckUpdate(index, tDB);
-      trackingDataUpdate(index, tDB, true);
-      String tracking = trackings[index].title!;
-      updatedItems.add(tracking);
-    }
-    if (updatedItems.isNotEmpty) {
-      String message = '';
-      if (updatedItems.length == 1) message = updatedItems[0];
-      if (updatedItems.length > 1) message = "Varios seguimientos actualizados";
-      Provider.of<Status>(context, listen: false)
-          .showNotificationOverlay("Datos sincronizados", message);
-    }
-    notifyListeners();
-  }
-
-  Future<dynamic> updateCreateDriveBackup(
-      bool background, BuildContext context) async {
-    Map<String, dynamic> databaseData = await StoredData().userBackupData();
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    var response = await http.Client().post(
-        Uri.parse("${dotenv.env['API_URL']}/api/google/createUpdate"),
-        body: {
-          'userId': _userId,
-          'userData': json.encode(databaseData),
-        });
-    return background ? null : response;
   }
 }

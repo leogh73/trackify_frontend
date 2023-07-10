@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:trackify/providers/http_request_handler.dart';
 
 import '../providers/preferences.dart';
 
@@ -65,12 +64,14 @@ class _MeLiCheckState extends State<MeLiCheck> {
       Object id = totalShippingsData[i];
       shippingCheck.add(id);
     }
-    var response = await http.Client().post(
-        Uri.parse("${dotenv.env['API_URL']}/api/mercadolibre/loadmore"),
-        body: {
-          'shippingIds': json.encode(shippingCheck),
-          'httpHeaders': json.encode(httpHeaders)
-        });
+    Object body = {
+      'shippingIds': json.encode(shippingCheck),
+      'httpHeaders': json.encode(httpHeaders)
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/mercadolibre/loadmore', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       var fetchedData = json.decode(response.body);
       List<MeLiItemData> responseData = processMLData(fetchedData);
@@ -83,17 +84,18 @@ class _MeLiCheckState extends State<MeLiCheck> {
     } else {
       ShowDialog(context).meLiCheckError();
     }
-    return null;
   }
 
   Future checkData(String checkInput) async {
     String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    var response = await http.Client().post(
-        Uri.parse("${dotenv.env['API_URL']}/api/mercadolibre/consult"),
-        body: {
-          'userId': _userId,
-          'consultType': checkInput,
-        });
+    Object body = {
+      'userId': _userId,
+      'consultType': checkInput,
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/mercadolibre/consult', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       var fetchedData = json.decode(response.body);
       List<MeLiItemData> responseData =

@@ -113,6 +113,7 @@ class _TrackingFormState extends State<TrackingForm> {
   Widget build(BuildContext context) {
     var listView = "main";
     final String? service = Provider.of<Status>(context).chosenService;
+    final String exampleCode = Provider.of<Status>(context).chosenServiceCode;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
@@ -156,9 +157,9 @@ class _TrackingFormState extends State<TrackingForm> {
                   padding: const EdgeInsets.all(5.0),
                   child: TextFormField(
                     focusNode: FocusNode(),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Código",
-                      hintText: 'Ejemplo: EC20008347607',
+                      hintText: exampleCode,
                       contentPadding: EdgeInsets.only(top: 5),
                     ),
                     controller: code,
@@ -309,63 +310,86 @@ class _SelectServiceState extends State<SelectService> {
 class ServiceItemModel {
   final Image image;
   final String chosen;
-  ServiceItemModel(this.image, this.chosen);
+  final String exampleCode;
+  ServiceItemModel(this.image, this.chosen, this.exampleCode);
 }
 
 final List<ServiceItemModel> services = [
   ServiceItemModel(
     Image.asset('assets/services/andreani.png'),
     "Andreani",
+    "360000070068800 ",
   ),
   ServiceItemModel(
     Image.asset('assets/services/clicoh.png'),
     "ClicOh",
+    "HWUIN94250",
   ),
   ServiceItemModel(
     Image.asset('assets/services/ca.png'),
     "Correo Argentino",
+    "1627633PCMI321E001",
   ),
   ServiceItemModel(
     Image.asset('assets/services/dhl.png'),
     "DHL",
+    "2271618790",
   ),
   ServiceItemModel(
     Image.asset('assets/services/ecapack.png'),
     "EcaPack",
+    "RI-0044-2505",
   ),
   ServiceItemModel(
     Image.asset('assets/services/fasttrack.png'),
     "FastTrack",
+    "101440340",
+  ),
+  ServiceItemModel(
+    Image.asset('assets/services/mdcargas.png'),
+    "MDCargas",
+    "R-0505-00020601",
   ),
   ServiceItemModel(
     Image.asset('assets/services/oca.png'),
     "OCA",
+    "3867500000050334468",
   ),
   ServiceItemModel(
     Image.asset('assets/services/ocasa.png'),
     "OCASA",
+    "EC2FQ31777987",
   ),
   ServiceItemModel(
     Image.asset('assets/services/renaper.png'),
     "Renaper",
+    "682257040",
   ),
   ServiceItemModel(
     Image.asset('assets/services/urbano.png'),
     "Urbano",
+    "0000000043168668",
   ),
   ServiceItemModel(
     Image.asset('assets/services/via_cargo.png'),
     "ViaCargo",
+    "999015276642",
   ),
 ];
 
-class ServiceImage {
+class ServiceData {
   final String serviceImage;
-  ServiceImage(this.serviceImage);
+  ServiceData(this.serviceImage);
 
-  load() {
+  Image getImage() {
     int serviceIndex =
         services.indexWhere((service) => service.chosen == serviceImage);
     return services[serviceIndex].image;
+  }
+
+  String getExampleCode() {
+    int serviceIndex =
+        services.indexWhere((service) => service.chosen == serviceImage);
+    return services[serviceIndex].exampleCode;
   }
 }

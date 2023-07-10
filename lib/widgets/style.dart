@@ -178,15 +178,6 @@ class _StyleListState extends State<StyleList> {
     final screenWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
-        // Container(
-        //   padding: EdgeInsets.only(top: 10, bottom: 10),
-        //   child: Text(
-        //     'VISTA',
-        //     style:
-        //         TextStyle(fontSize: 16, color: Theme.of(context).primaryColor),
-        //   ),
-        // ),
-        // SizedBox(height: 10),
         SizedBox(
           // padding: EdgeInsets.only(right: 8, left: 4),
           width: isPortrait ? screenWidth * 0.65 : screenWidth * 0.385,

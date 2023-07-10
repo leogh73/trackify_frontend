@@ -53,4 +53,4 @@ Es posible que actualicemos nuestra Política de privacidad de vez en cuando. Po
 
 Si tiene alguna pregunta o sugerencia sobre nuestra Política de Privacidad, no dude en ponerse en contacto con nosotros.
 Información de contacto:  
-Email: leocuevas73@gmail.com
+Email: trackear.seguimientos@gmail.com

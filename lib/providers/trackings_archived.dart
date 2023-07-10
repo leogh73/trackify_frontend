@@ -25,9 +25,6 @@ class ArchivedTrackings with ChangeNotifier {
     for (ItemTracking tracking in trackings) {
       storedData.removeArchivedTracking(tracking);
       _trackings.remove(tracking);
-      //       if (!tracking.checkError!) {
-      //   _tracking.add(tracking.idMDB!);
-      // }
     }
     notifyListeners();
   }

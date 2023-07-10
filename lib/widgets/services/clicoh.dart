@@ -7,10 +7,7 @@ import '../../providers/status.dart';
 import '../details_other.dart';
 import '../data_response.dart';
 
-class DataClicOh {
-  final dynamic data;
-  DataClicOh(this.data);
-
+class ClicOh {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -25,7 +22,7 @@ class DataClicOh {
     return events;
   }
 
-  createResponse() {
+  ItemResponseData createResponse(dynamic data) {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
@@ -70,7 +67,7 @@ class DataClicOh {
     );
   }
 
-  lastEvent() {
+  ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];

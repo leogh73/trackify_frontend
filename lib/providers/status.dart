@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:http/http.dart' as http;
-import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/providers/http_request_handler.dart';
 import 'package:trackify/providers/preferences.dart';
 
 import '../database.dart';
@@ -18,6 +17,14 @@ import 'trackings_active.dart';
 class Status with ChangeNotifier {
   StoredData storedData = StoredData();
 
+  String startError = '';
+  String get getStartError => startError;
+
+  void setStartError(String newError) {
+    startError = newError;
+    notifyListeners();
+  }
+
   late List<String> recentSearch;
 
   Status(StartData startData) {
@@ -26,9 +33,12 @@ class Status with ChangeNotifier {
 
   late String? loadedService;
   String? get chosenService => loadedService;
+  String exampleCode = "Seleccione un servicio";
+  String get chosenServiceCode => exampleCode;
 
   void loadService(ServiceItemModel service, BuildContext context) {
     loadedService = service.chosen;
+    exampleCode = "Ejemplo: ${service.exampleCode}";
     if (service.chosen == "Correo Argentino") {
       ShowDialog(context).serviceCAWarning();
     }
@@ -37,6 +47,7 @@ class Status with ChangeNotifier {
 
   void clearStartService() {
     loadedService = null;
+    exampleCode = "Seleccione un servicio";
   }
 
   List<String> get searchRecent => [...recentSearch];
@@ -246,11 +257,14 @@ class Status with ChangeNotifier {
   void deleteBackup(BuildContext context, String id) async {
     toggleGoogleProcess(true);
     String userId = [...await StoredData().loadUserPreferences()][0].userId;
-    String url = '${dotenv.env['API_URL']}/api/google/remove/';
-    var response = await http.Client().post(Uri.parse(url), body: {
+    Object body = {
       'userId': userId,
       'backupId': id,
-    });
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/google/remove/', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       int index = googleBackups.indexWhere((backup) => backup['id'] == id);
       googleBackups.removeAt(index);

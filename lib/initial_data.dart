@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:trackify/providers/http_request_handler.dart';
 import 'package:http/http.dart' as http;
 
 import 'providers/classes.dart';
@@ -25,6 +25,7 @@ class Init {
       provisional: false,
       sound: true,
     );
+
     if (defaultTargetPlatform == TargetPlatform.android) {
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'high_importance_channel',
@@ -55,12 +56,16 @@ class Init {
   }
 
   static Future<UserPreferences> _loadNewUserData() async {
-    String url = "${dotenv.env['API_URL']}/api/user/initialize/";
     String? firebaseToken = await firebaseMessagingNotifications();
-    var response = await http.Client().post(Uri.parse(url), body: {
+    String userId = '';
+    Object body = {
       'token': firebaseToken,
-    });
-    String userId = json.decode(response.body)['userId'];
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/user/initialize/', body);
+    if (response is http.Response)
+      userId = json.decode(response.body)['userId'];
+    print("USERID_$userId");
     UserPreferences startPreferences = UserPreferences(
       id: 0,
       userId: userId,
@@ -71,47 +76,43 @@ class Init {
       meLiStatus: false,
       googleDriveStatus: false,
     );
-    storedData.loadStartPreferences(startPreferences);
+    if (userId.isNotEmpty) storedData.loadStartPreferences(startPreferences);
     return startPreferences;
   }
 
   static Future<StartData> loadStartData() async {
-    List<UserPreferences> _userPreferences =
+    List<UserPreferences> userPreferences =
         await storedData.loadUserPreferences();
-    if (_userPreferences.isEmpty) {
-      _userPreferences = [await _loadNewUserData()];
+    if (userPreferences.isEmpty) {
+      userPreferences = [await _loadNewUserData()];
     }
-    List<ItemTracking> _activeTrackings =
-        await storedData.loadActiveTrackings();
-    List<ItemTracking> _archTrackings =
-        await storedData.loadArchivedTrackings();
+    List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
+    List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();
 
-    String _userId = _userPreferences[0].userId;
-    MaterialColor _startColor = ColorItem.load(_userPreferences[0].color);
-    String _startView = _userPreferences[0].view;
-    bool _startThemeDarkMode = _userPreferences[0].darkMode;
-    bool _meliStatus = _userPreferences[0].meLiStatus;
-    bool _driveStatus = _userPreferences[0].googleDriveStatus;
-    List<String> _searchHistory = [
-      ..._userPreferences[0].searchHistory.reversed
-    ];
+    String userId = userPreferences[0].userId;
+    MaterialColor startColor = ColorItem.load(userPreferences[0].color);
+    String startView = userPreferences[0].view;
+    bool startThemeDarkMode = userPreferences[0].darkMode;
+    bool meliStatus = userPreferences[0].meLiStatus;
+    bool driveStatus = userPreferences[0].googleDriveStatus;
+    List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
-    List<ItemTracking> _startActiveTrackings =
-        _activeTrackings.isEmpty ? [] : [..._activeTrackings.reversed];
+    List<ItemTracking> startActiveTrackings =
+        activeTrackings.isEmpty ? [] : [...activeTrackings.reversed];
 
-    List<ItemTracking> _startArchivedTrackings =
-        _archTrackings.isEmpty ? [] : [..._archTrackings.reversed];
+    List<ItemTracking> startArchivedTrackings =
+        archTrackings.isEmpty ? [] : [...archTrackings.reversed];
 
     return StartData(
-      _userId,
-      _startColor,
-      _startView,
-      _startThemeDarkMode,
-      _meliStatus,
-      _driveStatus,
-      _searchHistory,
-      _startActiveTrackings,
-      _startArchivedTrackings,
+      userId,
+      startColor,
+      startView,
+      startThemeDarkMode,
+      meliStatus,
+      driveStatus,
+      searchHistory,
+      startActiveTrackings,
+      startArchivedTrackings,
     );
   }
 }

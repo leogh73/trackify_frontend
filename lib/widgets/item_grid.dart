@@ -488,7 +488,8 @@ class _ItemGridState extends State<ItemGrid> {
                                   maxHeight: screenHeight * 0.095,
                                   maxWidth: screenWidth * 0.2,
                                 ),
-                          child: ServiceImage(widget.tracking.service).load(),
+                          child:
+                              ServiceData(widget.tracking.service).getImage(),
                         ),
                       ],
                     ),

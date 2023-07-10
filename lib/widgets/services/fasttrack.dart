@@ -6,10 +6,7 @@ import '../../providers/status.dart';
 
 import '../data_response.dart';
 
-class DataFastTrack {
-  final dynamic data;
-  DataFastTrack(this.data);
-
+class FastTrack {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -24,7 +21,7 @@ class DataFastTrack {
     return events;
   }
 
-  createResponse() {
+  ItemResponseData createResponse(dynamic data) {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
@@ -42,7 +39,7 @@ class DataFastTrack {
     );
   }
 
-  lastEvent() {
+  ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];

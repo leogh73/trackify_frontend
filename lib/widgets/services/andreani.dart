@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
 import '../../providers/status.dart';
@@ -7,14 +6,10 @@ import '../../providers/status.dart';
 import '../details_other.dart';
 import '../data_response.dart';
 
-class DataAndreani {
-  final dynamic data;
-  DataAndreani(this.data);
-
+class Andreani {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
-    // print(eventsResponse);
     eventsResponse.forEach((e) => {
           event = {
             "date": e["date"],
@@ -28,7 +23,7 @@ class DataAndreani {
     return events;
   }
 
-  createResponse() {
+  ItemResponseData createResponse(dynamic data) {
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
@@ -63,7 +58,7 @@ class DataAndreani {
     );
   }
 
-  lastEvent() {
+  ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     List<List<String>> otherData = [];

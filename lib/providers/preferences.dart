@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/providers/http_request_handler.dart';
 
 import './classes.dart';
 import '../database.dart';
@@ -49,11 +48,14 @@ class Preferences with ChangeNotifier {
   String get userId => _userId;
 
   void initializeMeLi(BuildContext context, String code) async {
-    String url = '${dotenv.env['API_URL']}/api/mercadolibre/initialize/';
-    var response = await http.Client().post(Uri.parse(url), body: {
+    Object body = {
       'userId': _userId,
       'code': code,
-    });
+    };
+    dynamic response = await HttpRequestHandler.newRequest(
+        "/api/mercadolibre/initialize/", body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       toggleMeLiStatus(true);
     } else {
@@ -80,12 +82,15 @@ class Preferences with ChangeNotifier {
 
   void initializeGoogle(
       BuildContext context, String authCode, String email) async {
-    String url = "${dotenv.env['API_URL']}/api/google/initialize/";
-    var response = await http.Client().post(Uri.parse(url), body: {
+    Object body = {
       'userId': _userId,
       'authCode': authCode,
       'email': email,
-    });
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest("/api/google/initialize/", body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       toggleGoogleStatus(true);
     } else {

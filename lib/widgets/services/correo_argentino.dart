@@ -6,10 +6,7 @@ import '../../providers/status.dart';
 
 import '../data_response.dart';
 
-class DataCorreoArgentino {
-  final dynamic data;
-  DataCorreoArgentino(this.data);
-
+class CorreoArgentino {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -26,7 +23,7 @@ class DataCorreoArgentino {
     return events;
   }
 
-  createResponse() {
+  ItemResponseData createResponse(dynamic data) {
     List<Map<String, String>> events = generateEventList(data['events']);
     String lastEvent = data['lastEvent'];
     List<List<String>> otherData = [[]];
@@ -45,7 +42,7 @@ class DataCorreoArgentino {
     );
   }
 
-  lastEvent() {
+  ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];

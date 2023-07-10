@@ -98,7 +98,10 @@ class _ActionsMenuState extends State<ActionsMenu> {
       ),
     );
     ServiceItemModel serviceEdit = ServiceItemModel(
-        ServiceImage(widget.tracking.service).load(), widget.tracking.service);
+      ServiceData(widget.tracking.service).getImage(),
+      widget.tracking.service,
+      ServiceData(widget.tracking.service).getExampleCode(),
+    );
     Provider.of<Status>(context, listen: false)
         .loadService(serviceEdit, context);
   }
@@ -251,166 +254,137 @@ class _ActionsMenuState extends State<ActionsMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final List<WidgetOption> optionsList = [
-      WidgetOption(
-          WidgetsScreen(
-            PopupMenuButton<String>(
-              // padding: EdgeInsets.zero,
-              tooltip: 'Opciones',
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
+    final Map<String, WidgetsScreen> optionsList = {
+      "main": WidgetsScreen(
+          PopupMenuButton<String>(
+            // padding: EdgeInsets.zero,
+            tooltip: 'Opciones',
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10.0),
               ),
-              elevation: 2,
-              // icon: Icon(Icons.more_vert),
-              onSelected: (String value) {
-                switch (value) {
-                  case 'Detalles':
-                    _seeTrackingDetail(context);
-                    break;
-                  case 'Más datos':
-                    _seeMoreTrackingData(context);
-                    break;
-                  case 'Editar':
-                    _editTracking(context);
-                    break;
-                  case 'Seleccionar':
-                    _activateSelectionMode(
-                        context, widget.tracking, widget.screen);
-                    break;
-                  // case 'Compartir':
-                  //   _editTracking(context);
-                  //   break;
-                  case 'Archivar':
-                    _displayDialog(context, widget.screen, "archivar", false);
-                    break;
-                  case 'Eliminar':
-                    _displayDialog(context, widget.screen, "eliminar", false);
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                if (!widget.detail && !widget.tracking.checkError!)
-                  optionMenu('Detalles', context, Icons.info_outline),
-                if (!widget.tracking.checkError!)
-                  optionMenu('Más datos', context, Icons.info),
-                optionMenu('Editar', context, Icons.edit),
-                if (!widget.detail)
-                  optionMenu('Seleccionar', context, Icons.select_all_sharp),
-                // if (!tracking.checkError!)
-                //   optionMenu('Compartir', context, Icons.share),
-                if (!widget.tracking.checkError!)
-                  optionMenu("Archivar", context, Icons.archive),
-                optionMenu('Eliminar', context, Icons.delete),
-              ],
             ),
-            [
-              Button(
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    iconSize: widget.icon,
-                    onPressed: () => _displayDialog(
-                        context, widget.screen, "eliminar", true),
-                  ),
-                  "remove"),
-              Button(
-                  IconButton(
-                    icon: const Icon(Icons.archive),
-                    iconSize: widget.icon,
-                    onPressed: () => _displayDialog(
-                        context, widget.screen, "archivar", true),
-                  ),
-                  "archive"),
+            elevation: 2,
+            // icon: Icon(Icons.more_vert),
+            onSelected: (String value) {
+              switch (value) {
+                case 'Detalles':
+                  _seeTrackingDetail(context);
+                  break;
+                case 'Más datos':
+                  _seeMoreTrackingData(context);
+                  break;
+                case 'Editar':
+                  _editTracking(context);
+                  break;
+                case 'Seleccionar':
+                  _activateSelectionMode(
+                      context, widget.tracking, widget.screen);
+                  break;
+                // case 'Compartir':
+                //   _editTracking(context);
+                //   break;
+                case 'Archivar':
+                  _displayDialog(context, widget.screen, "archivar", false);
+                  break;
+                case 'Eliminar':
+                  _displayDialog(context, widget.screen, "eliminar", false);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              if (!widget.detail && !widget.tracking.checkError!)
+                optionMenu('Detalles', context, Icons.info_outline),
+              if (!widget.tracking.checkError!)
+                optionMenu('Más datos', context, Icons.info),
+              optionMenu('Editar', context, Icons.edit),
+              if (!widget.detail)
+                optionMenu('Seleccionar', context, Icons.select_all_sharp),
+              // if (!tracking.checkError!)
+              //   optionMenu('Compartir', context, Icons.share),
+              if (!widget.tracking.checkError!)
+                optionMenu("Archivar", context, Icons.archive),
+              optionMenu('Eliminar', context, Icons.delete),
             ],
           ),
-          "main"),
-      WidgetOption(
-          WidgetsScreen(
-            PopupMenuButton<String>(
-              // padding: EdgeInsets.zero,
-              tooltip: 'Opciones',
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
+          {
+            "remove": IconButton(
+              icon: const Icon(Icons.delete),
+              iconSize: widget.icon,
+              onPressed: () =>
+                  _displayDialog(context, widget.screen, "eliminar", true),
+            ),
+            "archive": IconButton(
+              icon: const Icon(Icons.archive),
+              iconSize: widget.icon,
+              onPressed: () =>
+                  _displayDialog(context, widget.screen, "archivar", true),
+            )
+          }),
+      "archived": WidgetsScreen(
+          PopupMenuButton<String>(
+            // padding: EdgeInsets.zero,
+            tooltip: 'Opciones',
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10.0),
               ),
-              elevation: 2,
-              // icon: Icon(Icons.more_vert),
-              onSelected: (String value) {
-                switch (value) {
-                  case 'Detalles':
-                    _seeTrackingDetail(context);
-                    break;
-                  case 'Más datos':
-                    _seeMoreTrackingData(context);
-                    break;
-                  case 'Restaurar':
-                    _displayDialog(context, widget.screen, "restaurar", false);
-                    break;
-                  case 'Seleccionar':
-                    _activateSelectionMode(
-                        context, widget.tracking, widget.screen);
-                    break;
+            ),
+            elevation: 2,
+            // icon: Icon(Icons.more_vert),
+            onSelected: (String value) {
+              switch (value) {
+                case 'Detalles':
+                  _seeTrackingDetail(context);
+                  break;
+                case 'Más datos':
+                  _seeMoreTrackingData(context);
+                  break;
+                case 'Restaurar':
+                  _displayDialog(context, widget.screen, "restaurar", false);
+                  break;
+                case 'Seleccionar':
+                  _activateSelectionMode(
+                      context, widget.tracking, widget.screen);
+                  break;
 
-                  case 'Eliminar':
-                    _displayDialog(context, widget.screen, "eliminar", false);
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                if (!widget.detail && !widget.tracking.checkError!)
-                  optionMenu('Detalles', context, Icons.info_outline),
-                if (!widget.tracking.checkError!)
-                  optionMenu('Más datos', context, Icons.info),
-                if (!widget.detail)
-                  optionMenu('Seleccionar', context, Icons.select_all_sharp),
-                // if (!tracking.checkError!)
-                //   optionMenu('Compartir', context, Icons.share),
-                if (!widget.tracking.checkError!)
-                  optionMenu('Restaurar', context, Icons.restore),
-                optionMenu('Eliminar', context, Icons.delete),
-              ],
-            ),
-            [
-              Button(
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    iconSize: widget.icon,
-                    onPressed: () => _displayDialog(
-                        context, widget.screen, "eliminar", true),
-                  ),
-                  "remove"),
+                case 'Eliminar':
+                  _displayDialog(context, widget.screen, "eliminar", false);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              if (!widget.detail && !widget.tracking.checkError!)
+                optionMenu('Detalles', context, Icons.info_outline),
+              if (!widget.tracking.checkError!)
+                optionMenu('Más datos', context, Icons.info),
+              if (!widget.detail)
+                optionMenu('Seleccionar', context, Icons.select_all_sharp),
+              // if (!tracking.checkError!)
+              //   optionMenu('Compartir', context, Icons.share),
+              if (!widget.tracking.checkError!)
+                optionMenu('Restaurar', context, Icons.restore),
+              optionMenu('Eliminar', context, Icons.delete),
             ],
           ),
-          "archived"),
-    ];
-    final int screenIndex =
-        optionsList.indexWhere((option) => option.screenName == widget.screen);
-    final int buttonIndex = optionsList[screenIndex]
-        .screenWidgets
-        .buttons
-        .indexWhere((boton) => boton.action == widget.action);
+          {
+            "remove": IconButton(
+              icon: const Icon(Icons.delete),
+              iconSize: widget.icon,
+              onPressed: () =>
+                  _displayDialog(context, widget.screen, "eliminar", true),
+            ),
+          }),
+    };
+
     return widget.menu
-        ? optionsList[screenIndex].screenWidgets.menuItem
-        : optionsList[screenIndex].screenWidgets.buttons[buttonIndex].widget;
+        ? optionsList[widget.screen]?.menuItem
+        : optionsList[widget.screen]?.buttons[widget.action];
   }
 }
 
-class WidgetOption {
-  WidgetsScreen screenWidgets;
-  String screenName;
-  WidgetOption(this.screenWidgets, this.screenName);
-}
-
 class WidgetsScreen {
-  Widget menuItem;
-  List<Button> buttons;
+  dynamic menuItem;
+  Map<String, IconButton> buttons;
   WidgetsScreen(this.menuItem, this.buttons);
-}
-
-class Button {
-  Widget widget;
-  String action;
-  Button(this.widget, this.action);
 }

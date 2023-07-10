@@ -3,17 +3,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:trackify/database.dart';
+import 'package:trackify/providers/http_request_handler.dart';
+import 'package:trackify/providers/tracking_functions.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:trackify/widgets/drive_content.dart';
 
 import '../providers/status.dart';
 import '../providers/preferences.dart';
-import '../providers/trackings_active.dart';
 
 class GoogleDriveAccount extends StatefulWidget {
   const GoogleDriveAccount({Key? key}) : super(key: key);
@@ -39,10 +38,13 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
 
   Future checkDriveAccount() async {
     String _userId = Provider.of<Preferences>(context, listen: false).userId;
-    var response = await http.Client()
-        .post(Uri.parse("${dotenv.env['API_URL']}/api/google/consult"), body: {
+    Object body = {
       'userId': _userId,
-    });
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/google/consult', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       return loadFetchedData(response, true);
     } else {
@@ -54,8 +56,8 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
 
   Future createUpdateBackup() async {
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(true);
-    var response = await Provider.of<ActiveTrackings>(context, listen: false)
-        .updateCreateDriveBackup(false, context);
+    var response =
+        await TrackingFunctions.updateCreateDriveBackup(false, context);
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> backupsData =
@@ -150,13 +152,14 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
                             width: 120,
                             padding: const EdgeInsets.only(bottom: 9, top: 2),
                             child: ElevatedButton(
-                              child: const Text(
-                                'CANCELAR',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 15),
-                              ),
-                              onPressed: () => Navigator.pop(context),
-                            ),
+                                child: const Text(
+                                  'CANCELAR',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                                onPressed: () => {
+                                      Navigator.pop(context),
+                                    }),
                           ),
                           Container(
                             width: 120,
@@ -173,7 +176,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
                                 });
                                 restoreDialog(fullHD, selectedBackup);
                                 await StoredData()
-                                    .restoreBackupData(selectedBackup);
+                                    .restoreBackupData(context, selectedBackup);
                                 Phoenix.rebirth(context);
                               },
                             ),

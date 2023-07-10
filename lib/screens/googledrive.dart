@@ -159,7 +159,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
                           .toggleGDErrorStatus(false),
                       null,
                     )
-                  : const GoogleDriveAccount()
+                  : GoogleDriveAccount()
               : DriveContent(
                   context,
                   false,

@@ -4,20 +4,14 @@ import 'package:provider/provider.dart';
 
 import '../../providers/status.dart';
 
-import '../details_other.dart';
 import '../data_response.dart';
 
-class DHL {
+class MDCargas {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
     eventsResponse.forEach((e) => {
-          event = {
-            "date": e["date"],
-            "time": e["time"],
-            "location": e["location"],
-            "description": e["description"],
-          },
+          event = {"date": e["date"], "time": e["time"], "status": e["status"]},
           events.add(event)
         });
     return events;
@@ -26,38 +20,7 @@ class DHL {
   ItemResponseData createResponse(dynamic data) {
     List<Map<String, String>> events = generateEventList(data['events']);
     String lastEvent = data['lastEvent'];
-    List<String> shipping = [
-      data["shipping"]["id"],
-      data["shipping"]["service"],
-      data["shipping"]["origin"],
-      data["shipping"]["destiny"],
-    ];
-    List<String> status = [
-      data["shipping"]["status"]["date"],
-      data["shipping"]["status"]["time"],
-      data["shipping"]["status"]["location"],
-      data["shipping"]["status"]["statusCode"],
-      data["shipping"]["status"]["status"],
-      data["shipping"]["status"]["description"],
-      data["shipping"]["status"]["moreDetails"],
-      data["shipping"]["status"]["nextStep"],
-    ];
-    List<String> detail = [
-      data["details"]["date"],
-      data["details"]["time"],
-      data["details"]["signatureUrl"],
-      data["details"]["documentUrl"],
-      "${data["details"]["totalPieces"]}",
-      data["details"]["signedType"],
-      data["details"]["signedName"],
-    ];
-    List<String> piecesIds = [data["details"]["pieceIds"].join(" - ")];
-
-    List<List<String>> otherData = [];
-    otherData.add(shipping);
-    otherData.add(status);
-    otherData.add(detail);
-    otherData.add(piecesIds);
+    List<List<String>> otherData = [[]];
 
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
@@ -77,105 +40,34 @@ class DHL {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
-    List<String> status = [
-      data['result']['shipping']["status"]["date"],
-      data['result']['shipping']["status"]["time"],
-      data['result']['shipping']["status"]["location"],
-      data['result']['shipping']["status"]["statusCode"],
-      data['result']['shipping']["status"]["status"],
-      data['result']['shipping']["status"]["description"],
-      data['result']['shipping']["status"]["moreDetails"],
-      data['result']['shipping']["status"]["nextStep"],
-    ];
-    List<List<String>?>? otherData = [null, status, null, null];
 
-    return ItemResponseData(
-      events,
-      lastEvent,
-      otherData,
-      null,
-      null,
-      null,
-    );
+    return ItemResponseData(events, lastEvent, null, null, null, null);
   }
 }
 
-class MoreDataDHL extends StatelessWidget {
-  final List<List<String>>? otherData;
-  const MoreDataDHL(this.otherData, {Key? key}) : super(key: key);
+class MoreDataMDCargas extends StatelessWidget {
+  const MoreDataMDCargas({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          children: [
-            OtherData(
-              DataRowHandler(
-                otherData![0],
-                [
-                  "ID",
-                  "Servicio",
-                  "Origen",
-                  "Destino",
-                ],
-              ).createTable(),
-              "INFORMACIÓN DE ENVIO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![1],
-                [
-                  "Fecha",
-                  "Hora",
-                  "Ubicación",
-                  "Código de status",
-                  "Estado",
-                  "Descripción",
-                  "Más detalles",
-                  "Siguiente paso"
-                ],
-              ).createTable(),
-              "INFORMACIÓN DE ESTADO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![2],
-                [
-                  "Fecha",
-                  "Hora",
-                  "Firma",
-                  "Documento",
-                  "Total de piezas",
-                  "Tipo de firma",
-                  "Firmado por",
-                ],
-              ).createTable(),
-              "DETALLE DEL ENVIO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![3],
-                ["Id/s"],
-              ).createTable(),
-              "INFORMACIÓN DE PIEZAS",
-            ),
-          ],
-        ),
+    return const Center(
+      child: Text(
+        'No hay más datos',
+        style: TextStyle(fontSize: 24),
       ),
     );
   }
 }
 
-class EventListDHL extends StatefulWidget {
+class EventListMDCargas extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListDHL(this.events, {Key? key}) : super(key: key);
+  const EventListMDCargas(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListDHLState createState() => _EventListDHLState();
+  _EventListMDCargasState createState() => _EventListMDCargasState();
 }
 
-class _EventListDHLState extends State<EventListDHL> {
+class _EventListMDCargasState extends State<EventListMDCargas> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -203,17 +95,17 @@ class _EventListDHLState extends State<EventListDHL> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventDHL(widget.events[index], index, widget.events.length),
+            EventMDCargas(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventDHL extends StatelessWidget {
+class EventMDCargas extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventDHL(this.event, this.index, this.listLength, {Key? key})
+  const EventMDCargas(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -225,7 +117,7 @@ class EventDHL extends StatelessWidget {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Padding(
-      padding: const EdgeInsets.only(right: 8, left: 8, top: 2),
+      padding: const EdgeInsets.only(right: 8, left: 8),
       // child: InkWell(
       //   splashColor: Theme.of(context).primaryColor,
       //   child: Container(
@@ -247,14 +139,14 @@ class EventDHL extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            ? screenWidth * 0.472
+                            : screenWidth * 0.48,
                         child: Column(
                           children: [
                             Row(
@@ -288,7 +180,7 @@ class EventDHL extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            : screenWidth * 0.472,
                         child: Column(
                           children: [
                             Row(
@@ -319,72 +211,15 @@ class EventDHL extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (!isPortrait)
-                        SizedBox(
-                          width: isPortrait
-                              ? screenWidth * 0.445
-                              : screenWidth * 0.475,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.place, size: 20),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        child: Text(
-                                          event['location']!,
-                                          style: TextStyle(
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          if (isPortrait)
-            Padding(
-              padding: const EdgeInsets.only(left: 11, right: 11, top: 3),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.place, size: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 2, bottom: 2),
-                          child: Text(
-                            event['location']!,
-                            style: TextStyle(fontSize: fullHD ? 16 : 15),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
           Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(
-                    left: 11, right: 11, bottom: 10, top: 10)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+            padding:
+                const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
@@ -392,15 +227,15 @@ class EventDHL extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_shipping, size: 20),
                     SizedBox(
-                      width: screenWidth - 62,
+                      width: screenWidth - 60,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
                         ),
                         child: Text(
-                          event['description']!,
+                          event['status']!,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
+                          maxLines: 4,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
                         ),
                       ),

@@ -6,9 +6,8 @@ import 'package:overlay_support/overlay_support.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:trackify/providers/tracking_functions.dart';
 import 'package:trackify/widgets/ad_interstitial.dart';
-import 'package:trackify/widgets/ad_load.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'providers/preferences.dart';
@@ -17,7 +16,7 @@ import 'providers/status.dart';
 import 'providers/trackings_active.dart';
 import 'providers/trackings_archived.dart';
 
-import 'screens/main.dart';
+import 'screens/main_screen.dart';
 import 'screens/archived.dart';
 import 'screens/search.dart';
 
@@ -29,7 +28,7 @@ void main() async {
   tz.initializeTimeZones();
   MobileAds.instance.initialize();
   await Firebase.initializeApp(
-      name: "Trackify",
+      name: "TrackeAR",
       options: FirebaseOptions(
         apiKey: "${dotenv.env['FIRBASE_API_KEY']}",
         appId: "${dotenv.env['FIREBASE_APP_ID']}",
@@ -47,8 +46,6 @@ class TrackeAR extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AdOpen startAdOpen = AdOpen();
-    startAdOpen.loadAd();
     return OverlaySupport(
       child: FutureBuilder(
         future: Init.loadStartData(),
@@ -74,7 +71,7 @@ class TrackeAR extends StatelessWidget {
                       ArchivedTrackings(snapshot.data as StartData),
                 ),
               ],
-              child: App(startAdOpen),
+              child: const App(),
             );
           } else {
             return Material(
@@ -99,8 +96,7 @@ class TrackeAR extends StatelessWidget {
 }
 
 class App extends StatefulWidget {
-  final AdOpen startAdOpen;
-  const App(this.startAdOpen, {Key? key}) : super(key: key);
+  const App({Key? key}) : super(key: key);
 
   @override
   State<App> createState() => _AppState();
@@ -111,8 +107,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   AdInterstitial interstitialAd = AdInterstitial();
 
   void startSettings(context) async {
-    ActiveTrackings activeTrackings =
-        Provider.of<ActiveTrackings>(context, listen: false);
     FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) {
       print(newToken);
     });
@@ -120,7 +114,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         .getInitialMessage()
         .then((RemoteMessage? message) {
       if (message != null) {
-        activeTrackings.loadNotificationData(false, message,
+        TrackingFunctions.loadNotificationData(false, message,
             navigatorKey.currentState, navigatorKey.currentContext!);
       }
     });
@@ -128,26 +122,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
-        activeTrackings.loadNotificationData(true, message,
-            navigatorKey.currentState, navigatorKey.currentContext!);
+        TrackingFunctions.loadNotificationData(
+            true, message, navigatorKey.currentState, context);
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      activeTrackings.loadNotificationData(false, message,
-          navigatorKey.currentState, navigatorKey.currentContext!);
+      TrackingFunctions.loadNotificationData(
+          false, message, navigatorKey.currentState, context);
     });
-  }
-
-  void startSync(BuildContext context, bool start) async {
-    Provider.of<ActiveTrackings>(context, listen: false)
-        .sincronizeUserData(context);
-    if (start) {
-      String error =
-          Provider.of<ActiveTrackings>(context, listen: false).loadStartError;
-      if (error == 'User not found') {
-        ShowDialog(context).disabledUserError();
-      }
-    }
   }
 
   @override
@@ -155,8 +137,15 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     startSettings(context);
-    Future.delayed(const Duration(seconds: 2), () => startSync(context, true));
-    widget.startAdOpen.showAdIfAvailable();
+    Future.delayed(
+      const Duration(seconds: 2),
+      () => TrackingFunctions.sincronizeUserData(context, interstitialAd),
+    );
+    String userId = Provider.of<Preferences>(context, listen: false).userId;
+    print('USERID_$userId');
+    if (userId.isEmpty)
+      Provider.of<Status>(context, listen: false)
+          .setStartError('User not created');
     interstitialAd.createInterstitialAd();
   }
 
@@ -165,14 +154,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed &&
         navigatorKey.currentContext != null) {
-      startSync(navigatorKey.currentContext!, false);
+      TrackingFunctions.sincronizeUserData(navigatorKey.currentContext!, null);
       interstitialAd.showInterstitialAd();
-      String error = Provider.of<ActiveTrackings>(navigatorKey.currentContext!,
-              listen: false)
-          .loadStartError;
-      if (error == 'User not found') {
-        ShowDialog(navigatorKey.currentContext!).disabledUserError();
-      }
     }
   }
 
@@ -180,6 +163,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
+    String userId = Provider.of<Preferences>(context, listen: false).userId;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: mainColor,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -213,9 +197,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const Main(),
+      home: MainScreen(userId),
       routes: {
-        Main.routeName: (context) => const Main(),
+        MainScreen.routeName: (context) => MainScreen(userId),
         Archived.routeName: (context) => const Archived(),
         Search.routeName: (context) => const Search(),
       },

@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:flutter/material.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'package:http/http.dart' as http;
 import 'package:timezone/standalone.dart' as tz;
+import 'package:trackify/providers/http_request_handler.dart';
+import 'package:trackify/widgets/dialog_and_toast.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'providers/classes.dart';
 
@@ -99,6 +101,8 @@ class StoredData {
     final archivedTrackingsSnapshot = await _archivedTrackings.find(await _db);
     var now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     final Map<String, dynamic> backupData = {
       "date":
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
@@ -108,6 +112,7 @@ class StoredData {
       "activeTrackings": activeTrackingsSnapshot.map((t) => t.value).toList(),
       "archivedTrackings":
           archivedTrackingsSnapshot.map((t) => t.value).toList(),
+      "deviceModel": androidInfo.model,
     };
     return backupData;
   }
@@ -119,16 +124,19 @@ class StoredData {
     _archivedTrackings = intMapStoreFactory.store(archivedTrackings);
   }
 
-  Future<void> restoreBackupData(String backupId) async {
-    await reCreate();
+  Future<void> restoreBackupData(BuildContext context, String backupId) async {
     UserPreferences userPreferences =
         [...await StoredData().loadUserPreferences()][0];
     String userId = userPreferences.userId;
-    var response = await http.Client()
-        .post(Uri.parse("${dotenv.env['API_URL']}/api/google/restore/"), body: {
+    Object body = {
       'userId': userId,
       'backupId': backupId,
-    });
+    };
+    dynamic response =
+        await HttpRequestHandler.newRequest('/api/google/restore/', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
+    await reCreate();
     Map<String, dynamic>? backupData = json.decode(response.body);
     UserPreferences backupPreferences = UserPreferences.fromMap(
         backupData?['preferences']['id'],

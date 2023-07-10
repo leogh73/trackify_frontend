@@ -1,15 +1,13 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import "package:flutter_dotenv/flutter_dotenv.dart";
 
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/providers/http_request_handler.dart';
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/preferences.dart';
 
 import 'ad_interstitial.dart';
-import 'search_list.dart';
 import 'item_grid.dart';
 import 'item_row.dart';
 import 'item_card.dart';
@@ -28,17 +26,23 @@ class DataCheck {
   );
 
   Future startCheck() async {
+    AdInterstitial interstitialAd = AdInterstitial();
+    interstitialAd.createInterstitialAd();
     String userId = Provider.of<Preferences>(context, listen: false).userId;
-    String url = "${dotenv.env['API_URL']}/api/user/$userId/add/";
-    // String url = "${dotenv.env['API_URL']}/api/user/test";
-    var response = await http.Client().post(Uri.parse(url), body: {
+    Object body = {
       'title': tracking.title,
       'service': tracking.service,
-      'code': tracking.code,
-    });
+      'code': tracking.code.trim(),
+    };
+    // var response = await HttpRequestHandler.newRequest('/api/user/test2', body);
+    var response =
+        await HttpRequestHandler.newRequest('/api/user/$userId/add', body);
+    if (response is Map)
+      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      ItemResponseData itemResponse = Response.start(tracking.service, data);
+      ItemResponseData itemResponse =
+          Response.dataHandler(tracking.service, data, false);
       if (retry) {
         Provider.of<ActiveTrackings>(context, listen: false)
             .loadStartData(tracking, itemResponse);
@@ -53,11 +57,8 @@ class DataCheck {
           .removeTracking([tracking], context);
       ShowDialog(context).trackingError(tracking.service);
     } else {
-      ShowDialog(context).startCheckError();
+      ShowDialog(context).startTrackingError();
     }
-    return null;
-    // throw Exception(
-    //     'No se pudo obtener información, verifique el código ingresado o intente nuevamente más tarde.');
   }
 }
 
@@ -136,14 +137,12 @@ class Results extends StatelessWidget {
   Widget build(BuildContext context) {
     AdInterstitial interstitialAd = AdInterstitial();
     interstitialAd.createInterstitialAd();
-    final List<WidgetList> widgetList = [
-      WidgetList(ItemRow(tracking, false, interstitialAd), "row"),
-      WidgetList(ItemCard(tracking, false, interstitialAd), "card"),
-      WidgetList(ItemGrid(tracking, false, interstitialAd), "grid")
-    ];
+    final Map<String, dynamic> widgetList = {
+      "row": ItemRow(tracking, false, interstitialAd),
+      "card": ItemCard(tracking, false, interstitialAd),
+      "grid": ItemGrid(tracking, false, interstitialAd),
+    };
     var startListView = Provider.of<Preferences>(context).startList;
-    final widgetIndex =
-        widgetList.indexWhere((element) => element.listView == startListView);
-    return widgetList[widgetIndex].widgetList;
+    return widgetList[startListView];
   }
 }

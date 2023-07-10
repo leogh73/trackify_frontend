@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:trackify/database.dart';
 import 'package:trackify/providers/classes.dart';
+import 'package:trackify/providers/http_request_handler.dart';
 
 import '../providers/preferences.dart';
 import '../providers/theme.dart';
@@ -20,7 +19,6 @@ class ContactForm extends StatefulWidget {
 }
 
 class _ContactFormState extends State<ContactForm> {
-  bool formSuccess = false;
   int index = 0;
   late Color mainColor;
 
@@ -84,25 +82,27 @@ class _ContactFormState extends State<ContactForm> {
       sendingDialog(fullHD);
       var requestEmail = 'Sin datos';
       if (email.text.isNotEmpty) requestEmail = email.text;
-      String url = '${dotenv.env['API_URL']}/api/user/contact/';
       String userId = Provider.of<Preferences>(context, listen: false).userId;
-      var response = await http.Client().post(
-        Uri.parse(url.toString()),
-        body: {
-          'userId': userId,
-          'message': message.text,
-          'email': requestEmail,
-        },
-      );
+      Object body = {
+        'userId': userId,
+        'message': message.text,
+        'email': requestEmail,
+      };
+      dynamic response =
+          await HttpRequestHandler.newRequest('/api/user/contact/', body);
+      if (response is Map)
+        return ShowDialog(context).connectionServerError(false);
       if (response.statusCode == 200) {
         setState(() {
           index = 1;
-          formSuccess = true;
+        });
+      } else if (response.statusCode == 400) {
+        setState(() {
+          index = 2;
         });
       } else {
         setState(() {
-          index = 1;
-          formSuccess = false;
+          index = 3;
         });
       }
       Navigator.pop(context);
@@ -127,8 +127,8 @@ class _ContactFormState extends State<ContactForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremos soporte para el mismo, en una próxima actualización.",
-                    maxLines: 12,
+                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremos soporte para el mismo, en una próxima actualización. De ser necesario, nos pondremos en contacto por correo electrónico y te responderemos a la brevedad.",
+                    maxLines: 14,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: fullHD ? 17 : 16,
@@ -151,7 +151,7 @@ class _ContactFormState extends State<ContactForm> {
                   maxLines: 5,
                   // focusNode: FocusNode(),
                   decoration: InputDecoration(
-                      hintText: "Escriba su message",
+                      hintText: "Escriba su mensaje",
                       border: OutlineInputBorder(
                           borderSide: BorderSide(
                         width: 1,
@@ -173,10 +173,17 @@ class _ContactFormState extends State<ContactForm> {
                 child: TextFormField(
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.only(top: 5),
-                    labelText: "Email de contacto (opcional)",
+                    labelText: "Email de contacto",
                   ),
                   controller: email,
                   textInputAction: TextInputAction.next,
+                  autofocus: false,
+                  validator: (value) {
+                    if (value == null || !value.contains("@")) {
+                      return 'Ingrese un correo electrónico';
+                    }
+                    return null;
+                  },
                 ),
               ),
               Padding(
@@ -193,11 +200,7 @@ class _ContactFormState extends State<ContactForm> {
                             'Cancelar',
                             style: TextStyle(fontSize: 17),
                           ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            // code.dispose();
-                            // title.dispose();
-                          },
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -222,67 +225,46 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget sendingResult(fullHD) {
-    return formSuccess
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const Icon(Icons.done_all, size: 80),
-              const Padding(
-                child: Text(
-                  'Su message fue enviado correctamente.',
-                  style: TextStyle(fontSize: 22),
-                  textAlign: TextAlign.center,
-                ),
-                padding: EdgeInsets.all(20),
-              ),
-              const Padding(
-                child: Text(
-                  'Muchas gracias por su colaboración.',
-                  style: TextStyle(fontSize: 22),
-                  textAlign: TextAlign.center,
-                ),
-                padding: EdgeInsets.all(20),
-              ),
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  child: const Text(
-                    'Aceptar',
-                    style: TextStyle(fontSize: 17),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-            ],
-          )
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const Icon(Icons.error_outline, size: 80),
-              const Padding(
-                child: Text(
-                  'Ocurrió un error al enviar los datos. Reintente más tarde. Disculpe las molestias ocasionadas.',
-                  style: TextStyle(fontSize: 22),
-                ),
-                padding: EdgeInsets.all(20),
-              ),
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  child: const Text(
-                    'Aceptar',
-                    style: TextStyle(fontSize: 17),
-                  ),
-                  onPressed: () {
-                    setState(() {
+  Widget sendResult(String text1, String text2, bool success) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Icon(success ? Icons.done_all : Icons.error_outline, size: 80),
+        if (success)
+          Padding(
+            child: Text(
+              text1,
+              style: TextStyle(fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
+            padding: EdgeInsets.all(20),
+          ),
+        Padding(
+          child: Text(
+            text2,
+            style: TextStyle(fontSize: 22),
+            textAlign: TextAlign.center,
+          ),
+          padding: EdgeInsets.all(20),
+        ),
+        SizedBox(
+          width: 120,
+          child: ElevatedButton(
+            child: const Text(
+              'Aceptar',
+              style: TextStyle(fontSize: 17),
+            ),
+            onPressed: () => {
+              success
+                  ? Navigator.pop(context)
+                  : setState(() {
                       index = 0;
-                    });
-                  },
-                ),
-              ),
-            ],
-          );
+                    })
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -290,17 +272,27 @@ class _ContactFormState extends State<ContactForm> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    List<Result> results = [
-      Result(0, requestForm(fullHD)),
-      Result(1, sendingResult(fullHD))
-    ];
-    var page = results[index].page;
+    Map<int, Widget> results = {
+      0: requestForm(fullHD),
+      1: sendResult(
+          'Su mensaje fue enviado correctamente.',
+          'Muchas gracias por su tiempo. Nos pondremos en contacto de ser necesario.',
+          true),
+      2: sendResult(
+          '',
+          'Ocurrió un error al enviar los datos. El correo electrónico ingresado no es válido. Verifique y vuelva a intentarlo.',
+          false),
+      3: sendResult(
+          '',
+          'Ocurrió un error al enviar los datos. Reintente más tarde. Disculpe las molestias ocasionadas.',
+          false)
+    };
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
         title: const Text('Contáctanos'),
         actions: [
-          if (!formSuccess)
+          if (index == 0)
             IconButton(
               icon: const Icon(Icons.send),
               iconSize: 26,
@@ -308,14 +300,8 @@ class _ContactFormState extends State<ContactForm> {
             ),
         ],
       ),
-      body: page,
+      body: results[index],
       bottomNavigationBar: const AdBanner(),
     );
   }
-}
-
-class Result {
-  int index;
-  Widget page;
-  Result(this.index, this.page);
 }

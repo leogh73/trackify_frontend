@@ -2,12 +2,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/providers/tracking_functions.dart';
 import 'package:trackify/widgets/services/ecapack.dart';
 import 'package:trackify/widgets/services/fasttrack.dart';
+import 'package:trackify/widgets/services/mdcargas.dart';
 import 'package:trackify/widgets/services/renaper.dart';
 import 'package:trackify/widgets/services/urbano.dart';
-import '../providers/trackings_active.dart';
-import '../widgets/services/clicoh.dart';
 
 import '../providers/classes.dart';
 import '../providers/status.dart';
@@ -15,6 +15,7 @@ import '../providers/status.dart';
 import '../widgets/menu_actions.dart';
 import '../widgets/ad_banner.dart';
 
+import '../widgets/services/clicoh.dart';
 import '../widgets/services/andreani.dart';
 import '../widgets/services/correo_argentino.dart';
 import '../widgets/services/dhl.dart';
@@ -44,23 +45,22 @@ class _TrackingDetailState extends State<TrackingDetail> {
     } else if (widget.tracking.archived!) {
       screenList = "archived";
     }
-    List<DetailsWidget> responseList = [
-      DetailsWidget(EventListAndreani(widget.tracking.events!), "Andreani"),
-      DetailsWidget(EventListClicOh(widget.tracking.events!), "ClicOh"),
-      DetailsWidget(EventListCorreoArgentino(widget.tracking.events!),
-          "Correo Argentino"),
-      DetailsWidget(EventListDHL(widget.tracking.events!), "DHL"),
-      DetailsWidget(EventListEcaPack(widget.tracking.events!), "EcaPack"),
-      DetailsWidget(EventListFastTrack(widget.tracking.events!), "FastTrack"),
-      DetailsWidget(EventListOCA(widget.tracking.events!), "OCA"),
-      DetailsWidget(EventListOCASA(widget.tracking.events!), "OCASA"),
-      DetailsWidget(EventListRenaper(widget.tracking.events!), "Renaper"),
-      DetailsWidget(EventListUrbano(widget.tracking.events!), "Urbano"),
-      DetailsWidget(EventListViaCargo(widget.tracking.events!), "ViaCargo")
-    ];
-    int widgetIndex = responseList
-        .indexWhere((element) => element.service == widget.tracking.service);
-    Widget result = responseList[widgetIndex].dataList;
+    List<Map<String, String>> events = widget.tracking.events!;
+    final Map<String, dynamic> responseList = {
+      "Andreani": EventListAndreani(events),
+      "ClicOh": EventListClicOh(events),
+      "Correo Argentino": EventListCorreoArgentino(events),
+      "DHL": EventListDHL(events),
+      "EcaPack": EventListEcaPack(events),
+      "FastTrack": EventListFastTrack(events),
+      "MDCargas": EventListMDCargas(events),
+      "OCA": EventListOCA(events),
+      "OCASA": EventListOCASA(events),
+      "Renaper": EventListRenaper(events),
+      "Urbano": EventListUrbano(events),
+      "ViaCargo": EventListViaCargo(events),
+    };
+    Widget result = responseList[widget.tracking.service];
 
     return WillPopScope(
       onWillPop: () => Future.value(!_checking),
@@ -175,10 +175,8 @@ class _TrackingDetailState extends State<TrackingDetail> {
             ? null
             : FloatingActionButton(
                 heroTag: 'events',
-                onPressed: () => {
-                  Provider.of<ActiveTrackings>(context, listen: false)
-                      .searchUpdates(context, widget.tracking)
-                },
+                onPressed: () =>
+                    TrackingFunctions.searchUpdates(context, widget.tracking),
                 child: const Icon(Icons.update, size: 29),
               ),
         bottomNavigationBar: const AdBanner(),
@@ -198,26 +196,25 @@ class DetailsWidget {
 
 class MoreData extends StatelessWidget {
   final List<List<String>> otherData;
-  final String correo;
-  const MoreData(this.otherData, this.correo, {Key? key}) : super(key: key);
+  final String service;
+  const MoreData(this.otherData, this.service, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    List<DetailsWidget> responseList = [
-      DetailsWidget(MoreDataAndreani(otherData), "Andreani"),
-      DetailsWidget(MoreDataClicOh(otherData), "ClicOh"),
-      DetailsWidget(const MoreDataCorreoArgentino(), "Correo Argentino"),
-      DetailsWidget(MoreDataDHL(otherData), "DHL"),
-      DetailsWidget(const MoreDataEcaPack(), "EcaPack"),
-      DetailsWidget(const MoreDataFastTrack(), "FastTrack"),
-      DetailsWidget(MoreDataOCA(otherData), "OCA"),
-      DetailsWidget(MoreDataOCASA(otherData), "OCASA"),
-      DetailsWidget(MoreDataRenaper(otherData), "Renaper"),
-      DetailsWidget(MoreDataUrbano(otherData), "Urbano"),
-      DetailsWidget(MoreDataViaCargo(otherData), "ViaCargo"),
-    ];
-    int widgetIndex =
-        responseList.indexWhere((element) => element.service == correo);
-    Widget result = responseList[widgetIndex].dataList;
+    final Map<String, dynamic> responseList = {
+      "Andreani": MoreDataAndreani(otherData),
+      "ClicOh": MoreDataClicOh(otherData),
+      "Correo Argentino": const MoreDataCorreoArgentino(),
+      "DHL": MoreDataDHL(otherData),
+      "EcaPack": const MoreDataEcaPack(),
+      "FastTrack": const MoreDataFastTrack(),
+      "MDCargas": const MoreDataMDCargas(),
+      "OCA": MoreDataOCA(otherData),
+      "OCASA": MoreDataOCASA(otherData),
+      "Renaper": MoreDataRenaper(otherData),
+      "Urbano": MoreDataUrbano(otherData),
+      "ViaCargo": MoreDataViaCargo(otherData),
+    };
+    dynamic result = responseList[service];
 
     return Scaffold(
       appBar: AppBar(

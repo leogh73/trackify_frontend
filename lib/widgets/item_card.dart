@@ -377,8 +377,8 @@ class _ItemCardState extends State<ItemCard> {
                                       padding: EdgeInsets.zero,
                                       height: 35,
                                       child:
-                                          ServiceImage(widget.tracking.service)
-                                              .load(),
+                                          ServiceData(widget.tracking.service)
+                                              .getImage(),
                                     ),
                                     SizedBox(
                                       width: 36,

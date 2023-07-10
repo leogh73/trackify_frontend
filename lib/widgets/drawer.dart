@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:trackify/screens/contact_form.dart';
+
 import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 
@@ -9,29 +10,16 @@ import '../providers/preferences.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
 
-import '../screens/main.dart';
+import '../screens/main_screen.dart';
 import '../screens/archived.dart';
 // import '../screens/opciones.dart';
 import '../screens/mercadolibre.dart';
 import '../screens/googledrive.dart';
 
-class NavigationDrawer extends StatelessWidget {
-  final AdInterstitial interstitialAd1;
-  final AdInterstitial interstitialAd2;
-  final AdInterstitial interstitialAd3;
-  final AdInterstitial interstitialAd4;
-  final AdInterstitial interstitialAd5;
-  final AdInterstitial interstitialAd6;
+class DrawerWidget extends StatelessWidget {
+  final AdInterstitial drawerInterstitialAd;
 
-  const NavigationDrawer(
-      this.interstitialAd1,
-      this.interstitialAd2,
-      this.interstitialAd3,
-      this.interstitialAd4,
-      this.interstitialAd5,
-      this.interstitialAd6,
-      {Key? key})
-      : super(key: key);
+  const DrawerWidget(this.drawerInterstitialAd, {Key? key}) : super(key: key);
 
   Widget optionAPI(VoidCallback openPage, Image imagen, double altura,
       double ancho, bool accountState) {
@@ -64,8 +52,10 @@ class NavigationDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool meliStatus = Provider.of<Preferences>(context).meLiStatus;
     final bool googleStatus = Provider.of<Preferences>(context).gdStatus;
-    int mainAmount = Provider.of<ActiveTrackings>(context).trackings.length;
-    int archivedAmount =
+    final int mainAmount =
+        Provider.of<ActiveTrackings>(context).trackings.length;
+    String userId = Provider.of<Preferences>(context, listen: false).userId;
+    final int archivedAmount =
         Provider.of<ArchivedTrackings>(context).trackings.length;
     return Drawer(
       child: ListView(
@@ -108,7 +98,7 @@ class NavigationDrawer extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => const GoogleDrive(),
                         )),
-                    interstitialAd1.showInterstitialAd()
+                    drawerInterstitialAd.showInterstitialAd()
                   },
               Image.asset('assets/other/googledrive.png'),
               40,
@@ -120,10 +110,10 @@ class NavigationDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const MercadoLibre(),
+                  builder: (_) => MercadoLibre(),
                 ),
               ),
-              interstitialAd2.showInterstitialAd()
+              drawerInterstitialAd.showInterstitialAd()
             },
             Image.asset('assets/other/mercadolibre.png'),
             38,
@@ -131,11 +121,11 @@ class NavigationDrawer extends StatelessWidget {
             meliStatus,
           ),
           DrawerOption(Icons.local_shipping, "Activos ($mainAmount)",
-              const Main(), true, false, interstitialAd3),
+              MainScreen(userId), true, false, drawerInterstitialAd),
           DrawerOption(Icons.archive, "Archivados ($archivedAmount)",
-              const Archived(), false, false, interstitialAd4),
-          DrawerOption(Icons.mail_outline, 'Contáctanos', const ContactForm(),
-              false, false, interstitialAd5),
+              const Archived(), false, false, drawerInterstitialAd),
+          DrawerOption(Icons.mail_outline, 'Contáctanos', ContactForm(), false,
+              false, drawerInterstitialAd),
           DrawerOption(Icons.info_outline, 'Acerca de ésta aplicación',
               ShowDialog(context).about, false, true, AdInterstitial()),
         ],

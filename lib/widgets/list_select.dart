@@ -46,20 +46,18 @@ class TrackingList extends StatelessWidget {
     //     selectionarOrigen(listScreen, context).seguimientos;
     // final selectionMode =
     //     selectionarOrigen(listScreen, context).estadoModoSelection;
-    final List<WidgetList> lists = [
-      WidgetList(ListRow(selectionMode, trackingsData), "row"),
-      WidgetList(ListCard(selectionMode, trackingsData), "card"),
-      WidgetList(ListGrid(selectionMode, trackingsData), "grid"),
-      WidgetList(sinSeguimientos(), "empty"),
-    ];
+    final Map<String, Widget> lists = {
+      "row": ListRow(selectionMode, trackingsData),
+      "card": ListCard(selectionMode, trackingsData),
+      "grid": ListGrid(selectionMode, trackingsData),
+      "empty": sinSeguimientos()
+    };
     var startListType = Provider.of<Preferences>(context).startList;
     if (trackingsData.isEmpty) {
       startListType = "empty";
     }
-    final int listIndex =
-        lists.indexWhere((list) => list.listType == startListType);
     return Scaffold(
-      body: lists[listIndex].widgetList,
+      body: lists[startListType],
     );
   }
 }

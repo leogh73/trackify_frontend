@@ -15,8 +15,7 @@ class ShowDialog {
   }
 
   Future<void> _launchPrivacyPolicy() async {
-    String url =
-        "https://github.com/leogh73/trackify_frontend/blob/master/PRIVACY_POLICY.md";
+    String url = "https://trackify-frontend.vercel.app/PRIVACY_POLICY.md";
     if (!await launchUrl(Uri.parse(url),
         mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
@@ -32,7 +31,7 @@ class ShowDialog {
     }
   }
 
-  void errorDialog(String message, bool disabledUser, bool fullHD) {
+  void errorDialog(String message, bool disabledUser) {
     showDialog<String>(
       context: context,
       barrierDismissible: !disabledUser,
@@ -58,30 +57,32 @@ class ShowDialog {
                   message,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: fullHD ? 16 : 15,
+                    fontSize: fullHD() ? 16 : 15,
                   ),
                 ),
               ),
-              if (!disabledUser)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 110,
-                      padding: const EdgeInsets.only(bottom: 9, top: 0),
-                      child: ElevatedButton(
-                        child: Text(
-                          'Aceptar',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: fullHD ? 16 : 15,
-                          ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 110,
+                    padding: const EdgeInsets.only(bottom: 9, top: 0),
+                    child: ElevatedButton(
+                      child: Text(
+                        'Aceptar',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: fullHD() ? 16 : 15,
                         ),
-                        onPressed: () => Navigator.pop(context),
                       ),
+                      onPressed: () => {
+                        _launchPlayStore,
+                        Navigator.pop(context),
+                      },
                     ),
-                  ],
-                )
+                  ),
+                ],
+              )
             ],
           ),
         );
@@ -151,7 +152,8 @@ class ShowDialog {
                   "TrackeAR",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: fullHD ? 16 : 15,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fullHD ? 18 : 17,
                   ),
                 ),
               ),
@@ -160,7 +162,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Versión 1.0.2",
+                  "Versión 1.0.3",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -201,30 +203,37 @@ class ShowDialog {
                       )
                     ])),
               ),
+              Container(
+                width: 245,
+                padding: const EdgeInsets.only(bottom: 12, top: 8),
+                child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: 'Licencias',
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => {
+                                Navigator.pop(context),
+                                showLicensePage(
+                                  applicationName: 'TrackeAR',
+                                  context: context,
+                                  applicationIcon: Image.asset(
+                                      "assets/icon/icon.png",
+                                      height: 35,
+                                      width: 35),
+                                  applicationVersion: '1.0.3',
+                                ),
+                              },
+                      )
+                    ])),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    width: 110,
-                    padding: const EdgeInsets.only(bottom: 9, top: 0),
-                    child: ElevatedButton(
-                        child: Text(
-                          'Licencias',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: fullHD ? 16 : 15,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          showLicensePage(
-                            context: context,
-                            applicationIcon: Image.asset("assets/icon/icon.png",
-                                height: 35, width: 35),
-                            applicationVersion: '1.0.0',
-                          );
-                        }),
-                  ),
                   Container(
                     width: 110,
                     padding: const EdgeInsets.only(bottom: 9, top: 0),
@@ -248,19 +257,17 @@ class ShowDialog {
     );
   }
 
-  void startCheckError() {
+  void connectionServerError(start) {
     errorDialog(
-      "Ocurrió un error al obtener datos de éste seguimiento. Verifique el código ingresado o reintente más tarde.",
+      "Ocurrió un error de conexión al servidor. La funcionalidad de la aplicación podría estar limitada. Verifique su conexión a internet y/o reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
-  void connectionError() {
+  void startTrackingError() {
     errorDialog(
-      "Ocurrió un error con tu conexión a internet. Verifica tu conexión e intenta nuevamente.",
+      "Ocurrió un error al obtener datos de éste seguimiento. Verifique el código ingresado o reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
@@ -268,7 +275,6 @@ class ShowDialog {
     errorDialog(
       "Datos faltantes y/o incorrectos.",
       false,
-      fullHD(),
     );
   }
 
@@ -276,7 +282,6 @@ class ShowDialog {
     errorDialog(
       "$service no tiene información sobre el seguimiento solicitado.",
       false,
-      fullHD(),
     );
   }
 
@@ -284,7 +289,6 @@ class ShowDialog {
     errorDialog(
       "No se pudo verificar el seguimiento. Reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
@@ -292,7 +296,6 @@ class ShowDialog {
     errorDialog(
       "No se pudo obtener información desde MercadoLibre. Reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
@@ -300,7 +303,6 @@ class ShowDialog {
     errorDialog(
       "No se pudo acceder a MercadoLibre. Reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
@@ -308,7 +310,6 @@ class ShowDialog {
     errorDialog(
       "No se pudo acceder a Google. Reintente más tarde.",
       false,
-      fullHD(),
     );
   }
 
@@ -316,15 +317,6 @@ class ShowDialog {
     errorDialog(
       "No se pudo acceder a Google Drive. Reintente más tarde.",
       false,
-      fullHD(),
-    );
-  }
-
-  void disabledUserError() {
-    errorDialog(
-      "Ésta instalación de la aplicación fue deshabilitada por inactividad. Para poder utilizarla nuevamente, eliminelá y vuelva a instalarla.",
-      true,
-      fullHD(),
     );
   }
 
@@ -332,7 +324,6 @@ class ShowDialog {
     errorDialog(
       "Éste servicio sólo funciona con códigos generados por MercadoLibre. Los códigos generados por Correo Argentino, no pueden agregarse ya que su sitio tiene verificación con reCaptcha. Disculpe las molestias.",
       false,
-      fullHD(),
     );
   }
 
@@ -342,6 +333,23 @@ class ShowDialog {
 
   void about() {
     aboutThisApp(fullHD());
+  }
+
+  void startError(String type) {
+    String message = '';
+    if (type == "User not created") {
+      message =
+          "Ocurrió un error de conexión, debido al cual, la aplicación se instaló incorrectamente y no la podrá utilizar. Verifique su conexión a internet y reintente instalarla más tarde.";
+    }
+    if (type == "User not found") {
+      message =
+          "Ésta instalación de la aplicación fue deshabilitada por inactividad. Para poder utilizarla nuevamente, eliminelá y vuelva a instalarla.";
+    }
+    if (type == "Lastest version not found") {
+      message =
+          "Para poder utlizar ésta aplicación, descargue la última versión desde la Play Store.";
+    }
+    errorDialog(message, true);
   }
 }
 

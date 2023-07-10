@@ -34,20 +34,17 @@ class SearchListResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchResults = Provider.of<Status>(context).searchResult;
-    final List<WidgetList> lists = [
-      WidgetList(ListRowNormal(false, searchResults, null), "row"),
-      WidgetList(ListCardNormal(false, searchResults, null), "card"),
-      WidgetList(ListGridNormal(false, searchResults, null), "cuadricula"),
-      WidgetList(sinResultados(), "empty"),
-    ];
+    final Map<String, Widget> lists = {
+      "row": ListRowNormal(false, searchResults, null),
+      "card": ListCardNormal(false, searchResults, null),
+      "grid": ListGridNormal(false, searchResults, null),
+      "empty": sinResultados(),
+    };
     var listView = Provider.of<Preferences>(context).startList;
     if (searchResults.isEmpty) {
       listView = "empty";
     }
-    final int listIndex = lists.indexWhere((list) => list.listView == listView);
-    return Scaffold(
-      body: lists[listIndex].widgetList,
-    );
+    return Scaffold(body: lists[listView]);
   }
 }
 

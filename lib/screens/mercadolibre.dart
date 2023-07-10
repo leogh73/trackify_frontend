@@ -5,6 +5,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../providers/preferences.dart';
+
 import '../widgets/meli_check.dart';
 import '../widgets/ad_banner.dart';
 
@@ -54,18 +55,18 @@ class MercadoLibre extends StatelessWidget {
           titleSpacing: 1.0,
           actions: [
             IconButton(
-              icon: meLiStatus
-                  ? const Icon(Icons.logout)
-                  : const Icon(Icons.login),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => meLiStatus
-                      ? const MercadoLibreSite("logout")
-                      : const MercadoLibreSite("login"),
-                ),
-              ),
-            ),
+                icon: meLiStatus
+                    ? const Icon(Icons.logout)
+                    : const Icon(Icons.login),
+                onPressed: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MercadoLibreSite(meLiStatus ? "logout" : "login"),
+                        ),
+                      ),
+                    }),
           ],
           bottom: TabBar(
             tabs: [
@@ -118,13 +119,13 @@ class MercadoLibre extends StatelessWidget {
                 'Información no disponible',
                 'No ha ingresado a MercadoLibre',
                 'INGRESAR',
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MercadoLibreSite("login"),
-                  ),
-                ),
-              ),
+                () => {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MercadoLibreSite("login"),
+                          ))
+                    }),
         bottomNavigationBar: const AdBanner(),
       ),
     );

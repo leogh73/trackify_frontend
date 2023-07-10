@@ -171,7 +171,8 @@ class _ItemRowState extends State<ItemRow> {
                             width: isPortrait ? 82 : 110,
                             padding: const EdgeInsets.only(right: 8, left: 4),
                             height: 35,
-                            child: ServiceImage(widget.tracking.service).load(),
+                            child:
+                                ServiceData(widget.tracking.service).getImage(),
                           ),
                           Container(
                             padding: const EdgeInsets.only(left: 6, right: 8),
