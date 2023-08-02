@@ -65,7 +65,6 @@ class Init {
         await HttpRequestHandler.newRequest('/api/user/initialize/', body);
     if (response is http.Response)
       userId = json.decode(response.body)['userId'];
-    print("USERID_$userId");
     UserPreferences startPreferences = UserPreferences(
       id: 0,
       userId: userId,

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/data_response.dart';
 
-class OCA {
+class FastTrack {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -16,8 +15,6 @@ class OCA {
             "date": e["date"],
             "time": e["time"],
             "status": e["status"],
-            "motive": e["motive"],
-            "location": e["location"],
           },
           events.add(event)
         });
@@ -25,22 +22,9 @@ class OCA {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    List<Map<String, String>> events = generateEventList(data['events']);
-
     String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [
-      [
-        data['origin']['name'] ?? "Sin datos",
-        data['origin']['address'] ?? "Sin datos",
-        data['origin']['number'] ?? "Sin datos",
-        data['origin']['zipCode'] ?? "Sin datos",
-        data['origin']['locality'] ?? "Sin datos",
-        data['origin']['state'] ?? "Sin datos",
-        data['origin']['email'] ?? "Sin datos",
-        data['origin']['phone'] ?? "Sin datos",
-      ],
-      [data["productNumber"]]
-    ];
+    List<List<String>> otherData = [];
+    List<Map<String, String>> events = generateEventList(data['events']);
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -60,66 +44,33 @@ class OCA {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(
-      events,
-      lastEvent,
-      null,
-      null,
-      null,
-      null,
-    );
+    return ItemResponseData(events, lastEvent, null, null, null, null);
   }
 }
 
-class MoreDataOCA extends StatelessWidget {
-  final List<List<String>>? otherData;
-  const MoreDataOCA(this.otherData, {Key? key}) : super(key: key);
+class MoreDataFastTrack extends StatelessWidget {
+  const MoreDataFastTrack({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          OtherData(
-            DataRowHandler(
-              otherData![0],
-              [
-                "Nombre",
-                "Dirección",
-                "Número",
-                "Código postal",
-                "Localidad",
-                "Provincia",
-                "Correo electrónico",
-                "Teléfono",
-              ],
-            ).createTable(),
-            "ORIGEN",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![1],
-              [
-                "Nº de producto consultado",
-              ],
-            ).createTable(),
-            "SEGUIMIENTO",
-          ),
-        ],
+    return const Center(
+      child: Text(
+        'No hay más datos',
+        style: TextStyle(fontSize: 24),
       ),
     );
   }
 }
 
-class EventListOCA extends StatefulWidget {
+class EventListFastTrack extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListOCA(this.events, {Key? key}) : super(key: key);
+  const EventListFastTrack(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListOCAState createState() => _EventListOCAState();
+  _EventListFastTrackState createState() => _EventListFastTrackState();
 }
 
-class _EventListOCAState extends State<EventListOCA> {
+class _EventListFastTrackState extends State<EventListFastTrack> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -133,9 +84,9 @@ class _EventListOCAState extends State<EventListOCA> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -147,17 +98,18 @@ class _EventListOCAState extends State<EventListOCA> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventOCA(widget.events[index], index, widget.events.length),
+            EventFastTrack(widget.events[index], index, widget.events.length),
+        // shrinkWrap: _verificando,
       ),
     );
   }
 }
 
-class EventOCA extends StatelessWidget {
+class EventFastTrack extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventOCA(this.event, this.index, this.listLength, {Key? key})
+  const EventFastTrack(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -169,36 +121,24 @@ class EventOCA extends StatelessWidget {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Padding(
-      padding: const EdgeInsets.only(right: 8, left: 8, top: 2),
-      // child: InkWell(
-      //   splashColor: Theme.of(context).primaryColor,
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       border: Border.all(color: Theme.of(context).primaryColor, width: 2),
-      //       borderRadius: const BorderRadius.all(
-      //         const Radius.circular(12.0),
-      //       ),
-      //     ),
+      padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
           SizedBox(
-            // padding: isPortrait && widget.modoSeleccion
-            //     ? EdgeInsets.only(right: 4)
-            //     : null,
             height: isPortrait ? 40 : 42,
             // alignment: Alignment.bottomCenter,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            ? screenWidth * 0.472
+                            : screenWidth * 0.48,
                         child: Column(
                           children: [
                             Row(
@@ -232,7 +172,7 @@ class EventOCA extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.225,
+                            : screenWidth * 0.472,
                         child: Column(
                           children: [
                             Row(
@@ -263,71 +203,15 @@ class EventOCA extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (!isPortrait)
-                        SizedBox(
-                          width: isPortrait
-                              ? screenWidth * 0.445
-                              : screenWidth * 0.475,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.place, size: 20),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        child: Text(
-                                          event['location']!,
-                                          style: TextStyle(
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          if (isPortrait)
-            Padding(
-              padding: const EdgeInsets.only(left: 11, right: 11, top: 3),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.place, size: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 2, bottom: 2),
-                          child: Text(
-                            event['location']!,
-                            style: TextStyle(fontSize: fullHD ? 16 : 15),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
           Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(left: 11, right: 11, bottom: 6, top: 11)
-                : const EdgeInsets.only(left: 10, right: 10, bottom: 6, top: 6),
+            padding:
+                const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
@@ -335,7 +219,7 @@ class EventOCA extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_shipping, size: 20),
                     SizedBox(
-                      width: screenWidth - 62,
+                      width: screenWidth - 60,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
@@ -343,36 +227,7 @@ class EventOCA extends StatelessWidget {
                         child: Text(
                           event['status']!,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                          style: TextStyle(fontSize: fullHD ? 16 : 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(left: 11, right: 11, bottom: 10, top: 8)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 8),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.description, size: 20),
-                    SizedBox(
-                      width: screenWidth - 62,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                        ),
-                        child: Text(
-                          event['motive']!,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
+                          maxLines: 4,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
                         ),
                       ),

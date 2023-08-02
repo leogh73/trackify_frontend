@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class MDCargas {
+class ViaCargo {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
     eventsResponse.forEach((e) => {
-          event = {"date": e["date"], "time": e["time"], "status": e["status"]},
+          event = {
+            "date": e["date"],
+            "time": e["time"],
+            "location": e["location"],
+            "status": e["status"],
+          },
           events.add(event)
         });
     return events;
@@ -19,9 +25,34 @@ class MDCargas {
 
   ItemResponseData createResponse(dynamic data) {
     List<Map<String, String>> events = generateEventList(data['events']);
-    String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [[]];
 
+    String lastEvent = data['lastEvent'];
+    List<String> origin = [
+      data['origin']['senderName'],
+      data['origin']['senderDni'],
+      data['origin']['address'],
+      data['origin']['zipCode'],
+      data['origin']['state'],
+      data['origin']['date'],
+      data['origin']['time'],
+    ];
+    List<String> destination = [
+      data['destination']['receiverName'],
+      data['destination']['receiverDni'],
+      data['destination']['address'],
+      data['destination']['zipCode'],
+      data['destination']['state'],
+      data['destination']['phone'],
+      data['destination']['dateDelivered'],
+      data['destination']['timeDelivered']
+    ];
+    List<String> otherData = [
+      data['aditional']['weightDeclared'],
+      data['aditional']['numberOfPieces'].toString(),
+      data['aditional']['service'],
+      data['aditional']['sign']
+    ];
+    List<List<String>> aditional = [origin, destination, otherData];
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -29,7 +60,7 @@ class MDCargas {
     return ItemResponseData(
       events,
       lastEvent,
-      otherData,
+      aditional,
       checkDate,
       checkTime,
       trackingId,
@@ -41,33 +72,86 @@ class MDCargas {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(events, lastEvent, null, null, null, null);
+    return ItemResponseData(
+      events,
+      lastEvent,
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }
 
-class MoreDataMDCargas extends StatelessWidget {
-  const MoreDataMDCargas({Key? key}) : super(key: key);
-
+class MoreDataViaCargo extends StatelessWidget {
+  final List<List<String>>? otherData;
+  const MoreDataViaCargo(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'No hay más datos',
-        style: TextStyle(fontSize: 24),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          children: [
+            OtherData(
+              DataRowHandler(
+                otherData![0],
+                [
+                  "Remitente",
+                  "DNI",
+                  "Dirección",
+                  "Código postal",
+                  "Provincia",
+                  "Fecha",
+                  "Hora",
+                ],
+              ).createTable(),
+              "ORIGEN",
+            ),
+            OtherData(
+              DataRowHandler(
+                otherData![1],
+                [
+                  "Destinatario",
+                  "DNI",
+                  "Dirección",
+                  "Código postal",
+                  "Provincia",
+                  "Teléfono",
+                  "Fecha de entrega",
+                  "Hora de entrega",
+                ],
+              ).createTable(),
+              "DESTINO",
+            ),
+            OtherData(
+              DataRowHandler(
+                otherData![2],
+                [
+                  "Peso declarado",
+                  "Cantidad de piezas",
+                  "Servicio",
+                  "Firma",
+                ],
+              ).createTable(),
+              "OTROS DATOS",
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class EventListMDCargas extends StatefulWidget {
+class EventListViaCargo extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListMDCargas(this.events, {Key? key}) : super(key: key);
+  const EventListViaCargo(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListMDCargasState createState() => _EventListMDCargasState();
+  _EventListViaCargoState createState() => _EventListViaCargoState();
 }
 
-class _EventListMDCargasState extends State<EventListMDCargas> {
+class _EventListViaCargoState extends State<EventListViaCargo> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -81,9 +165,9 @@ class _EventListMDCargasState extends State<EventListMDCargas> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -95,17 +179,17 @@ class _EventListMDCargasState extends State<EventListMDCargas> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventMDCargas(widget.events[index], index, widget.events.length),
+            EventViaCargo(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventMDCargas extends StatelessWidget {
+class EventViaCargo extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventMDCargas(this.event, this.index, this.listLength, {Key? key})
+  const EventViaCargo(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -139,14 +223,14 @@ class EventMDCargas extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.472
-                            : screenWidth * 0.48,
+                            ? screenWidth * 0.445
+                            : screenWidth * 0.245,
                         child: Column(
                           children: [
                             Row(
@@ -180,7 +264,7 @@ class EventMDCargas extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.472,
+                            : screenWidth * 0.225,
                         child: Column(
                           children: [
                             Row(
@@ -211,15 +295,72 @@ class EventMDCargas extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (!isPortrait)
+                        SizedBox(
+                          width: isPortrait
+                              ? screenWidth * 0.445
+                              : screenWidth * 0.475,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.place, size: 20),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 2, bottom: 2),
+                                        child: Text(
+                                          event['location']!,
+                                          style: TextStyle(
+                                              fontSize: fullHD ? 16 : 15),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          if (isPortrait)
+            Padding(
+              padding: const EdgeInsets.only(left: 11, right: 11, top: 6),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.place, size: 20),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2, bottom: 2),
+                          child: Text(
+                            event['location']!,
+                            style: TextStyle(fontSize: fullHD ? 16 : 15),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           Padding(
-            padding:
-                const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+            padding: isPortrait
+                ? const EdgeInsets.only(
+                    left: 11, right: 11, bottom: 10, top: 12)
+                : const EdgeInsets.only(left: 9, right: 9, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
@@ -227,7 +368,7 @@ class EventMDCargas extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_shipping, size: 20),
                     SizedBox(
-                      width: screenWidth - 60,
+                      width: screenWidth - 62,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
@@ -235,7 +376,7 @@ class EventMDCargas extends StatelessWidget {
                         child: Text(
                           event['status']!,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
+                          maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
                         ),
                       ),

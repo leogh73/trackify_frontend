@@ -119,13 +119,13 @@ class MercadoLibre extends StatelessWidget {
                 'Información no disponible',
                 'No ha ingresado a MercadoLibre',
                 'INGRESAR',
-                () => {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MercadoLibreSite("login"),
-                          ))
-                    }),
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MercadoLibreSite("login"),
+                  ),
+                ),
+              ),
         bottomNavigationBar: const AdBanner(),
       ),
     );
@@ -176,7 +176,7 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
     final WebViewController controller =
         WebViewController.fromPlatformCreationParams(params);
 
-    String destinyUrl = widget.action == "login"
+    String destinationUrl = widget.action == "login"
         ? "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${dotenv.env['ML_CLIENT_ID']}&redirect_uri=https://trackear.vercel.app"
         : 'https://myaccount.mercadolibre.com.ar/';
 
@@ -205,7 +205,7 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
           );
         },
       )
-      ..loadRequest(Uri.parse(destinyUrl));
+      ..loadRequest(Uri.parse(destinationUrl));
 
     _controller = controller;
   }

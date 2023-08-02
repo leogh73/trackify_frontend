@@ -28,7 +28,7 @@ class _ItemRowState extends State<ItemRow> {
   bool _expand = false;
   bool _retrying = false;
 
-  selectDestiny(String listView) {
+  selectDestination(String listView) {
     if (listView == "main") {
       return Provider.of<ActiveTrackings>(context, listen: false);
     } else {
@@ -58,18 +58,18 @@ class _ItemRowState extends State<ItemRow> {
   }
 
   void _changeSelectionMode(ItemTracking tracking, String screen) {
-    selectDestiny(screen).toggleSelectionMode();
+    selectDestination(screen).toggleSelectionMode();
     if (widget.selectionMode == false) {
-      selectDestiny(screen).activateStartSelection(tracking);
+      selectDestination(screen).activateStartSelection(tracking);
     }
   }
 
   void _trackingClick(ItemTracking tracking, String screen) {
     if (tracking.selected == true) {
-      selectDestiny(screen).removeSelected(tracking.idSB);
+      selectDestination(screen).removeSelected(tracking.idSB);
       tracking.selected = false;
     } else {
-      selectDestiny(screen).addSelected(tracking);
+      selectDestination(screen).addSelected(tracking);
       tracking.selected = true;
     }
   }

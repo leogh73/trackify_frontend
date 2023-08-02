@@ -29,7 +29,13 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   AdInterstitial mainInterstitialAd = AdInterstitial();
-  AdInterstitial drawerInterstitialAd = AdInterstitial();
+
+  AdInterstitial drawerInterstitialAd1 = AdInterstitial();
+  AdInterstitial drawerInterstitialAd2 = AdInterstitial();
+  AdInterstitial drawerInterstitialAd3 = AdInterstitial();
+  AdInterstitial drawerInterstitialAd4 = AdInterstitial();
+  AdInterstitial drawerInterstitialAd5 = AdInterstitial();
+  AdInterstitial drawerInterstitialAd6 = AdInterstitial();
 
   @override
   void initState() {
@@ -41,7 +47,12 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
     mainInterstitialAd.createInterstitialAd();
-    drawerInterstitialAd.createInterstitialAd();
+    drawerInterstitialAd1.createInterstitialAd();
+    drawerInterstitialAd2.createInterstitialAd();
+    drawerInterstitialAd3.createInterstitialAd();
+    drawerInterstitialAd4.createInterstitialAd();
+    drawerInterstitialAd5.createInterstitialAd();
+    drawerInterstitialAd6.createInterstitialAd();
   }
 
   @override
@@ -64,7 +75,14 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       drawer: error.isEmpty && userId.isNotEmpty
-          ? DrawerWidget(drawerInterstitialAd)
+          ? DrawerWidget(
+              drawerInterstitialAd1,
+              drawerInterstitialAd2,
+              drawerInterstitialAd3,
+              drawerInterstitialAd4,
+              drawerInterstitialAd5,
+              drawerInterstitialAd6,
+            )
           : null,
       appBar: selectionMode
           ? AppBar(

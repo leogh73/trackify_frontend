@@ -1,16 +1,16 @@
-import 'package:trackify/widgets/services/mdcargas.dart';
-
-import '../widgets/services/andreani.dart';
-import '../widgets/services/clicoh.dart';
-import '../widgets/services/correo_argentino.dart';
-import '../widgets/services/dhl.dart';
-import '../widgets/services/ecapack.dart';
-import '../widgets/services/fasttrack.dart';
-import '../widgets/services/oca.dart';
-import '../widgets/services/ocasa.dart';
-import '../widgets/services/renaper.dart';
-import '../widgets/services/urbano.dart';
-import '../widgets/services/viacargo.dart';
+import '../services/andreani.dart';
+import '../services/clicoh.dart';
+import '../services/correo_argentino.dart';
+import '../services/dhl.dart';
+import '../services/ecapack.dart';
+import '../services/enviopack.dart';
+import '../services/fasttrack.dart';
+import '../services/mdcargas.dart';
+import '../services/oca.dart';
+import '../services/ocasa.dart';
+import '../services/renaper.dart';
+import '../services/urbano.dart';
+import '../services/viacargo.dart';
 
 final Map<String, dynamic> servicesList = {
   "Andreani": Andreani(),
@@ -18,6 +18,7 @@ final Map<String, dynamic> servicesList = {
   "Correo Argentino": CorreoArgentino(),
   "DHL": DHL(),
   "EcaPack": EcaPack(),
+  "Enviopack": Enviopack(),
   "FastTrack": FastTrack(),
   "MDCargas": MDCargas(),
   "OCA": OCA(),

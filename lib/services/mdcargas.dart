@@ -2,21 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/data_response.dart';
 
-class OCASA {
+class MDCargas {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
     eventsResponse.forEach((e) => {
-          event = {
-            "date": e["date"],
-            "time": e["time"],
-            "detail": e["detail"],
-          },
+          event = {"date": e["date"], "time": e["time"], "status": e["status"]},
           events.add(event)
         });
     return events;
@@ -24,11 +19,9 @@ class OCASA {
 
   ItemResponseData createResponse(dynamic data) {
     List<Map<String, String>> events = generateEventList(data['events']);
-
     String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [
-      [data["trackingNumber"]]
-    ];
+    List<List<String>> otherData = [[]];
+
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -48,50 +41,33 @@ class OCASA {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(
-      events,
-      lastEvent,
-      null,
-      null,
-      null,
-      null,
-    );
+    return ItemResponseData(events, lastEvent, null, null, null, null);
   }
 }
 
-class MoreDataOCASA extends StatelessWidget {
-  final List<List<String>>? otherData;
-  const MoreDataOCASA(this.otherData, {Key? key}) : super(key: key);
+class MoreDataMDCargas extends StatelessWidget {
+  const MoreDataMDCargas({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          OtherData(
-            DataRowHandler(
-              otherData![0],
-              [
-                "Nº de producto consultado",
-              ],
-            ).createTable(),
-            "SEGUIMIENTO",
-          ),
-        ],
+    return const Center(
+      child: Text(
+        'No hay más datos',
+        style: TextStyle(fontSize: 24),
       ),
     );
   }
 }
 
-class EventListOCASA extends StatefulWidget {
+class EventListMDCargas extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListOCASA(this.events, {Key? key}) : super(key: key);
+  const EventListMDCargas(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListOCASAState createState() => _EventListOCASAState();
+  _EventListMDCargasState createState() => _EventListMDCargasState();
 }
 
-class _EventListOCASAState extends State<EventListOCASA> {
+class _EventListMDCargasState extends State<EventListMDCargas> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -105,9 +81,9 @@ class _EventListOCASAState extends State<EventListOCASA> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -119,17 +95,17 @@ class _EventListOCASAState extends State<EventListOCASA> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventOCASA(widget.events[index], index, widget.events.length),
+            EventMDCargas(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventOCASA extends StatelessWidget {
+class EventMDCargas extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventOCASA(this.event, this.index, this.listLength, {Key? key})
+  const EventMDCargas(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -144,6 +120,13 @@ class EventOCASA extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8, left: 8),
       // child: InkWell(
       //   splashColor: Theme.of(context).primaryColor,
+      //   child: Container(
+      //     decoration: BoxDecoration(
+      //       border: Border.all(color: Theme.of(context).primaryColor, width: 2),
+      //       borderRadius: const BorderRadius.all(
+      //         const Radius.circular(12.0),
+      //       ),
+      //     ),
       child: Column(
         children: [
           SizedBox(
@@ -246,9 +229,11 @@ class EventOCASA extends StatelessWidget {
                     SizedBox(
                       width: screenWidth - 60,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 12),
+                        padding: const EdgeInsets.only(
+                          left: 12,
+                        ),
                         child: Text(
-                          event['detail']!,
+                          event['status']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
@@ -264,7 +249,6 @@ class EventOCASA extends StatelessWidget {
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],
       ),
-      // ),
     );
   }
 }

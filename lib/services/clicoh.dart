@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class Renaper {
+class ClicOh {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -16,8 +16,6 @@ class Renaper {
             "date": e["date"],
             "time": e["time"],
             "description": e["description"],
-            "motive": e["motive"],
-            "plant": e["plant"],
           },
           events.add(event)
         });
@@ -25,23 +23,36 @@ class Renaper {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    List<Map<String, String>> events = generateEventList(data['events']);
-
     String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [
-      [
-        data['details']['paperClass'],
-        data['details']['paperKind'],
-        data['details']['description'],
-        data['details']['pickUp']
-      ],
-      [
-        data['origin']['description'],
-        data['origin']['address'],
-        data['origin']['state'],
-        data['origin']['zipCode'],
-      ]
+    List<List<String>> otherData = [];
+    List<Map<String, String>> events = generateEventList(data['events']);
+    List<String> origin = [
+      data['origin']['address'],
+      data['origin']['country'],
     ];
+    List<String> destination = [
+      data['destination']['address'],
+      data['destination']['locality'],
+      data['destination']['country'],
+      data['destination']['administrative_area_level_1'],
+      data['destination']['postal_code']
+    ];
+    List<String> receiver = [
+      data['receiver']['dni'],
+      data['receiver']['first_name'],
+      data['receiver']['last_name'],
+      data['receiver']['email'],
+      data['receiver']['phone'],
+      data['receiver']['address']
+    ];
+    List<String> other = [
+      data['otherData']['clientName'],
+    ];
+    otherData.add(origin);
+    otherData.add(destination);
+    otherData.add(receiver);
+    otherData.add(other);
+
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -61,23 +72,17 @@ class Renaper {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(
-      events,
-      lastEvent,
-      null,
-      null,
-      null,
-      null,
-    );
+    return ItemResponseData(events, lastEvent, null, null, null, null);
   }
 }
 
-class MoreDataRenaper extends StatelessWidget {
+class MoreDataClicOh extends StatelessWidget {
   final List<List<String>>? otherData;
-  const MoreDataRenaper(this.otherData, {Key? key}) : super(key: key);
+  const MoreDataClicOh(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
+        child: Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
         children: [
@@ -85,41 +90,57 @@ class MoreDataRenaper extends StatelessWidget {
             DataRowHandler(
               otherData![0],
               [
-                "Clase",
-                "Tipo",
-                "Descripción",
-                "Retiro",
+                "Dirección",
+                "País",
               ],
             ).createTable(),
-            "TRÁMITE",
+            "ORIGEN",
           ),
           OtherData(
             DataRowHandler(
               otherData![1],
+              ["Dirección", "Localidad", "País", "Provincia", "Código Postal"],
+            ).createTable(),
+            "DESTINO",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![2],
               [
+                "DNI",
                 "Nombre",
-                "Dirección",
-                "Provincia",
-                "Código postal",
+                "Apellido",
+                "Correo electrónico",
+                "Teléfono",
+                "Dirección"
               ],
             ).createTable(),
-            "OFICINA DE ORIGEN",
+            "DESTINATARIO",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![3],
+              [
+                "Nombre del remitente",
+              ],
+            ).createTable(),
+            "OTROS DATOS",
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
-class EventListRenaper extends StatefulWidget {
+class EventListClicOh extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListRenaper(this.events, {Key? key}) : super(key: key);
+  const EventListClicOh(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListRenaperState createState() => _EventListRenaperState();
+  _EventListClicOhState createState() => _EventListClicOhState();
 }
 
-class _EventListRenaperState extends State<EventListRenaper> {
+class _EventListClicOhState extends State<EventListClicOh> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -133,9 +154,9 @@ class _EventListRenaperState extends State<EventListRenaper> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -147,17 +168,18 @@ class _EventListRenaperState extends State<EventListRenaper> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventRenaper(widget.events[index], index, widget.events.length),
+            EventClicOh(widget.events[index], index, widget.events.length),
+        // shrinkWrap: _verificando,
       ),
     );
   }
 }
 
-class EventRenaper extends StatelessWidget {
+class EventClicOh extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventRenaper(this.event, this.index, this.listLength, {Key? key})
+  const EventClicOh(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -169,7 +191,7 @@ class EventRenaper extends StatelessWidget {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Padding(
-      padding: const EdgeInsets.only(right: 8, left: 8, top: 2),
+      padding: const EdgeInsets.only(right: 8, left: 8),
       // child: InkWell(
       //   splashColor: Theme.of(context).primaryColor,
       //   child: Container(
@@ -191,14 +213,14 @@ class EventRenaper extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            ? screenWidth * 0.472
+                            : screenWidth * 0.48,
                         child: Column(
                           children: [
                             Row(
@@ -232,7 +254,7 @@ class EventRenaper extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.225,
+                            : screenWidth * 0.472,
                         child: Column(
                           children: [
                             Row(
@@ -263,71 +285,15 @@ class EventRenaper extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (!isPortrait)
-                        SizedBox(
-                          width: isPortrait
-                              ? screenWidth * 0.445
-                              : screenWidth * 0.475,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.place, size: 20),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        child: Text(
-                                          event['plant']!,
-                                          style: TextStyle(
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          if (isPortrait)
-            Padding(
-              padding: const EdgeInsets.only(left: 11, right: 11, top: 3),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.place, size: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 2, bottom: 2),
-                          child: Text(
-                            event['plant']!,
-                            style: TextStyle(fontSize: fullHD ? 16 : 15),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
           Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(left: 11, right: 11, bottom: 6, top: 11)
-                : const EdgeInsets.only(left: 10, right: 10, bottom: 6, top: 6),
+            padding:
+                const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
@@ -335,7 +301,7 @@ class EventRenaper extends StatelessWidget {
                   children: [
                     const Icon(Icons.local_shipping, size: 20),
                     SizedBox(
-                      width: screenWidth - 62,
+                      width: screenWidth - 60,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
@@ -343,36 +309,7 @@ class EventRenaper extends StatelessWidget {
                         child: Text(
                           event['description']!,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                          style: TextStyle(fontSize: fullHD ? 16 : 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(left: 11, right: 11, bottom: 10, top: 8)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 8),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.description, size: 20),
-                    SizedBox(
-                      width: screenWidth - 62,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                        ),
-                        child: Text(
-                          event['motive']!,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
+                          maxLines: 4,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
                         ),
                       ),

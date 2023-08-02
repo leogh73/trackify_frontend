@@ -34,7 +34,7 @@ class DataCheck {
       'service': tracking.service,
       'code': tracking.code.trim(),
     };
-    // var response = await HttpRequestHandler.newRequest('/api/user/test2', body);
+    // var response = await HttpRequestHandler.newRequest('/api/test/2', body);
     var response =
         await HttpRequestHandler.newRequest('/api/user/$userId/add', body);
     if (response is Map)
@@ -54,7 +54,7 @@ class DataCheck {
     } else if (response.statusCode == 404) {
       tracking.checkError = true;
       Provider.of<ActiveTrackings>(context, listen: false)
-          .removeTracking([tracking], context);
+          .removeTracking([tracking], context, true);
       ShowDialog(context).trackingError(tracking.service);
     } else {
       ShowDialog(context).startTrackingError();
@@ -136,7 +136,6 @@ class Results extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AdInterstitial interstitialAd = AdInterstitial();
-    interstitialAd.createInterstitialAd();
     final Map<String, dynamic> widgetList = {
       "row": ItemRow(tracking, false, interstitialAd),
       "card": ItemCard(tracking, false, interstitialAd),

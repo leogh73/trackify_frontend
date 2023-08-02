@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class Andreani {
+class DHL {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -14,9 +15,8 @@ class Andreani {
           event = {
             "date": e["date"],
             "time": e["time"],
-            "condition": e["condition"],
-            "motive": e["motive"],
             "location": e["location"],
+            "description": e["description"],
           },
           events.add(event)
         });
@@ -24,25 +24,40 @@ class Andreani {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
-    List<String> lastVisit = [
-      data["visits"]['visits'].isNotEmpty
-          ? data["visits"]['visits'][0]["date"]
-          : "Sin datos",
-      data["visits"]['visits'].isNotEmpty
-          ? data["visits"]['visits'][0]["time"]
-          : "Sin datos",
-      data["visits"]['visits'].isNotEmpty
-          ? data["visits"]['visits'][0]["motive"]
-          : "Sin datos",
+    String lastEvent = data['lastEvent'];
+    List<String> shipping = [
+      data["shipping"]["id"],
+      data["shipping"]["service"],
+      data["shipping"]["origin"],
+      data["shipping"]["destination"],
     ];
-    List<String> pendingVisits = [
-      data["visits"]?["pendingVisits"].toString() ?? "Sin datos"
+    List<String> status = [
+      data["shipping"]["status"]["date"],
+      data["shipping"]["status"]["time"],
+      data["shipping"]["status"]["location"],
+      data["shipping"]["status"]["statusCode"],
+      data["shipping"]["status"]["status"],
+      data["shipping"]["status"]["description"],
+      data["shipping"]["status"]["moreDetails"],
+      data["shipping"]["status"]["nextStep"],
     ];
-    otherData.add(lastVisit);
-    otherData.add(pendingVisits);
+    List<String> detail = [
+      data["details"]["date"],
+      data["details"]["time"],
+      data["details"]["signatureUrl"],
+      data["details"]["documentUrl"],
+      "${data["details"]["totalPieces"]}",
+      data["details"]["signedType"],
+      data["details"]["signedName"],
+    ];
+    List<String> piecesIds = [data["details"]["pieceIds"].join(" - ")];
+
+    List<List<String>> otherData = [];
+    otherData.add(shipping);
+    otherData.add(status);
+    otherData.add(detail);
+    otherData.add(piecesIds);
 
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
@@ -61,65 +76,106 @@ class Andreani {
   ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
-    List<List<String>> otherData = [];
-    List<String> lastVisit = [
-      data['result']["visits"]?["visits"][0]["date"] ?? "Sin datos",
-      data['result']["visits"]?["visits"][0]["time"] ?? "Sin datos",
-      data['result']["visits"]?["visits"][0]["motive"] ?? "Sin datos",
-    ];
-    List<String> pendingVisits = [
-      data['result']["visits"]?["pendingVisits"].toString() ?? "Sin datos"
-    ];
-    otherData.add(lastVisit);
-    otherData.add(pendingVisits);
     String lastEvent = data['result']['lastEvent'];
+    List<String> status = [
+      data['result']['shipping']["status"]["date"],
+      data['result']['shipping']["status"]["time"],
+      data['result']['shipping']["status"]["location"],
+      data['result']['shipping']["status"]["statusCode"],
+      data['result']['shipping']["status"]["status"],
+      data['result']['shipping']["status"]["description"],
+      data['result']['shipping']["status"]["moreDetails"],
+      data['result']['shipping']["status"]["nextStep"],
+    ];
+    List<List<String>?>? otherData = [null, status, null, null];
 
-    return ItemResponseData(events, lastEvent, otherData, null, null, null);
+    return ItemResponseData(
+      events,
+      lastEvent,
+      otherData,
+      null,
+      null,
+      null,
+    );
   }
 }
 
-class MoreDataAndreani extends StatelessWidget {
+class MoreDataDHL extends StatelessWidget {
   final List<List<String>>? otherData;
-  const MoreDataAndreani(this.otherData, {Key? key}) : super(key: key);
+  const MoreDataDHL(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          OtherData(
-            DataRowHandler(
-              otherData![0],
-              [
-                "Fecha",
-                "Hora",
-                "Motivo",
-              ],
-            ).createTable(),
-            "ULTIMA VISITA",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![1],
-              ["Pendientes"],
-            ).createTable(),
-            "VISITAS PENDIENTES",
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          children: [
+            OtherData(
+              DataRowHandler(
+                otherData![0],
+                [
+                  "ID",
+                  "Servicio",
+                  "Origen",
+                  "Destino",
+                ],
+              ).createTable(),
+              "INFORMACIÓN DE ENVIO",
+            ),
+            OtherData(
+              DataRowHandler(
+                otherData![1],
+                [
+                  "Fecha",
+                  "Hora",
+                  "Ubicación",
+                  "Código de status",
+                  "Estado",
+                  "Descripción",
+                  "Más detalles",
+                  "Siguiente paso"
+                ],
+              ).createTable(),
+              "INFORMACIÓN DE ESTADO",
+            ),
+            OtherData(
+              DataRowHandler(
+                otherData![2],
+                [
+                  "Fecha",
+                  "Hora",
+                  "Firma",
+                  "Documento",
+                  "Total de piezas",
+                  "Tipo de firma",
+                  "Firmado por",
+                ],
+              ).createTable(),
+              "DETALLE DEL ENVIO",
+            ),
+            OtherData(
+              DataRowHandler(
+                otherData![3],
+                ["Id/s"],
+              ).createTable(),
+              "INFORMACIÓN DE PIEZAS",
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class EventListAndreani extends StatefulWidget {
+class EventListDHL extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListAndreani(this.events, {Key? key}) : super(key: key);
+  const EventListDHL(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListAndreaniState createState() => _EventListAndreaniState();
+  _EventListDHLState createState() => _EventListDHLState();
 }
 
-class _EventListAndreaniState extends State<EventListAndreani> {
+class _EventListDHLState extends State<EventListDHL> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -133,9 +189,9 @@ class _EventListAndreaniState extends State<EventListAndreani> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -147,18 +203,17 @@ class _EventListAndreaniState extends State<EventListAndreani> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventAndreani(widget.events[index], index, widget.events.length),
-        // shrinkWrap: _verificando,
+            EventDHL(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventAndreani extends StatelessWidget {
+class EventDHL extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventAndreani(this.event, this.index, this.listLength, {Key? key})
+  const EventDHL(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -170,7 +225,7 @@ class EventAndreani extends StatelessWidget {
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Padding(
-      padding: const EdgeInsets.only(right: 8, left: 8),
+      padding: const EdgeInsets.only(right: 8, left: 8, top: 2),
       // child: InkWell(
       //   splashColor: Theme.of(context).primaryColor,
       //   child: Container(
@@ -192,14 +247,14 @@ class EventAndreani extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.251,
+                            : screenWidth * 0.245,
                         child: Column(
                           children: [
                             Row(
@@ -233,7 +288,7 @@ class EventAndreani extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.225,
+                            : screenWidth * 0.245,
                         child: Column(
                           children: [
                             Row(
@@ -278,7 +333,7 @@ class EventAndreani extends StatelessWidget {
                                   children: [
                                     const Icon(Icons.place, size: 20),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 16),
+                                      padding: const EdgeInsets.only(left: 12),
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             top: 2, bottom: 2),
@@ -303,7 +358,7 @@ class EventAndreani extends StatelessWidget {
           ),
           if (isPortrait)
             Padding(
-              padding: const EdgeInsets.only(left: 11, right: 11, top: 6),
+              padding: const EdgeInsets.only(left: 11, right: 11, top: 3),
               child: Column(
                 children: [
                   Row(
@@ -327,7 +382,8 @@ class EventAndreani extends StatelessWidget {
             ),
           Padding(
             padding: isPortrait
-                ? const EdgeInsets.only(left: 11, right: 11, top: 12)
+                ? const EdgeInsets.only(
+                    left: 11, right: 11, bottom: 10, top: 10)
                 : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
             child: Column(
               children: [
@@ -342,37 +398,7 @@ class EventAndreani extends StatelessWidget {
                           left: 12,
                         ),
                         child: Text(
-                          event['condition']!,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
-                          style: TextStyle(fontSize: fullHD ? 16 : 15),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: isPortrait
-                ? const EdgeInsets.only(
-                    left: 11, right: 11, bottom: 10, top: 12)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.description, size: 20),
-                    SizedBox(
-                      width: screenWidth - 62,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                        ),
-                        child: Text(
-                          event['motive']!,
+                          event['description']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),

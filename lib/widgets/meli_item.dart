@@ -199,7 +199,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4, bottom: 2),
                             child: Text(
-                              "${widget.itemML.destiny['name']} - ${widget.itemML.destiny['address']}",
+                              "${widget.itemML.destination['name']} - ${widget.itemML.destination['address']}",
                               style: TextStyle(fontSize: fullHD ? 16 : 15),
                             ),
                           ),

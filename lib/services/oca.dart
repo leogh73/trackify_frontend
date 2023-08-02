@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class Urbano {
+class OCA {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -15,8 +15,9 @@ class Urbano {
           event = {
             "date": e["date"],
             "time": e["time"],
-            "location": e["location"],
             "status": e["status"],
+            "motive": e["motive"],
+            "location": e["location"],
           },
           events.add(event)
         });
@@ -27,19 +28,19 @@ class Urbano {
     List<Map<String, String>> events = generateEventList(data['events']);
 
     String lastEvent = data['lastEvent'];
-    List<String> client = [
-      data["client"]["code"],
-      data["client"]["name"],
+    List<List<String>> otherData = [
+      [
+        data['origin']['name'] ?? "Sin datos",
+        data['origin']['address'] ?? "Sin datos",
+        data['origin']['number'] ?? "Sin datos",
+        data['origin']['zipCode'] ?? "Sin datos",
+        data['origin']['locality'] ?? "Sin datos",
+        data['origin']['state'] ?? "Sin datos",
+        data['origin']['email'] ?? "Sin datos",
+        data['origin']['phone'] ?? "Sin datos",
+      ],
+      [data["productNumber"]]
     ];
-    List<String> service = [
-      data["service"]["line"],
-      data["service"]["product"],
-      data["service"]["service"],
-    ];
-    List<List<String>> otherData = [];
-    otherData.add(client);
-    otherData.add(service);
-
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -59,57 +60,66 @@ class Urbano {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(events, lastEvent, null, null, null, null);
+    return ItemResponseData(
+      events,
+      lastEvent,
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }
 
-class MoreDataUrbano extends StatelessWidget {
+class MoreDataOCA extends StatelessWidget {
   final List<List<String>>? otherData;
-  const MoreDataUrbano(this.otherData, {Key? key}) : super(key: key);
+  const MoreDataOCA(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          children: [
-            OtherData(
-              DataRowHandler(
-                otherData![0],
-                [
-                  "Código",
-                  "Nombre",
-                ],
-              ).createTable(),
-              "CLIENTE",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![1],
-                [
-                  "Línea",
-                  "Producto",
-                  "Nombre",
-                ],
-              ).createTable(),
-              "SERVICIO",
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          OtherData(
+            DataRowHandler(
+              otherData![0],
+              [
+                "Nombre",
+                "Dirección",
+                "Número",
+                "Código postal",
+                "Localidad",
+                "Provincia",
+                "Correo electrónico",
+                "Teléfono",
+              ],
+            ).createTable(),
+            "ORIGEN",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![1],
+              [
+                "Nº de producto consultado",
+              ],
+            ).createTable(),
+            "SEGUIMIENTO",
+          ),
+        ],
       ),
     );
   }
 }
 
-class EventListUrbano extends StatefulWidget {
+class EventListOCA extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListUrbano(this.events, {Key? key}) : super(key: key);
+  const EventListOCA(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListUrbanoState createState() => _EventListUrbanoState();
+  _EventListOCAState createState() => _EventListOCAState();
 }
 
-class _EventListUrbanoState extends State<EventListUrbano> {
+class _EventListOCAState extends State<EventListOCA> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -123,9 +133,9 @@ class _EventListUrbanoState extends State<EventListUrbano> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -137,17 +147,17 @@ class _EventListUrbanoState extends State<EventListUrbano> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventUrbano(widget.events[index], index, widget.events.length),
+            EventOCA(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventUrbano extends StatelessWidget {
+class EventOCA extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventUrbano(this.event, this.index, this.listLength, {Key? key})
+  const EventOCA(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -222,7 +232,7 @@ class EventUrbano extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            : screenWidth * 0.225,
                         child: Column(
                           children: [
                             Row(
@@ -316,9 +326,8 @@ class EventUrbano extends StatelessWidget {
             ),
           Padding(
             padding: isPortrait
-                ? const EdgeInsets.only(
-                    left: 11, right: 11, bottom: 10, top: 10)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+                ? const EdgeInsets.only(left: 11, right: 11, bottom: 6, top: 11)
+                : const EdgeInsets.only(left: 10, right: 10, bottom: 6, top: 6),
             child: Column(
               children: [
                 Row(
@@ -333,6 +342,35 @@ class EventUrbano extends StatelessWidget {
                         ),
                         child: Text(
                           event['status']!,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          style: TextStyle(fontSize: fullHD ? 16 : 15),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: isPortrait
+                ? const EdgeInsets.only(left: 11, right: 11, bottom: 10, top: 8)
+                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.description, size: 20),
+                    SizedBox(
+                      width: screenWidth - 62,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 12,
+                        ),
+                        child: Text(
+                          event['motive']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),

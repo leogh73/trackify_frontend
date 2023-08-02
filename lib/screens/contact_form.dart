@@ -9,6 +9,7 @@ import '../providers/preferences.dart';
 import '../providers/theme.dart';
 
 import '../widgets/ad_banner.dart';
+import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_and_toast.dart';
 
 class ContactForm extends StatefulWidget {
@@ -19,6 +20,14 @@ class ContactForm extends StatefulWidget {
 }
 
 class _ContactFormState extends State<ContactForm> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    interstitialAd.createInterstitialAd();
+  }
+
   int index = 0;
   late Color mainColor;
 
@@ -196,23 +205,27 @@ class _ContactFormState extends State<ContactForm> {
                       SizedBox(
                         width: 120,
                         child: ElevatedButton(
-                          child: const Text(
-                            'Cancelar',
-                            style: TextStyle(fontSize: 17),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            onPressed: () => {
+                                  interstitialAd.showInterstitialAd(),
+                                  Navigator.pop(context),
+                                }),
                       ),
                       const SizedBox(width: 10),
                       SizedBox(
                         width: 120,
                         child: ElevatedButton(
-                          child: const Text(
-                            "Enviar",
-                            style: TextStyle(fontSize: 17),
-                          ),
-                          onPressed: () => _sendRequest(fullHD),
-                        ),
+                            child: const Text(
+                              "Enviar",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            onPressed: () => {
+                                  interstitialAd.showInterstitialAd(),
+                                  _sendRequest(fullHD),
+                                }),
                       ),
                     ],
                   ),
@@ -296,7 +309,10 @@ class _ContactFormState extends State<ContactForm> {
             IconButton(
               icon: const Icon(Icons.send),
               iconSize: 26,
-              onPressed: () => _sendRequest(fullHD),
+              onPressed: () => {
+                interstitialAd.showInterstitialAd(),
+                _sendRequest(fullHD),
+              },
             ),
         ],
       ),

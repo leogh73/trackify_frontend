@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class FastTrack {
+class Enviopack {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -14,7 +15,7 @@ class FastTrack {
           event = {
             "date": e["date"],
             "time": e["time"],
-            "status": e["status"],
+            "detail": e["detail"],
           },
           events.add(event)
         });
@@ -22,9 +23,19 @@ class FastTrack {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
+
+    String lastEvent = data['lastEvent'];
+    List<List<String>> otherData = [
+      [
+        data['otherData']['serviceName'],
+        data['otherData']['servicePhone'],
+      ],
+      [
+        data['otherData']['locality'] ?? "Sin datos",
+        data['otherData']['state'] ?? "Sin datos",
+      ]
+    ];
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -44,33 +55,61 @@ class FastTrack {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(events, lastEvent, null, null, null, null);
+    return ItemResponseData(
+      events,
+      lastEvent,
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }
 
-class MoreDataFastTrack extends StatelessWidget {
-  const MoreDataFastTrack({Key? key}) : super(key: key);
-
+class MoreDataEnviopack extends StatelessWidget {
+  final List<List<String>>? otherData;
+  const MoreDataEnviopack(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'No hay más datos',
-        style: TextStyle(fontSize: 24),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          OtherData(
+            DataRowHandler(
+              otherData![0],
+              [
+                "Nombre",
+                "Teléfono",
+              ],
+            ).createTable(),
+            "CORREO",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![1],
+              [
+                "Localidad",
+                "Provincia",
+              ],
+            ).createTable(),
+            "DESTINO",
+          ),
+        ],
       ),
     );
   }
 }
 
-class EventListFastTrack extends StatefulWidget {
+class EventListEnviopack extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListFastTrack(this.events, {Key? key}) : super(key: key);
+  const EventListEnviopack(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListFastTrackState createState() => _EventListFastTrackState();
+  _EventListEnviopackState createState() => _EventListEnviopackState();
 }
 
-class _EventListFastTrackState extends State<EventListFastTrack> {
+class _EventListEnviopackState extends State<EventListEnviopack> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -84,9 +123,9 @@ class _EventListFastTrackState extends State<EventListFastTrack> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -98,18 +137,17 @@ class _EventListFastTrackState extends State<EventListFastTrack> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventFastTrack(widget.events[index], index, widget.events.length),
-        // shrinkWrap: _verificando,
+            EventEnviopack(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventFastTrack extends StatelessWidget {
+class EventEnviopack extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventFastTrack(this.event, this.index, this.listLength, {Key? key})
+  const EventEnviopack(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -122,21 +160,9 @@ class EventFastTrack extends StatelessWidget {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Padding(
       padding: const EdgeInsets.only(right: 8, left: 8),
-      // child: InkWell(
-      //   splashColor: Theme.of(context).primaryColor,
-      //   child: Container(
-      //     decoration: BoxDecoration(
-      //       border: Border.all(color: Theme.of(context).primaryColor, width: 2),
-      //       borderRadius: const BorderRadius.all(
-      //         const Radius.circular(12.0),
-      //       ),
-      //     ),
       child: Column(
         children: [
           SizedBox(
-            // padding: isPortrait && widget.modoSeleccion
-            //     ? EdgeInsets.only(right: 4)
-            //     : null,
             height: isPortrait ? 40 : 42,
             // alignment: Alignment.bottomCenter,
             child: Row(
@@ -237,7 +263,7 @@ class EventFastTrack extends StatelessWidget {
                           left: 12,
                         ),
                         child: Text(
-                          event['status']!,
+                          event['detail']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),

@@ -112,7 +112,7 @@ class _ActionsMenuState extends State<ActionsMenu> {
   }
 
   void _removeTracking(context, ItemTracking tracking, String screen) {
-    selectProvider(context, screen).removeTracking([tracking], context);
+    selectProvider(context, screen).removeTracking([tracking], context, false);
     _screenPopToast(context, "Seguimiento eliminado");
   }
 

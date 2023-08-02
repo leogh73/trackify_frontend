@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class DHL {
+class Renaper {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -15,8 +15,9 @@ class DHL {
           event = {
             "date": e["date"],
             "time": e["time"],
-            "location": e["location"],
             "description": e["description"],
+            "motive": e["motive"],
+            "plant": e["plant"],
           },
           events.add(event)
         });
@@ -25,40 +26,22 @@ class DHL {
 
   ItemResponseData createResponse(dynamic data) {
     List<Map<String, String>> events = generateEventList(data['events']);
+
     String lastEvent = data['lastEvent'];
-    List<String> shipping = [
-      data["shipping"]["id"],
-      data["shipping"]["service"],
-      data["shipping"]["origin"],
-      data["shipping"]["destiny"],
+    List<List<String>> otherData = [
+      [
+        data['details']['paperClass'],
+        data['details']['paperKind'],
+        data['details']['description'],
+        data['details']['pickUp']
+      ],
+      [
+        data['origin']['description'],
+        data['origin']['address'],
+        data['origin']['state'],
+        data['origin']['zipCode'],
+      ]
     ];
-    List<String> status = [
-      data["shipping"]["status"]["date"],
-      data["shipping"]["status"]["time"],
-      data["shipping"]["status"]["location"],
-      data["shipping"]["status"]["statusCode"],
-      data["shipping"]["status"]["status"],
-      data["shipping"]["status"]["description"],
-      data["shipping"]["status"]["moreDetails"],
-      data["shipping"]["status"]["nextStep"],
-    ];
-    List<String> detail = [
-      data["details"]["date"],
-      data["details"]["time"],
-      data["details"]["signatureUrl"],
-      data["details"]["documentUrl"],
-      "${data["details"]["totalPieces"]}",
-      data["details"]["signedType"],
-      data["details"]["signedName"],
-    ];
-    List<String> piecesIds = [data["details"]["pieceIds"].join(" - ")];
-
-    List<List<String>> otherData = [];
-    otherData.add(shipping);
-    otherData.add(status);
-    otherData.add(detail);
-    otherData.add(piecesIds);
-
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -77,22 +60,11 @@ class DHL {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
-    List<String> status = [
-      data['result']['shipping']["status"]["date"],
-      data['result']['shipping']["status"]["time"],
-      data['result']['shipping']["status"]["location"],
-      data['result']['shipping']["status"]["statusCode"],
-      data['result']['shipping']["status"]["status"],
-      data['result']['shipping']["status"]["description"],
-      data['result']['shipping']["status"]["moreDetails"],
-      data['result']['shipping']["status"]["nextStep"],
-    ];
-    List<List<String>?>? otherData = [null, status, null, null];
 
     return ItemResponseData(
       events,
       lastEvent,
-      otherData,
+      null,
       null,
       null,
       null,
@@ -100,82 +72,54 @@ class DHL {
   }
 }
 
-class MoreDataDHL extends StatelessWidget {
+class MoreDataRenaper extends StatelessWidget {
   final List<List<String>>? otherData;
-  const MoreDataDHL(this.otherData, {Key? key}) : super(key: key);
+  const MoreDataRenaper(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          children: [
-            OtherData(
-              DataRowHandler(
-                otherData![0],
-                [
-                  "ID",
-                  "Servicio",
-                  "Origen",
-                  "Destino",
-                ],
-              ).createTable(),
-              "INFORMACIÓN DE ENVIO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![1],
-                [
-                  "Fecha",
-                  "Hora",
-                  "Ubicación",
-                  "Código de status",
-                  "Estado",
-                  "Descripción",
-                  "Más detalles",
-                  "Siguiente paso"
-                ],
-              ).createTable(),
-              "INFORMACIÓN DE ESTADO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![2],
-                [
-                  "Fecha",
-                  "Hora",
-                  "Firma",
-                  "Documento",
-                  "Total de piezas",
-                  "Tipo de firma",
-                  "Firmado por",
-                ],
-              ).createTable(),
-              "DETALLE DEL ENVIO",
-            ),
-            OtherData(
-              DataRowHandler(
-                otherData![3],
-                ["Id/s"],
-              ).createTable(),
-              "INFORMACIÓN DE PIEZAS",
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          OtherData(
+            DataRowHandler(
+              otherData![0],
+              [
+                "Clase",
+                "Tipo",
+                "Descripción",
+                "Retiro",
+              ],
+            ).createTable(),
+            "TRÁMITE",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![1],
+              [
+                "Nombre",
+                "Dirección",
+                "Provincia",
+                "Código postal",
+              ],
+            ).createTable(),
+            "OFICINA DE ORIGEN",
+          ),
+        ],
       ),
     );
   }
 }
 
-class EventListDHL extends StatefulWidget {
+class EventListRenaper extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListDHL(this.events, {Key? key}) : super(key: key);
+  const EventListRenaper(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListDHLState createState() => _EventListDHLState();
+  _EventListRenaperState createState() => _EventListRenaperState();
 }
 
-class _EventListDHLState extends State<EventListDHL> {
+class _EventListRenaperState extends State<EventListRenaper> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -189,9 +133,9 @@ class _EventListDHLState extends State<EventListDHL> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -203,17 +147,17 @@ class _EventListDHLState extends State<EventListDHL> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventDHL(widget.events[index], index, widget.events.length),
+            EventRenaper(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventDHL extends StatelessWidget {
+class EventRenaper extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventDHL(this.event, this.index, this.listLength, {Key? key})
+  const EventRenaper(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -288,7 +232,7 @@ class EventDHL extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            : screenWidth * 0.225,
                         child: Column(
                           children: [
                             Row(
@@ -338,7 +282,7 @@ class EventDHL extends StatelessWidget {
                                         padding: const EdgeInsets.only(
                                             top: 2, bottom: 2),
                                         child: Text(
-                                          event['location']!,
+                                          event['plant']!,
                                           style: TextStyle(
                                               fontSize: fullHD ? 16 : 15),
                                         ),
@@ -370,7 +314,7 @@ class EventDHL extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 2, bottom: 2),
                           child: Text(
-                            event['location']!,
+                            event['plant']!,
                             style: TextStyle(fontSize: fullHD ? 16 : 15),
                           ),
                         ),
@@ -382,9 +326,8 @@ class EventDHL extends StatelessWidget {
             ),
           Padding(
             padding: isPortrait
-                ? const EdgeInsets.only(
-                    left: 11, right: 11, bottom: 10, top: 10)
-                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+                ? const EdgeInsets.only(left: 11, right: 11, bottom: 6, top: 11)
+                : const EdgeInsets.only(left: 10, right: 10, bottom: 6, top: 6),
             child: Column(
               children: [
                 Row(
@@ -399,6 +342,35 @@ class EventDHL extends StatelessWidget {
                         ),
                         child: Text(
                           event['description']!,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          style: TextStyle(fontSize: fullHD ? 16 : 15),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: isPortrait
+                ? const EdgeInsets.only(left: 11, right: 11, bottom: 10, top: 8)
+                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.description, size: 20),
+                    SizedBox(
+                      width: screenWidth - 62,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 12,
+                        ),
+                        child: Text(
+                          event['motive']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),

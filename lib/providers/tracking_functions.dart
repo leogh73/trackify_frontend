@@ -18,6 +18,10 @@ import 'status.dart';
 
 class TrackingFunctions {
   static void searchUpdates(BuildContext context, ItemTracking tracking) async {
+    bool completedStatus =
+        checkCompletedStatus(tracking.service, tracking.lastEvent!);
+    if (completedStatus)
+      return GlobalToast(context, "No hay actualizaciones").displayToast();
     List<ItemTracking> _trackings =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
@@ -48,8 +52,8 @@ class TrackingFunctions {
     }
   }
 
-  static void loadNotificationData(bool foreground, RemoteMessage message,
-      NavigatorState? navigatorState, BuildContext? context) {
+  static void loadNotificationData(
+      bool foreground, RemoteMessage message, BuildContext? context) {
     List<ItemTracking> _trackings =
         Provider.of<ActiveTrackings>(context!, listen: false).trackings;
 
@@ -65,7 +69,7 @@ class TrackingFunctions {
       }
     }
     if (!foreground && response.length == 1) {
-      navigatorState!.push(
+      Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => TrackingDetail(_trackings[index])));
     }
     if (foreground || !foreground && response.length > 1) {
@@ -96,16 +100,6 @@ class TrackingFunctions {
       newEventList.insert(0, event);
     }
     _trackings[index].events = newEventList;
-    // List<Map<String, String>> newEventList = [];
-    // for (var newEvent in itemResponseData.events!) {
-    //   newEventList.add(newEvent);
-    // }
-    // if (syncronization == false) {
-    //   for (var event in _trackings[index].events!) {
-    //     newEventList.add(event);
-    //   }
-    // }
-    _trackings[index].events = newEventList;
     _trackings[index].lastEvent = itemDataTracking['result']['lastEvent'];
     if (_trackings[index].service == 'DHL') {
       _trackings[index].otherData![1] = itemResponseData.otherData![1]!;
@@ -122,7 +116,9 @@ class TrackingFunctions {
       'entrega en',
       'devolución',
       'rehusado',
-      'no pudo ser retirado'
+      'recibido en destino',
+      'no pudo ser retirado',
+      'entrega en sucursal',
     ];
     bool status = false;
     for (var w in words) {
@@ -133,10 +129,11 @@ class TrackingFunctions {
     return status;
   }
 
-  static void sincronizeUserData(
-      BuildContext? context, AdInterstitial? interstitialAd) async {
+  static void syncronizeUserData(
+      BuildContext context, AdInterstitial? interstitialAd) async {
+    interstitialAd?.showInterstitialAd();
     List<ItemTracking> _trackings =
-        Provider.of<ActiveTrackings>(context!, listen: false).trackings;
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     List<Object> lastEventsList = [];
     if (_trackings.isNotEmpty) {
       for (var element in _trackings) {
@@ -154,7 +151,7 @@ class TrackingFunctions {
         }
       }
     }
-    print("EVENTSLIST_$lastEventsList");
+    print("SYNCRONIZE_DATA");
     if (lastEventsList.isEmpty) return;
     var now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
@@ -170,8 +167,10 @@ class TrackingFunctions {
       'driveLoggedIn': driveStatus.toString(),
       'version': '1.0.3'
     };
+    // dynamic response =
+    //     await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
     dynamic response =
-        await HttpRequestHandler.newRequest('/api/user/sincronize/', body);
+        await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
     if (response is Map) return;
     var decodedData = json.decode(response.body);
     if (decodedData['error'] != null) {
@@ -199,7 +198,7 @@ class TrackingFunctions {
         message = "Varios seguimientos actualizados";
       }
       Provider.of<Status>(context, listen: false)
-          .showNotificationOverlay("Datos sincronizados", message);
+          .showNotificationOverlay("Datos syncronizados", message);
     }
   }
 
@@ -215,31 +214,3 @@ class TrackingFunctions {
     return background ? null : response;
   }
 }
-
-  // try {
-    //   response = await http.Client().post(
-    //     Uri.parse("${dotenv.env['API_URL_1']}/api/user/sincronize/"),
-    //     body: body,
-    //   );
-
-    // var response = await http.Client().post(
-    //   Uri.parse(url.toString()),
-    //   body: {
-    //     'userId': "645e1fff75317501bc432252",
-    //     'token':
-    //         "cRN5O_5ZReOTyn_9PznZpQ:APA91bGTyfwWrBOFARjSSYBmWmaL7zhxNgv2M3gCoPz8wjkxvDS3H_T4WbA3kTmSMd4wUl9hOiznuUTj4Sp9FmeycJr803BxhVT_ubOlJs9yrx3Z_FjnJ5Tbm9dAE-tfScdDilOKKb1z",
-    //     'lastEvents': json.encode([
-    //       {
-    //         "idMDB": "6489c90e3866d733cfbc7048",
-    //         "eventDescription":
-    //             "14/06/2023 - 14:19 - LOMAS DE ZAMORA - SANTA FE - EN VIAJE"
-    //       }
-    //     ]),
-    //     'currentDate':
-    //         "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
-    //     'driveLoggedIn': driveStatus.toString(),
-    //     'version': '1.0.2'
-    //   },
-    // );
-    // } catch (e) {
-    // }

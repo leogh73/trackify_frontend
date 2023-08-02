@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../details_other.dart';
-import '../data_response.dart';
+import '../widgets/data_response.dart';
 
-class ClicOh {
+class EcaPack {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -15,7 +14,8 @@ class ClicOh {
           event = {
             "date": e["date"],
             "time": e["time"],
-            "description": e["description"],
+            "location": e["location"],
+            "sign": e["sign"],
           },
           events.add(event)
         });
@@ -23,36 +23,10 @@ class ClicOh {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
-    List<String> origin = [
-      data['origin']['address'],
-      data['origin']['country'],
-    ];
-    List<String> destiny = [
-      data['destiny']['address'],
-      data['destiny']['locality'],
-      data['destiny']['country'],
-      data['destiny']['administrative_area_level_1'],
-      data['destiny']['postal_code']
-    ];
-    List<String> receiver = [
-      data['receiver']['dni'],
-      data['receiver']['first_name'],
-      data['receiver']['last_name'],
-      data['receiver']['email'],
-      data['receiver']['phone'],
-      data['receiver']['address']
-    ];
-    List<String> other = [
-      data['otherData']['clientName'],
-    ];
-    otherData.add(origin);
-    otherData.add(destiny);
-    otherData.add(receiver);
-    otherData.add(other);
 
+    String lastEvent = data['lastEvent'];
+    List<List<String>> otherData = [[]];
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -72,75 +46,40 @@ class ClicOh {
         generateEventList(data['result']['events']);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(events, lastEvent, null, null, null, null);
+    return ItemResponseData(
+      events,
+      lastEvent,
+      null,
+      null,
+      null,
+      null,
+    );
   }
 }
 
-class MoreDataClicOh extends StatelessWidget {
-  final List<List<String>>? otherData;
-  const MoreDataClicOh(this.otherData, {Key? key}) : super(key: key);
+class MoreDataEcaPack extends StatelessWidget {
+  const MoreDataEcaPack({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          OtherData(
-            DataRowHandler(
-              otherData![0],
-              [
-                "Dirección",
-                "País",
-              ],
-            ).createTable(),
-            "ORIGEN",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![1],
-              ["Dirección", "Localidad", "País", "Provincia", "Código Postal"],
-            ).createTable(),
-            "DESTINO",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![2],
-              [
-                "DNI",
-                "Nombre",
-                "Apellido",
-                "Correo electrónico",
-                "Teléfono",
-                "Dirección"
-              ],
-            ).createTable(),
-            "DESTINATARIO",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![3],
-              [
-                "Nombre del remitente",
-              ],
-            ).createTable(),
-            "OTROS DATOS",
-          ),
-        ],
+    return const Center(
+      child: Text(
+        'No hay más datos',
+        style: TextStyle(fontSize: 24),
       ),
-    ));
+    );
   }
 }
 
-class EventListClicOh extends StatefulWidget {
+class EventListEcaPack extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListClicOh(this.events, {Key? key}) : super(key: key);
+  const EventListEcaPack(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListClicOhState createState() => _EventListClicOhState();
+  _EventListEcaPackState createState() => _EventListEcaPackState();
 }
 
-class _EventListClicOhState extends State<EventListClicOh> {
+class _EventListEcaPackState extends State<EventListEcaPack> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -154,9 +93,9 @@ class _EventListClicOhState extends State<EventListClicOh> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -168,18 +107,17 @@ class _EventListClicOhState extends State<EventListClicOh> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventClicOh(widget.events[index], index, widget.events.length),
-        // shrinkWrap: _verificando,
+            EventViaCargo(widget.events[index], index, widget.events.length),
       ),
     );
   }
 }
 
-class EventClicOh extends StatelessWidget {
+class EventViaCargo extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventClicOh(this.event, this.index, this.listLength, {Key? key})
+  const EventViaCargo(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -213,14 +151,14 @@ class EventClicOh extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.472
-                            : screenWidth * 0.48,
+                            ? screenWidth * 0.445
+                            : screenWidth * 0.245,
                         child: Column(
                           children: [
                             Row(
@@ -254,7 +192,7 @@ class EventClicOh extends StatelessWidget {
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.472,
+                            : screenWidth * 0.225,
                         child: Column(
                           children: [
                             Row(
@@ -271,7 +209,7 @@ class EventClicOh extends StatelessWidget {
                                           top: 2, bottom: 2),
                                       // width: 158,
                                       child: Text(
-                                        event['time']!,
+                                        event["time"]!,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: fullHD ? 16 : 15,
@@ -285,31 +223,93 @@ class EventClicOh extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (!isPortrait)
+                        SizedBox(
+                          width: isPortrait
+                              ? screenWidth * 0.445
+                              : screenWidth * 0.475,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.place, size: 20),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 2, bottom: 2),
+                                        child: Text(
+                                          event['location']!,
+                                          style: TextStyle(
+                                              fontSize: fullHD ? 16 : 15),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          if (isPortrait)
+            Padding(
+              padding: const EdgeInsets.only(left: 11, right: 11, top: 6),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.place, size: 20),
+                      SizedBox(
+                        width: screenWidth - 62,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 2, bottom: 2),
+                            child: Text(
+                              event['location']!,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(fontSize: fullHD ? 16 : 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           Padding(
-            padding:
-                const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+            padding: isPortrait
+                ? const EdgeInsets.only(
+                    left: 11, right: 11, bottom: 10, top: 12)
+                : const EdgeInsets.only(left: 9, right: 9, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Icon(Icons.local_shipping, size: 20),
+                    const Icon(Icons.description, size: 20),
                     SizedBox(
-                      width: screenWidth - 60,
+                      width: screenWidth - 62,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
                         ),
                         child: Text(
-                          event['description']!,
+                          event["sign"]!,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
+                          maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
                         ),
                       ),

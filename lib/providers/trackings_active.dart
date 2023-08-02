@@ -64,8 +64,8 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTracking(
-      List<ItemTracking> trackingList, BuildContext context) async {
+  void removeTracking(List<ItemTracking> trackingList, BuildContext context,
+      bool startError) async {
     List<String> trackingIds = [];
     for (var tracking in trackingList) {
       _trackings.remove(tracking);
@@ -74,8 +74,9 @@ class ActiveTrackings extends ChangeNotifier {
         trackingIds.add(tracking.idMDB!);
       }
     }
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
     notifyListeners();
+    if (startError) return;
+    String _userId = Provider.of<Preferences>(context, listen: false).userId;
     Object body = {'trackingIds': json.encode(trackingIds)};
     dynamic response =
         await HttpRequestHandler.newRequest('/api/user/$_userId/remove/', body);
@@ -154,7 +155,7 @@ class ActiveTrackings extends ChangeNotifier {
   }
 
   void removeSelection(BuildContext context) {
-    removeTracking(_selection, context);
+    removeTracking(_selection, context, false);
     _selection.clear();
     notifyListeners();
   }

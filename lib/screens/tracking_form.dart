@@ -341,6 +341,11 @@ final List<ServiceItemModel> services = [
     "RI-0044-2505",
   ),
   ServiceItemModel(
+    Image.asset('assets/services/enviopack.png'),
+    "Enviopack",
+    "5079800000001918356",
+  ),
+  ServiceItemModel(
     Image.asset('assets/services/fasttrack.png'),
     "FastTrack",
     "101440340",

@@ -3,25 +3,27 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:trackify/providers/tracking_functions.dart';
-import 'package:trackify/widgets/services/ecapack.dart';
-import 'package:trackify/widgets/services/fasttrack.dart';
-import 'package:trackify/widgets/services/mdcargas.dart';
-import 'package:trackify/widgets/services/renaper.dart';
-import 'package:trackify/widgets/services/urbano.dart';
+import 'package:trackify/services/ecapack.dart';
+import 'package:trackify/services/enviopack.dart';
+import 'package:trackify/services/fasttrack.dart';
+import 'package:trackify/services/mdcargas.dart';
+import 'package:trackify/services/renaper.dart';
+import 'package:trackify/services/urbano.dart';
 
 import '../providers/classes.dart';
 import '../providers/status.dart';
 
+import '../widgets/ad_interstitial.dart';
 import '../widgets/menu_actions.dart';
 import '../widgets/ad_banner.dart';
 
-import '../widgets/services/clicoh.dart';
-import '../widgets/services/andreani.dart';
-import '../widgets/services/correo_argentino.dart';
-import '../widgets/services/dhl.dart';
-import '../widgets/services/oca.dart';
-import '../widgets/services/ocasa.dart';
-import '../widgets/services/viacargo.dart';
+import '../services/clicoh.dart';
+import '../services/andreani.dart';
+import '../services/correo_argentino.dart';
+import '../services/dhl.dart';
+import '../services/oca.dart';
+import '../services/ocasa.dart';
+import '../services/viacargo.dart';
 
 class TrackingDetail extends StatefulWidget {
   final ItemTracking tracking;
@@ -32,10 +34,18 @@ class TrackingDetail extends StatefulWidget {
 }
 
 class _TrackingDetailState extends State<TrackingDetail> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    interstitialAd.createInterstitialAd();
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool _checking = Provider.of<Status>(context).checkingStatus;
-    bool _endList = Provider.of<Status>(context).endOfEvents;
+    bool checking = Provider.of<Status>(context).checkingStatus;
+    bool endList = Provider.of<Status>(context).endOfEvents;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -52,6 +62,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
       "Correo Argentino": EventListCorreoArgentino(events),
       "DHL": EventListDHL(events),
       "EcaPack": EventListEcaPack(events),
+      "Enviopack": EventListEnviopack(events),
       "FastTrack": EventListFastTrack(events),
       "MDCargas": EventListMDCargas(events),
       "OCA": EventListOCA(events),
@@ -63,7 +74,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
     Widget result = responseList[widget.tracking.service];
 
     return WillPopScope(
-      onWillPop: () => Future.value(!_checking),
+      onWillPop: () => Future.value(!checking),
       child: Scaffold(
         appBar: AppBar(
           titleSpacing: 1.0,
@@ -134,7 +145,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
         ),
         body: Column(
           children: [
-            if (_checking)
+            if (checking)
               Column(
                 children: [
                   Container(
@@ -171,12 +182,14 @@ class _TrackingDetailState extends State<TrackingDetail> {
             ),
           ],
         ),
-        floatingActionButton: _checking || _endList
+        floatingActionButton: checking || endList
             ? null
             : FloatingActionButton(
                 heroTag: 'events',
-                onPressed: () =>
-                    TrackingFunctions.searchUpdates(context, widget.tracking),
+                onPressed: () => {
+                  interstitialAd.showInterstitialAd(),
+                  TrackingFunctions.searchUpdates(context, widget.tracking),
+                },
                 child: const Icon(Icons.update, size: 29),
               ),
         bottomNavigationBar: const AdBanner(),
@@ -206,6 +219,7 @@ class MoreData extends StatelessWidget {
       "Correo Argentino": const MoreDataCorreoArgentino(),
       "DHL": MoreDataDHL(otherData),
       "EcaPack": const MoreDataEcaPack(),
+      "Enviopack": MoreDataEnviopack(otherData),
       "FastTrack": const MoreDataFastTrack(),
       "MDCargas": const MoreDataMDCargas(),
       "OCA": MoreDataOCA(otherData),
@@ -214,14 +228,13 @@ class MoreData extends StatelessWidget {
       "Urbano": MoreDataUrbano(otherData),
       "ViaCargo": MoreDataViaCargo(otherData),
     };
-    dynamic result = responseList[service];
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
         title: const Text("Más datos"),
       ),
-      body: result,
+      body: responseList[service],
       bottomNavigationBar: const AdBanner(),
     );
   }

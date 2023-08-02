@@ -7,6 +7,7 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:trackify/providers/tracking_functions.dart';
+import 'package:trackify/screens/services_status.dart';
 import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -23,7 +24,6 @@ import 'screens/search.dart';
 import 'initial_data.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   tz.initializeTimeZones();
   MobileAds.instance.initialize();
@@ -102,11 +102,11 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
+class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   AdInterstitial interstitialAd = AdInterstitial();
 
-  void startSettings(context) async {
+  void firebaseSettings(context) async {
     FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) {
       print(newToken);
     });
@@ -114,50 +114,54 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         .getInitialMessage()
         .then((RemoteMessage? message) {
       if (message != null) {
-        TrackingFunctions.loadNotificationData(false, message,
-            navigatorKey.currentState, navigatorKey.currentContext!);
+        TrackingFunctions.loadNotificationData(
+            false, message, navigatorKey.currentContext!);
       }
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
-        TrackingFunctions.loadNotificationData(
-            true, message, navigatorKey.currentState, context);
+        TrackingFunctions.loadNotificationData(true, message, context);
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      TrackingFunctions.loadNotificationData(
-          false, message, navigatorKey.currentState, context);
+      TrackingFunctions.loadNotificationData(false, message, context);
     });
+  }
+
+  void listenToAppStateChanges(BuildContext context, AdInterstitial intAd) {
+    AppStateEventNotifier.startListening();
+    AppStateEventNotifier.appStateStream.forEach(
+      (state) => {
+        if (state == AppState.foreground)
+          TrackingFunctions.syncronizeUserData(context, intAd),
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    startSettings(context);
-    Future.delayed(
-      const Duration(seconds: 2),
-      () => TrackingFunctions.sincronizeUserData(context, interstitialAd),
-    );
     String userId = Provider.of<Preferences>(context, listen: false).userId;
-    print('USERID_$userId');
+    print("USERID_$userId");
     if (userId.isEmpty)
       Provider.of<Status>(context, listen: false)
           .setStartError('User not created');
+    firebaseSettings(context);
     interstitialAd.createInterstitialAd();
+    listenToAppStateChanges(context, interstitialAd);
+    Future.delayed(
+      const Duration(seconds: 2),
+      () => TrackingFunctions.syncronizeUserData(context, null),
+    );
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed &&
-        navigatorKey.currentContext != null) {
-      TrackingFunctions.sincronizeUserData(navigatorKey.currentContext!, null);
-      interstitialAd.showInterstitialAd();
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) async {
+  //   super.didChangeAppLifecycleState(state);
+  //   if (state == AppLifecycleState.resumed) ;
+  // }
 
   @override
   Widget build(BuildContext context) {

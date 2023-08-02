@@ -45,9 +45,9 @@ class _MeLiCheckState extends State<MeLiCheck> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
     checkInput = checkData(widget.checkInput);
   }
 
@@ -237,12 +237,12 @@ List<MeLiItemData> processMLData(dynamic fetchedData) {
     String creationDate = item['creationDate'];
     String lastUpdate = item['lastUpdate'];
     String origin = item['origin'];
-    Map<dynamic, String> destiny = {
-      'address': item['destiny']['address'],
-      'name': item['destiny']['name']
+    Map<dynamic, String> destination = {
+      'address': item['destination']['address'],
+      'name': item['destination']['name']
     };
     MeLiItemData newItem = MeLiItemData(
-        title, code, items, creationDate, lastUpdate, origin, destiny);
+        title, code, items, creationDate, lastUpdate, origin, destination);
     responseList.add(newItem);
   });
 
@@ -256,7 +256,7 @@ class MeLiItemData {
   final String creationDate;
   final String lastUpdate;
   final String origin;
-  final Map<dynamic, String> destiny;
+  final Map<dynamic, String> destination;
   MeLiItemData(
     this.title,
     this.code,
@@ -264,6 +264,6 @@ class MeLiItemData {
     this.creationDate,
     this.lastUpdate,
     this.origin,
-    this.destiny,
+    this.destination,
   );
 }

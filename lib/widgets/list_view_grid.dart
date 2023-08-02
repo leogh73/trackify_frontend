@@ -57,16 +57,16 @@ class _ListGridNormalState extends State<ListGridNormal> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     interstitialAd.createInterstitialAd();
-    super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    _controller.addListener(_scrollListener);
     super.didChangeDependencies();
+    _controller.addListener(_scrollListener);
   }
 
   @override

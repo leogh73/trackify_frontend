@@ -7,20 +7,21 @@ class HttpRequestHandler {
     try {
       response = await http.Client()
           .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
-          .timeout(const Duration(seconds: 8));
+          .timeout(const Duration(seconds: 10));
       // response = await http.Client()
       //     .post(Uri.parse("${dotenv.env['API_URL']}$route"), body: body)
-      //     .timeout(const Duration(seconds: 8));
+      //     .timeout(const Duration(seconds: 10));
     } catch (e) {
       print("HTTP_ERROR_$e");
       try {
         response = await http.Client()
             .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
-            .timeout(const Duration(seconds: 8));
+            .timeout(const Duration(seconds: 10));
       } catch (e) {
         return errorResponse(e);
       }
     }
+    print("HTTP_RESPONSE_${response.body}");
     return response;
   }
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
-import '../../providers/status.dart';
+import '../providers/status.dart';
 
-import '../data_response.dart';
+import '../widgets/details_other.dart';
+import '../widgets/data_response.dart';
 
-class EcaPack {
+class Andreani {
   List<Map<String, String>> generateEventList(eventsResponse) {
     List<Map<String, String>> events = [];
     Map<String, String> event;
@@ -14,8 +14,9 @@ class EcaPack {
           event = {
             "date": e["date"],
             "time": e["time"],
+            "condition": e["condition"],
+            "motive": e["motive"],
             "location": e["location"],
-            "sign": e["sign"],
           },
           events.add(event)
         });
@@ -23,10 +24,20 @@ class EcaPack {
   }
 
   ItemResponseData createResponse(dynamic data) {
-    List<Map<String, String>> events = generateEventList(data['events']);
-
     String lastEvent = data['lastEvent'];
-    List<List<String>> otherData = [[]];
+    List<List<String>> otherData = [];
+    List<Map<String, String>> events = generateEventList(data['events']);
+    List<String> lastVisit = [
+      data["visits"]['visits'][0]?["date"] ?? "Sin datos",
+      data["visits"]['visits'][0]?["time"] ?? "Sin datos",
+      data["visits"]['visits'][0]?["motive"] ?? "Sin datos",
+    ];
+    List<String> pendingVisits = [
+      data["visits"]?["pendingVisits"].toString() ?? "Sin datos"
+    ];
+    otherData.add(lastVisit);
+    otherData.add(pendingVisits);
+
     String checkDate = data['checkDate'];
     String checkTime = data['checkTime'];
     String trackingId = data['trackingId'];
@@ -44,42 +55,67 @@ class EcaPack {
   ItemResponseData lastEvent(dynamic data) {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
+    List<List<String>> otherData = [];
+    List<String> lastVisit = [];
+    if (data['result']["visits"]?["visits"].isNotEmpty)
+      lastVisit = [
+        data['result']["visits"]?["visits"][0]["date"] ?? "Sin datos",
+        data['result']["visits"]?["visits"][0]["time"] ?? "Sin datos",
+        data['result']["visits"]?["visits"][0]["motive"] ?? "Sin datos",
+      ];
+    List<String> pendingVisits = [
+      data['result']["visits"]?["pendingVisits"].toString() ?? "Sin datos"
+    ];
+    otherData.add(lastVisit);
+    otherData.add(pendingVisits);
     String lastEvent = data['result']['lastEvent'];
 
-    return ItemResponseData(
-      events,
-      lastEvent,
-      null,
-      null,
-      null,
-      null,
-    );
+    return ItemResponseData(events, lastEvent, otherData, null, null, null);
   }
 }
 
-class MoreDataEcaPack extends StatelessWidget {
-  const MoreDataEcaPack({Key? key}) : super(key: key);
-
+class MoreDataAndreani extends StatelessWidget {
+  final List<List<String>>? otherData;
+  const MoreDataAndreani(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'No hay más datos',
-        style: TextStyle(fontSize: 24),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          OtherData(
+            DataRowHandler(
+              otherData![0],
+              [
+                "Fecha",
+                "Hora",
+                "Motivo",
+              ],
+            ).createTable(),
+            "ULTIMA VISITA",
+          ),
+          OtherData(
+            DataRowHandler(
+              otherData![1],
+              ["Pendientes"],
+            ).createTable(),
+            "VISITAS PENDIENTES",
+          ),
+        ],
       ),
     );
   }
 }
 
-class EventListEcaPack extends StatefulWidget {
+class EventListAndreani extends StatefulWidget {
   final List<Map<dynamic, String>> events;
-  const EventListEcaPack(this.events, {Key? key}) : super(key: key);
+  const EventListAndreani(this.events, {Key? key}) : super(key: key);
 
   @override
-  _EventListEcaPackState createState() => _EventListEcaPackState();
+  _EventListAndreaniState createState() => _EventListAndreaniState();
 }
 
-class _EventListEcaPackState extends State<EventListEcaPack> {
+class _EventListAndreaniState extends State<EventListAndreani> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -93,9 +129,9 @@ class _EventListEcaPackState extends State<EventListEcaPack> {
 
   @override
   void initState() {
+    super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -107,17 +143,18 @@ class _EventListEcaPackState extends State<EventListEcaPack> {
         controller: _controller,
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
-            EventViaCargo(widget.events[index], index, widget.events.length),
+            EventAndreani(widget.events[index], index, widget.events.length),
+        // shrinkWrap: _verificando,
       ),
     );
   }
 }
 
-class EventViaCargo extends StatelessWidget {
+class EventAndreani extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
-  const EventViaCargo(this.event, this.index, this.listLength, {Key? key})
+  const EventAndreani(this.event, this.index, this.listLength, {Key? key})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -151,14 +188,14 @@ class EventViaCargo extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Container(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
                         width: isPortrait
                             ? screenWidth * 0.445
-                            : screenWidth * 0.245,
+                            : screenWidth * 0.251,
                         child: Column(
                           children: [
                             Row(
@@ -209,7 +246,7 @@ class EventViaCargo extends StatelessWidget {
                                           top: 2, bottom: 2),
                                       // width: 158,
                                       child: Text(
-                                        event["time"]!,
+                                        event['time']!,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: fullHD ? 16 : 15,
@@ -237,7 +274,7 @@ class EventViaCargo extends StatelessWidget {
                                   children: [
                                     const Icon(Icons.place, size: 20),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 12),
+                                      padding: const EdgeInsets.only(left: 16),
                                       child: Padding(
                                         padding: const EdgeInsets.only(
                                             top: 2, bottom: 2),
@@ -269,18 +306,13 @@ class EventViaCargo extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Icon(Icons.place, size: 20),
-                      SizedBox(
-                        width: screenWidth - 62,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 2, bottom: 2),
-                            child: Text(
-                              event['location']!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: TextStyle(fontSize: fullHD ? 16 : 15),
-                            ),
+                          padding: const EdgeInsets.only(top: 2, bottom: 2),
+                          child: Text(
+                            event['location']!,
+                            style: TextStyle(fontSize: fullHD ? 16 : 15),
                           ),
                         ),
                       ),
@@ -291,9 +323,38 @@ class EventViaCargo extends StatelessWidget {
             ),
           Padding(
             padding: isPortrait
+                ? const EdgeInsets.only(left: 11, right: 11, top: 12)
+                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.local_shipping, size: 20),
+                    SizedBox(
+                      width: screenWidth - 62,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 12,
+                        ),
+                        child: Text(
+                          event['condition']!,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 4,
+                          style: TextStyle(fontSize: fullHD ? 16 : 15),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: isPortrait
                 ? const EdgeInsets.only(
                     left: 11, right: 11, bottom: 10, top: 12)
-                : const EdgeInsets.only(left: 9, right: 9, bottom: 10, top: 6),
+                : const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 6),
             child: Column(
               children: [
                 Row(
@@ -307,7 +368,7 @@ class EventViaCargo extends StatelessWidget {
                           left: 12,
                         ),
                         child: Text(
-                          event["sign"]!,
+                          event['motive']!,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           style: TextStyle(fontSize: fullHD ? 16 : 15),
