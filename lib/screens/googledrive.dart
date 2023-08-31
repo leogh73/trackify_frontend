@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:trackify/widgets/ad_banner.dart';
+import 'package:trackify/widgets/ad_native.dart';
 import 'package:trackify/widgets/drive_account.dart';
 import 'package:trackify/widgets/drive_content.dart';
 
@@ -44,7 +44,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
     } else {
       userAccount = await _googleSignIn.signOut();
       setState(() {
-        isLoggedIn = true;
+        isLoggedIn = false;
       });
       return Provider.of<Preferences>(context, listen: false)
           .toggleGoogleStatus(false);
@@ -103,74 +103,76 @@ class _GoogleDriveState extends State<GoogleDrive> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (isPortrait && !driveStatus)
-            Expanded(
-                child: Container(
-                  padding: const EdgeInsets.only(right: 20, left: 25),
-                  height: screenWidth * 0.6,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      const Icon(Icons.cloud_queue, size: 80),
-                      Text(
-                        description,
-                        maxLines: 7,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: fullHD ? 17 : 16,
-                        ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
+            if (isPortrait && !driveStatus)
+              Container(
+                padding: const EdgeInsets.only(right: 20, left: 25),
+                height: screenWidth * 0.6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const Icon(Icons.cloud_queue, size: 80),
+                    Text(
+                      description,
+                      maxLines: 7,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: fullHD ? 17 : 16,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                flex: 1),
-          if (!isPortrait && !driveStatus)
-            Container(
-              padding: const EdgeInsets.only(
-                  right: 15, left: 20, top: 10, bottom: 5),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Container(
-                        child: const Icon(Icons.cloud_queue, size: 80),
-                        padding: const EdgeInsets.only(right: 10),
-                      ),
-                      flex: 1),
-                  const SizedBox(width: 25),
-                  Expanded(
+              ),
+            if (!isPortrait && !driveStatus)
+              Container(
+                padding: const EdgeInsets.only(
+                    right: 15, left: 20, top: 10, bottom: 5),
+                child: Row(
+                  children: [
+                    Container(
+                      child: const Icon(Icons.cloud_queue, size: 80),
+                      padding: const EdgeInsets.only(right: 10),
+                    ),
+                    const SizedBox(width: 25),
+                    Expanded(
                       child: Container(
                         child: screenText(description, fullHD),
                         padding: const EdgeInsets.only(right: 20),
                       ),
-                      flex: 6),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          driveStatus
-              ? errorCheckDrive
-                  ? DriveContent(
-                      context,
-                      false,
-                      'Error de consulta a GoogleDrive',
-                      'REINTENTAR',
-                      () => Provider.of<Preferences>(context, listen: false)
-                          .toggleGDErrorStatus(false),
-                      null,
-                    )
-                  : GoogleDriveAccount()
-              : DriveContent(
-                  context,
-                  false,
-                  'No ha ingresado a GoogleDrive',
-                  'INGRESAR',
-                  () => googleAccount("login", context),
-                  null,
-                )
-        ],
+            driveStatus
+                ? errorCheckDrive
+                    ? DriveContent(
+                        context,
+                        false,
+                        'Error de consulta a GoogleDrive',
+                        'REINTENTAR',
+                        () => Provider.of<Preferences>(context, listen: false)
+                            .toggleGDErrorStatus(false),
+                        null,
+                      )
+                    : GoogleDriveAccount()
+                : DriveContent(
+                    context,
+                    false,
+                    '',
+                    'INGRESAR',
+                    () => googleAccount("login", context),
+                    null,
+                  ),
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 20, bottom: 8)),
+          ],
+        ),
       ),
-      bottomNavigationBar: const AdBanner(),
     );
   }
 }

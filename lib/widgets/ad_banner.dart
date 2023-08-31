@@ -47,7 +47,7 @@ class _AdBannerState extends State<AdBanner> {
         },
       ),
     );
-    return _anchoredAdaptiveAd!.load();
+    _anchoredAdaptiveAd!.load();
   }
 
   @override

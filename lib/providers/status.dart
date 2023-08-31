@@ -8,6 +8,7 @@ import '../database.dart';
 import '../initial_data.dart';
 import '../screens/tracking_form.dart';
 
+import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_and_toast.dart';
 
 import 'classes.dart';
@@ -24,6 +25,9 @@ class Status with ChangeNotifier {
     startError = newError;
     notifyListeners();
   }
+
+  AdInterstitial interstitialAd = AdInterstitial();
+  AdInterstitial get getInterstitialAd => interstitialAd;
 
   late List<String> recentSearch;
 

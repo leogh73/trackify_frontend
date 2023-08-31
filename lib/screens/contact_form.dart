@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trackify/database.dart';
 import 'package:trackify/providers/classes.dart';
 import 'package:trackify/providers/http_request_handler.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/preferences.dart';
 import '../providers/theme.dart';
@@ -132,12 +133,15 @@ class _ContactFormState extends State<ContactForm> {
           key: _formKey,
           child: Column(
             children: [
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 8, bottom: 8)),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Tu opinión es muy importante para nosotros. Si necesitas asistencia, tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. Por ejemplo: si necesitás hacer un seguimiento de un servicio que no ofrecemos, puedes enviarnos un código de seguimiento funcional y el nombre de dicho servicio, y de ser posible, agregaremos soporte para el mismo, en una próxima actualización. De ser necesario, nos pondremos en contacto por correo electrónico y te responderemos a la brevedad.",
-                    maxLines: 14,
+                    "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto por correo electrónico y te responderemos a la brevedad.",
+                    maxLines: 10,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: fullHD ? 17 : 16,
@@ -157,7 +161,7 @@ class _ContactFormState extends State<ContactForm> {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: TextFormField(
-                  maxLines: 5,
+                  maxLines: 3,
                   // focusNode: FocusNode(),
                   decoration: InputDecoration(
                       hintText: "Escriba su mensaje",
@@ -231,6 +235,9 @@ class _ContactFormState extends State<ContactForm> {
                   ),
                 ),
               ),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 8, bottom: 8)),
             ],
           ),
         ),

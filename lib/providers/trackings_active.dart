@@ -37,9 +37,9 @@ class ActiveTrackings extends ChangeNotifier {
       checkError: null,
       selected: false,
       archived: false,
+      fake: false,
     );
     _trackings.insert(0, newTracking);
-
     notifyListeners();
   }
 
@@ -57,6 +57,28 @@ class ActiveTrackings extends ChangeNotifier {
     _trackings[trackingIndex].idMDB = itemData.trackingId!;
     storedData.newMainTracking(_trackings[trackingIndex]);
   }
+
+  // void loadFakeTracking() {
+  //   ItemTracking fakeTracking = ItemTracking(
+  //     idSB: 1,
+  //     idMDB: '',
+  //     title: "",
+  //     code: "",
+  //     service: "",
+  //     search: false,
+  //     checkError: false,
+  //     selected: false,
+  //     archived: false,
+  //     fake: true,
+  //     events: [],
+  //     otherData: [[]],
+  //     lastEvent: '',
+  //     startCheck: '',
+  //     lastCheck: '',
+  //   );
+  //   _trackings.insert(0, fakeTracking);
+  //   storedData.newMainTracking(fakeTracking);
+  // }
 
   void retryErrorTracking(int trackingId) {
     int trackingIndex = _trackings.indexWhere((t) => t.idSB == trackingId);

@@ -7,7 +7,6 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:trackify/providers/tracking_functions.dart';
-import 'package:trackify/screens/services_status.dart';
 import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -24,6 +23,7 @@ import 'screens/search.dart';
 import 'initial_data.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   tz.initializeTimeZones();
   MobileAds.instance.initialize();
@@ -75,15 +75,23 @@ class TrackeAR extends StatelessWidget {
             );
           } else {
             return Material(
-              child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(140),
-                      child: Image.asset('assets/icon/icon.png'),
+                    Expanded(
+                      flex: 12,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 40, right: 40, top: 20, bottom: 20),
+                        child: Image.asset('assets/icon/icon.png'),
+                      ),
                     ),
-                    const CircularProgressIndicator(),
+                    Padding(
+                      padding: EdgeInsets.all(15),
+                      child: const CircularProgressIndicator(),
+                    ),
                   ],
                 ),
               ),
@@ -102,7 +110,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   AdInterstitial interstitialAd = AdInterstitial();
 
@@ -126,16 +134,24 @@ class _AppState extends State<App> {
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      TrackingFunctions.loadNotificationData(false, message, context);
+      TrackingFunctions.loadNotificationData(
+          false, message, navigatorKey.currentContext!);
     });
   }
 
-  void listenToAppStateChanges(BuildContext context, AdInterstitial intAd) {
+  void syncData(BuildContext context) async {
+    Future.delayed(
+      const Duration(seconds: 2),
+      () => TrackingFunctions.syncronizeUserData(context),
+    );
+  }
+
+  void listenToAppStateChanges() {
     AppStateEventNotifier.startListening();
     AppStateEventNotifier.appStateStream.forEach(
       (state) => {
         if (state == AppState.foreground)
-          TrackingFunctions.syncronizeUserData(context, intAd),
+          syncData(navigatorKey.currentContext!),
       },
     );
   }
@@ -143,25 +159,25 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     String userId = Provider.of<Preferences>(context, listen: false).userId;
     print("USERID_$userId");
     if (userId.isEmpty)
       Provider.of<Status>(context, listen: false)
           .setStartError('User not created');
     firebaseSettings(context);
+    syncData(context);
+    listenToAppStateChanges();
     interstitialAd.createInterstitialAd();
-    listenToAppStateChanges(context, interstitialAd);
-    Future.delayed(
-      const Duration(seconds: 2),
-      () => TrackingFunctions.syncronizeUserData(context, null),
-    );
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) async {
-  //   super.didChangeAppLifecycleState(state);
-  //   if (state == AppLifecycleState.resumed) ;
-  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      interstitialAd.showInterstitialAd();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +217,7 @@ class _AppState extends State<App> {
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
+      // home: MainScreen(userId),
       home: MainScreen(userId),
       routes: {
         MainScreen.routeName: (context) => MainScreen(userId),

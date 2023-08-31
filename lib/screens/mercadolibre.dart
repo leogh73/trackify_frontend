@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/widgets/ad_native.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
@@ -22,22 +23,32 @@ class MercadoLibre extends StatelessWidget {
   Center mercadoLibreScreen(BuildContext context, String text1, String text2,
       String button, VoidCallback function) {
     return Center(
-      child: Column(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                screenText(text1),
-                screenText(text2),
-                ElevatedButton(
-                  child: screenText(button),
-                  onPressed: function,
-                ),
-              ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 8, bottom: 8)),
+            Container(
+              height: 170,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  screenText(text1),
+                  screenText(text2),
+                  ElevatedButton(
+                    child: screenText(button),
+                    onPressed: function,
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 8, bottom: 8)),
+          ],
+        ),
       ),
     );
   }

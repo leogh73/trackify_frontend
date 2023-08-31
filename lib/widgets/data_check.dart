@@ -43,6 +43,7 @@ class DataCheck {
       var data = json.decode(response.body);
       ItemResponseData itemResponse =
           Response.dataHandler(tracking.service, data, false);
+      print("TRACKING_ID_${{itemResponse.trackingId}}");
       if (retry) {
         Provider.of<ActiveTrackings>(context, listen: false)
             .loadStartData(tracking, itemResponse);

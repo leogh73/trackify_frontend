@@ -8,6 +8,7 @@ import '../providers/status.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
 
+import '../widgets/ad_native.dart';
 import '../widgets/dialog_and_toast.dart';
 import '../widgets/ad_banner.dart';
 
@@ -61,12 +62,19 @@ class _TrackingFormState extends State<TrackingForm> {
   final title = TextEditingController();
   final code = TextEditingController();
 
+  @override
+  void dispose() {
+    super.dispose();
+    title.dispose();
+    code.dispose();
+  }
+
   void _pagePopMessage(context, edit) {
     Navigator.pop(context);
     if (edit) {
       GlobalToast(context, "Seguimiento editado").displayToast();
     }
-    interstitialAd.showInterstitialAd();
+    // interstitialAd.showInterstitialAd();
   }
 
   selectProvider(BuildContext context, String listView) {
@@ -129,105 +137,109 @@ class _TrackingFormState extends State<TrackingForm> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 10,
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          children: [
+            AdNative("medium"),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 10,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: SelectService(
-                        preLoadedService: loadedService,
-                        chosen: false,
-                        optionWidth: 180,
-                      ),
-                      // SelectService(),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: TextFormField(
-                    focusNode: FocusNode(),
-                    decoration: InputDecoration(
-                      labelText: "Código",
-                      hintText: exampleCode,
-                      contentPadding: EdgeInsets.only(top: 5),
-                    ),
-                    controller: code,
-                    textInputAction: TextInputAction.next,
-                    autofocus: false,
-                    validator: (value) {
-                      if (value == null || value.length < 8) {
-                        return 'Ingrese un código de seguimiento válido';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.only(top: 5),
-                      labelText: "Descripción (opcional)",
-                      hintText: "Ejemplo: Celular",
-                    ),
-                    controller: title,
-                    textInputAction: TextInputAction.next,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 4, right: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          width: 120,
-                          child: ElevatedButton(
-                            child: const Text(
-                              'Cancelar',
-                              style: TextStyle(fontSize: 17),
-                            ),
-                            onPressed: () {
-                              interstitialAd.showInterstitialAd();
-                              Navigator.pop(context);
-                              // code.dispose();
-                              // title.dispose();
-                            },
+                        Container(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: SelectService(
+                            preLoadedService: loadedService,
+                            chosen: false,
+                            optionWidth: 180,
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 120,
-                          child: ElevatedButton(
-                            child: Text(
-                              widget.edit ? 'Guardar' : 'Agregar',
-                              style: const TextStyle(fontSize: 17),
-                            ),
-                            onPressed: widget.edit
-                                ? () =>
-                                    _editTracking(context, service, listView)
-                                : () => _addTracking(context, service),
-                          ),
+                          // SelectService(),
                         ),
                       ],
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: TextFormField(
+                        focusNode: FocusNode(),
+                        decoration: InputDecoration(
+                          labelText: "Código",
+                          hintText: exampleCode,
+                          contentPadding: EdgeInsets.only(top: 5),
+                        ),
+                        controller: code,
+                        textInputAction: TextInputAction.next,
+                        autofocus: false,
+                        validator: (value) {
+                          if (value == null || value.length < 8) {
+                            return 'Ingrese un código de seguimiento válido';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.only(top: 5),
+                          labelText: "Descripción (opcional)",
+                          hintText: "Ejemplo: Celular",
+                        ),
+                        controller: title,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              child: ElevatedButton(
+                                child: const Text(
+                                  'Cancelar',
+                                  style: TextStyle(fontSize: 17),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 120,
+                              child: ElevatedButton(
+                                child: Text(
+                                  widget.edit ? 'Guardar' : 'Agregar',
+                                  style: const TextStyle(fontSize: 17),
+                                ),
+                                onPressed: widget.edit
+                                    ? () => _editTracking(
+                                        context, service, listView)
+                                    : () => _addTracking(context, service),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(top: 20)),
+          ],
         ),
       ),
       bottomNavigationBar: const AdBanner(),
@@ -257,18 +269,6 @@ class _SelectServiceState extends State<SelectService> {
   void initState() {
     super.initState();
     loadedService = widget.preLoadedService;
-  }
-
-  serviceOption(double optionWidth, ServiceItemModel service) {
-    return DropdownMenuItem<ServiceItemModel>(
-      value: service,
-      child: Container(
-        padding: const EdgeInsets.only(left: 5),
-        alignment: Alignment.center,
-        constraints: BoxConstraints(maxWidth: optionWidth, maxHeight: 55),
-        child: service.image,
-      ),
-    );
   }
 
   @override
@@ -301,7 +301,16 @@ class _SelectServiceState extends State<SelectService> {
       },
       items: services
           .map<DropdownMenuItem<ServiceItemModel>>((ServiceItemModel service) {
-        return serviceOption(widget.optionWidth!, service);
+        return DropdownMenuItem<ServiceItemModel>(
+          value: service,
+          child: Container(
+            padding: const EdgeInsets.only(left: 5),
+            alignment: Alignment.center,
+            constraints:
+                BoxConstraints(maxWidth: widget.optionWidth!, maxHeight: 55),
+            child: service.image,
+          ),
+        );
       }).toList(),
     );
   }
@@ -326,7 +335,7 @@ final List<ServiceItemModel> services = [
     "HWUIN94250",
   ),
   ServiceItemModel(
-    Image.asset('assets/services/ca.png'),
+    Image.asset('assets/services/correoargentino.png'),
     "Correo Argentino",
     "1627633PCMI321E001",
   ),
@@ -376,7 +385,7 @@ final List<ServiceItemModel> services = [
     "0000000043168668",
   ),
   ServiceItemModel(
-    Image.asset('assets/services/via_cargo.png'),
+    Image.asset('assets/services/viacargo.png'),
     "ViaCargo",
     "999015276642",
   ),

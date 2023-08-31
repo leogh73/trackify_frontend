@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
@@ -163,7 +164,30 @@ class _MainScreenState extends State<MainScreen> {
               ],
             ),
       body: Center(
-        child: TrackingList(selectionMode, trackings),
+        child: error.isNotEmpty
+            ? SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 8, bottom: 50),
+                    ),
+                    Icon(Icons.error, size: 80),
+                    SizedBox(width: 30, height: 30),
+                    Text(
+                      'ERROR',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 50, bottom: 8),
+                    ),
+                  ],
+                ),
+              )
+            : TrackingList(selectionMode, trackings),
       ),
       floatingActionButton:
           selectionMode || endOfList || error.isNotEmpty || userId.isEmpty

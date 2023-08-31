@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/status.dart';
 
@@ -53,20 +54,6 @@ class EcaPack {
       null,
       null,
       null,
-    );
-  }
-}
-
-class MoreDataEcaPack extends StatelessWidget {
-  const MoreDataEcaPack({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'No hay más datos',
-        style: TextStyle(fontSize: 24),
-      ),
     );
   }
 }
@@ -141,6 +128,12 @@ class EventViaCargo extends StatelessWidget {
       //     ),
       child: Column(
         children: [
+          if (index == 0)
+            Padding(
+                padding: EdgeInsets.only(top: 3, bottom: 3),
+                child: AdNative("medium")),
+          if (index == 0)
+            Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
             // padding: isPortrait && widget.modoSeleccion
             //     ? EdgeInsets.only(right: 4)
@@ -319,6 +312,10 @@ class EventViaCargo extends StatelessWidget {
               ],
             ),
           ),
+          Divider(color: Theme.of(context).primaryColor, thickness: 1),
+          Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium")),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

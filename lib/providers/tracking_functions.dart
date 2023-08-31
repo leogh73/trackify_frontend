@@ -7,8 +7,7 @@ import 'package:trackify/providers/http_request_handler.dart';
 import 'package:trackify/providers/preferences.dart';
 
 import '../database.dart';
-import '../widgets/ad_interstitial.dart';
-import 'trackings_active.dart';
+import '../providers/trackings_active.dart';
 import '../screens/tracking_detail.dart';
 import '../widgets/dialog_and_toast.dart';
 import '../widgets/data_response.dart';
@@ -53,10 +52,9 @@ class TrackingFunctions {
   }
 
   static void loadNotificationData(
-      bool foreground, RemoteMessage message, BuildContext? context) {
+      bool foreground, RemoteMessage message, BuildContext context) {
     List<ItemTracking> _trackings =
-        Provider.of<ActiveTrackings>(context!, listen: false).trackings;
-
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     RemoteNotification notification = message.notification!;
     List<dynamic> response = json.decode(message.data['data']);
 
@@ -82,7 +80,6 @@ class TrackingFunctions {
       BuildContext context, int index, dynamic itemDataTracking) {
     List<ItemTracking> _trackings =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    print("ITEM_RESPONSE_$itemDataTracking");
     String checkDate = itemDataTracking['checkDate'];
     String checkTime = itemDataTracking['checkTime'];
     _trackings[index].lastCheck = '$checkDate - $checkTime';
@@ -116,7 +113,6 @@ class TrackingFunctions {
       'entrega en',
       'devolución',
       'rehusado',
-      'recibido en destino',
       'no pudo ser retirado',
       'entrega en sucursal',
     ];
@@ -129,9 +125,7 @@ class TrackingFunctions {
     return status;
   }
 
-  static void syncronizeUserData(
-      BuildContext context, AdInterstitial? interstitialAd) async {
-    interstitialAd?.showInterstitialAd();
+  static void syncronizeUserData(BuildContext context) async {
     List<ItemTracking> _trackings =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     List<Object> lastEventsList = [];
@@ -151,8 +145,7 @@ class TrackingFunctions {
         }
       }
     }
-    print("SYNCRONIZE_DATA");
-    if (lastEventsList.isEmpty) return;
+    // if (lastEventsList.isEmpty) return;
     var now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
@@ -165,18 +158,17 @@ class TrackingFunctions {
       'currentDate':
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.0.3'
+      'version': '1.0.5'
     };
-    // dynamic response =
-    //     await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
     dynamic response =
         await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
     if (response is Map) return;
     var decodedData = json.decode(response.body);
     if (decodedData['error'] != null) {
-      Provider.of<Status>(context, listen: false)
+      return Provider.of<Status>(context, listen: false)
           .setStartError(decodedData['error']);
-      return;
+    } else {
+      Provider.of<Status>(context, listen: false).setStartError("");
     }
     if (decodedData['driveStatus'] == "Update required" ||
         decodedData['driveStatus'] == 'Backup not found') {

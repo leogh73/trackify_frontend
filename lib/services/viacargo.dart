@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/status.dart';
 
@@ -108,6 +109,8 @@ class MoreDataViaCargo extends StatelessWidget {
               ).createTable(),
               "ORIGEN",
             ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
             OtherData(
               DataRowHandler(
                 otherData![1],
@@ -124,6 +127,8 @@ class MoreDataViaCargo extends StatelessWidget {
               ).createTable(),
               "DESTINO",
             ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
             OtherData(
               DataRowHandler(
                 otherData![2],
@@ -136,6 +141,8 @@ class MoreDataViaCargo extends StatelessWidget {
               ).createTable(),
               "OTROS DATOS",
             ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
           ],
         ),
       ),
@@ -213,6 +220,12 @@ class EventViaCargo extends StatelessWidget {
       //     ),
       child: Column(
         children: [
+          if (index == 0)
+            Padding(
+                padding: EdgeInsets.only(top: 3, bottom: 3),
+                child: AdNative("medium")),
+          if (index == 0)
+            Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
             // padding: isPortrait && widget.modoSeleccion
             //     ? EdgeInsets.only(right: 4)
@@ -386,6 +399,10 @@ class EventViaCargo extends StatelessWidget {
               ],
             ),
           ),
+          Divider(color: Theme.of(context).primaryColor, thickness: 1),
+          Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium")),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

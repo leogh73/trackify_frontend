@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:trackify/providers/http_request_handler.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/preferences.dart';
 
@@ -149,16 +150,26 @@ class _MeLiCheckState extends State<MeLiCheck> {
         if (snapshot.connectionState == ConnectionState.done) {
           return itemsList.isEmpty && totalShippingsData.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.local_shipping_outlined, size: 80),
-                      const SizedBox(width: 40, height: 40),
-                      Text(
-                        "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          child: AdNative("medium"),
+                          padding: EdgeInsets.only(top: 10, bottom: 30),
+                        ),
+                        const Icon(Icons.local_shipping_outlined, size: 80),
+                        const SizedBox(width: 30, height: 30),
+                        Text(
+                          "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        Padding(
+                          child: AdNative("medium"),
+                          padding: EdgeInsets.only(top: 30, bottom: 10),
+                        )
+                      ],
+                    ),
                   ),
                 )
               : Column(
@@ -169,8 +180,15 @@ class _MeLiCheckState extends State<MeLiCheck> {
                         child: ListView.builder(
                           padding: const EdgeInsets.only(top: 6),
                           itemCount: itemsList.length,
-                          itemBuilder: (context, index) =>
-                              MercadoLibreItem(itemsList[index]),
+                          itemBuilder: (context, index) {
+                            return Column(children: [
+                              if (index == 0)
+                                Padding(
+                                    child: AdNative("small"),
+                                    padding: EdgeInsets.only(bottom: 8)),
+                              MercadoLibreItem(itemsList[index])
+                            ]);
+                          },
                         ),
                       ),
                     ),
@@ -231,7 +249,7 @@ List<MeLiItemData> processMLData(dynamic fetchedData) {
   List<MeLiItemData> responseList = [];
   fetchedData.forEach((item) {
     String title = item['title'];
-    String code = item['code'];
+    String code = item['code'] ?? 'Sin datos';
     List<String> items = [];
     item['items'].forEach((item) => items.add(item));
     String creationDate = item['creationDate'];

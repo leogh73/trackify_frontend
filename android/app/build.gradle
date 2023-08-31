@@ -55,7 +55,7 @@ android {
         applicationId "com.leogh73.trackify"
         multiDexEnabled true
         minSdkVersion 19
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

@@ -207,29 +207,27 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
         if (snapshot.connectionState == ConnectionState.done) {
           // print(backupData);
           return onGoogleProcess
-              ? Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 10, bottom: 25),
-                          child: const SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: CircularProgressIndicator(),
-                          ),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 10, bottom: 25),
+                        child: const SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: CircularProgressIndicator(),
                         ),
-                        Text(
-                          'En proceso...',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: fullHD ? 16 : 15,
-                          ),
+                      ),
+                      Text(
+                        'En proceso...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: fullHD ? 16 : 15,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 )
               : DriveContent(
@@ -247,29 +245,27 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
                       : () => restoreDialog(fullHD, selectedBackup),
                 );
         } else {
-          return Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 10, bottom: 25),
-                    child: const SizedBox(
-                      height: 40,
-                      width: 40,
-                      child: CircularProgressIndicator(),
-                    ),
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 10, bottom: 25),
+                  child: const SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: CircularProgressIndicator(),
                   ),
-                  Text(
-                    'Consultando...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: fullHD ? 16 : 15,
-                    ),
+                ),
+                Text(
+                  'Consultando...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: fullHD ? 16 : 15,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import 'ad_interstitial.dart';
 import 'data_check.dart';
@@ -102,421 +103,441 @@ class _ItemCardState extends State<ItemCard> {
 
   Widget _widgetFinal(bool error, isPortrait, screenWidth, fullHD, screen,
       String text, Widget button) {
-    return _retrying
-        ? Center(
-            child: Container(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 15),
-                    child: const SizedBox(
-                      height: 40,
-                      width: 40,
-                      child: CircularProgressIndicator(),
-                    ),
+    return Column(
+      children: [
+        _retrying
+            ? Center(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: const SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      Text(
+                        'Verificando...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: fullHD ? 16 : 15,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Verificando...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: fullHD ? 16 : 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        : Padding(
-            padding: const EdgeInsets.only(right: 6, left: 6, bottom: 8),
-            child: InkWell(
-              onTap: () => _clickItem(context, widget.tracking, screen),
-              onLongPress: () =>
-                  _longClickItem(context, widget.tracking, screen),
-              splashColor: Theme.of(context).primaryColor,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).primaryColor, width: 2),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(18.0),
-                  ),
-                  color: widget.tracking.selected! ? Colors.black12 : null,
                 ),
-                // margin: EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.only(left: 14, top: 1, bottom: 8),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 40,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: widget.selectionMode
-                                ? const EdgeInsets.only(top: 3, left: 25)
-                                : const EdgeInsets.only(top: 3, left: 25),
-                            width: widget.tracking.checkError! == false
-                                ? isPortrait
-                                    ? widget.selectionMode &&
-                                            widget.tracking.archived == true
-                                        ? screenWidth - 110
-                                        : !widget.selectionMode &&
-                                                widget.tracking.archived ==
-                                                    false
-                                            ? screenWidth - 80
-                                            : !widget.selectionMode
-                                                ? screenWidth - 110
-                                                : screenWidth - 80
-                                    : widget.selectionMode &&
-                                            widget.tracking.archived == true
-                                        ? screenWidth - 110
-                                        : !widget.selectionMode &&
-                                                widget.tracking.archived ==
-                                                    false
-                                            ? screenWidth - 80
-                                            : !widget.selectionMode
-                                                ? screenWidth - 110
-                                                : screenWidth - 80
-                                : isPortrait
-                                    ? widget.selectionMode &&
-                                            widget.tracking.archived == true
-                                        ? screenWidth - 110
-                                        : !widget.selectionMode &&
-                                                widget.tracking.archived ==
-                                                    false
-                                            ? screenWidth - 110
-                                            : !widget.selectionMode
-                                                ? screenWidth - 110
-                                                : screenWidth - 110
-                                    // : widget.selectionMode &&
-                                    //             widget.tracking.archived ==
-                                    //                 true ||
-                                    //         widget.tracking.eliminado == true
-                                    //     ? screenWidth - 148
-                                    //     : !widget.selectionMode &&
-                                    //             widget.tracking.archived ==
-                                    //                 false &&
-                                    //             widget.tracking.eliminado == false
-                                    //         ? screenWidth - 80
-                                    //         : !widget.selectionMode
-                                    //             ? screenWidth - 110
-                                    : screenWidth - 110,
-                            // !widget.selectionMode
-                            //     ? screenWidth - 69
-                            //     :
-
-                            alignment: Alignment.center,
-                            child: Container(
-                              padding: widget.tracking.checkError!
-                                  ? const EdgeInsets.only(left: 35)
-                                  : EdgeInsets.zero,
-                              child: Text(
-                                text,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: fullHD ? 16 : 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (widget.tracking.archived == true)
-                            Container(
-                              width: 38,
-                              child: const Icon(Icons.archive),
-                              alignment: Alignment.center,
-                            ),
-                          if (!widget.tracking.archived! &&
-                              widget.tracking.checkError!)
-                            button,
-                          // if (!widget.tracking.checkError!) button,
-                          if (widget.selectionMode && widget.tracking.selected!)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 1, right: 6),
-                              child: Icon(
-                                Icons.check_box,
-                                size: 32,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          if (widget.selectionMode &&
-                              !widget.tracking.selected!)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 1, right: 6),
-                              child: Icon(
-                                Icons.check_box_outline_blank,
-                                size: 32,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          if (!widget.selectionMode && screen != "search")
-                            SizedBox(
-                              // padding: EdgeInsets.only(top: 6),
-                              width: 38,
-                              child: ActionsMenu(
-                                action: '',
-                                screen: screen,
-                                menu: true,
-                                detail: false,
-                                icon: 24,
-                                tracking: widget.tracking,
-                              ),
-                            ),
-                        ],
+              )
+            : Padding(
+                padding: const EdgeInsets.only(right: 6, left: 6, bottom: 8),
+                child: InkWell(
+                  onTap: () => _clickItem(context, widget.tracking, screen),
+                  onLongPress: () =>
+                      _longClickItem(context, widget.tracking, screen),
+                  splashColor: Theme.of(context).primaryColor,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).primaryColor, width: 2),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(18.0),
                       ),
+                      color: widget.tracking.selected! ? Colors.black12 : null,
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.local_shipping, size: 20),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12),
-                            child: Text(
-                              'Ultimo movimiento:',
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: fullHD ? 16 : 15),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
+                    // margin: EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(left: 14, top: 1, bottom: 8),
+                    child: Column(
                       children: [
                         SizedBox(
-                          width:
-                              isPortrait ? screenWidth - 54 : screenWidth - 50,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 4, bottom: 2),
-                            child: widget.tracking.checkError!
-                                ? const Text("Sin datos")
-                                : Text(
-                                    widget.tracking.lastEvent!,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      fontSize: fullHD ? 16 : 15,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Wrap(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
+                          height: 40,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                padding: const EdgeInsets.only(top: 4),
-                                width: isPortrait
-                                    ? fullHD
-                                        ? 168
-                                        : 157
-                                    : 235,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      // mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 7),
-                                          child: Icon(Icons.check),
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              'Ultimo chequeo:',
-                                              style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize: fullHD ? 16 : 15),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                padding: widget.selectionMode
+                                    ? const EdgeInsets.only(top: 3, left: 25)
+                                    : const EdgeInsets.only(top: 3, left: 25),
+                                width: widget.tracking.checkError! == false
+                                    ? isPortrait
+                                        ? widget.selectionMode &&
+                                                widget.tracking.archived == true
+                                            ? screenWidth - 110
+                                            : !widget.selectionMode &&
+                                                    widget.tracking.archived ==
+                                                        false
+                                                ? screenWidth - 80
+                                                : !widget.selectionMode
+                                                    ? screenWidth - 110
+                                                    : screenWidth - 80
+                                        : widget.selectionMode &&
+                                                widget.tracking.archived == true
+                                            ? screenWidth - 110
+                                            : !widget.selectionMode &&
+                                                    widget.tracking.archived ==
+                                                        false
+                                                ? screenWidth - 80
+                                                : !widget.selectionMode
+                                                    ? screenWidth - 110
+                                                    : screenWidth - 80
+                                    : isPortrait
+                                        ? widget.selectionMode &&
+                                                widget.tracking.archived == true
+                                            ? screenWidth - 110
+                                            : !widget.selectionMode &&
+                                                    widget.tracking.archived ==
+                                                        false
+                                                ? screenWidth - 110
+                                                : !widget.selectionMode
+                                                    ? screenWidth - 110
+                                                    : screenWidth - 110
+                                        // : widget.selectionMode &&
+                                        //             widget.tracking.archived ==
+                                        //                 true ||
+                                        //         widget.tracking.eliminado == true
+                                        //     ? screenWidth - 148
+                                        //     : !widget.selectionMode &&
+                                        //             widget.tracking.archived ==
+                                        //                 false &&
+                                        //             widget.tracking.eliminado == false
+                                        //         ? screenWidth - 80
+                                        //         : !widget.selectionMode
+                                        //             ? screenWidth - 110
+                                        : screenWidth - 110,
+                                // !widget.selectionMode
+                                //     ? screenWidth - 69
+                                //     :
+
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: widget.tracking.checkError!
+                                      ? const EdgeInsets.only(left: 35)
+                                      : EdgeInsets.zero,
+                                  child: Text(
+                                    text,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: fullHD ? 16 : 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.only(
-                                              top: 2, bottom: 2),
-                                          // width: 158,
-                                          child: widget.tracking.checkError!
-                                              ? const Text("Sin datos")
-                                              : Text(
-                                                  widget.tracking.lastCheck!,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: fullHD ? 16 : 15,
-                                                  ),
-                                                ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                              // SizedBox(
-                              //   height: 18,
-                              // ),
-                              SizedBox(
-                                width: isPortrait ? 127 : 224,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: isPortrait ? 87 : 180,
-                                      // alignment: Alignment.bottomCenter,
-                                      padding: EdgeInsets.zero,
-                                      height: 35,
-                                      child:
-                                          ServiceData(widget.tracking.service)
-                                              .getImage(),
-                                    ),
-                                    SizedBox(
-                                      width: 36,
-                                      child: IconButton(
-                                        icon: Icon(_expand
-                                            ? Icons.expand_less
-                                            : Icons.expand_more),
-                                        onPressed: () {
-                                          setState(() {
-                                            _expand = !_expand;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ],
+                              if (widget.tracking.archived == true)
+                                Container(
+                                  width: 38,
+                                  child: const Icon(Icons.archive),
+                                  alignment: Alignment.center,
+                                ),
+                              if (!widget.tracking.archived! &&
+                                  widget.tracking.checkError!)
+                                button,
+                              // if (!widget.tracking.checkError!) button,
+                              if (widget.selectionMode &&
+                                  widget.tracking.selected!)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 1, right: 6),
+                                  child: Icon(
+                                    Icons.check_box,
+                                    size: 32,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              if (widget.selectionMode &&
+                                  !widget.tracking.selected!)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 1, right: 6),
+                                  child: Icon(
+                                    Icons.check_box_outline_blank,
+                                    size: 32,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              if (!widget.selectionMode && screen != "search")
+                                SizedBox(
+                                  // padding: EdgeInsets.only(top: 6),
+                                  width: 38,
+                                  child: ActionsMenu(
+                                    action: '',
+                                    screen: screen,
+                                    menu: true,
+                                    detail: false,
+                                    icon: 24,
+                                    tracking: widget.tracking,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.local_shipping, size: 20),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12),
+                                child: Text(
+                                  'Ultimo movimiento:',
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: fullHD ? 16 : 15),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    if (_expand)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 12, bottom: 4, right: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.only(top: 4),
+                            SizedBox(
                               width: isPortrait
-                                  // ? fullHD
-                                  ? screenWidth * 0.421
-                                  // : 134
-                                  : screenWidth * 0.331,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 7),
-                                        child: Icon(Icons.add_circle_outline),
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Inicio:',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                                fontSize: fullHD ? 16 : 15),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        // width: 158,
-                                        child: widget.tracking.checkError!
-                                            ? const Text("Sin datos")
-                                            : Text(
-                                                widget.tracking.startCheck!,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: fullHD ? 16 : 15,
-                                                ),
-                                              ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 4, left: 5),
-                              width: isPortrait
-                                  // ? fullHD
-                                  ? screenWidth * 0.421
-                                  // : 134
-                                  : screenWidth * 0.331,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(right: 7),
-                                        child: Icon(Icons.short_text),
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            'Código:',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                                fontSize: fullHD ? 16 : 15),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        width: isPortrait
-                                            ? screenWidth * 0.404
-                                            : screenWidth * 0.318,
-                                        child: Text(
-                                          widget.tracking.code,
-                                          overflow: TextOverflow.ellipsis,
-                                          // maxLines: 2,
-                                          style: TextStyle(
-                                            fontSize: fullHD ? 16 : 15,
-                                          ),
+                                  ? screenWidth - 54
+                                  : screenWidth - 50,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 4, bottom: 2),
+                                child: widget.tracking.checkError!
+                                    ? const Text("Sin datos")
+                                    : Text(
+                                        widget.tracking.lastEvent!,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: TextStyle(
+                                          fontSize: fullHD ? 16 : 15,
                                         ),
                                       ),
-                                    ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Wrap(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    width: isPortrait
+                                        ? fullHD
+                                            ? 168
+                                            : 157
+                                        : 235,
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          // mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            const Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 7),
+                                              child: Icon(Icons.check),
+                                            ),
+                                            Column(
+                                              children: [
+                                                Text(
+                                                  'Ultimo chequeo:',
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                      fontSize:
+                                                          fullHD ? 16 : 15),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 2, bottom: 2),
+                                              // width: 158,
+                                              child: widget.tracking.checkError!
+                                                  ? const Text("Sin datos")
+                                                  : Text(
+                                                      widget
+                                                          .tracking.lastCheck!,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            fullHD ? 16 : 15,
+                                                      ),
+                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // SizedBox(
+                                  //   height: 18,
+                                  // ),
+                                  SizedBox(
+                                    width: isPortrait ? 127 : 224,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: isPortrait ? 87 : 180,
+                                          // alignment: Alignment.bottomCenter,
+                                          padding: EdgeInsets.zero,
+                                          height: 35,
+                                          child: ServiceData(
+                                                  widget.tracking.service)
+                                              .getImage(),
+                                        ),
+                                        SizedBox(
+                                          width: 36,
+                                          child: IconButton(
+                                            icon: Icon(_expand
+                                                ? Icons.expand_less
+                                                : Icons.expand_more),
+                                            onPressed: () {
+                                              setState(() {
+                                                _expand = !_expand;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                  ],
+                        if (_expand)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 12, bottom: 4, right: 15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  width: isPortrait
+                                      // ? fullHD
+                                      ? screenWidth * 0.421
+                                      // : 134
+                                      : screenWidth * 0.331,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 7),
+                                            child:
+                                                Icon(Icons.add_circle_outline),
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                'Inicio:',
+                                                style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    fontSize: fullHD ? 16 : 15),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 2, bottom: 2),
+                                            // width: 158,
+                                            child: widget.tracking.checkError!
+                                                ? const Text("Sin datos")
+                                                : Text(
+                                                    widget.tracking.startCheck!,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize:
+                                                          fullHD ? 16 : 15,
+                                                    ),
+                                                  ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.only(top: 4, left: 5),
+                                  width: isPortrait
+                                      // ? fullHD
+                                      ? screenWidth * 0.421
+                                      // : 134
+                                      : screenWidth * 0.331,
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 7),
+                                            child: Icon(Icons.short_text),
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                'Código:',
+                                                style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                    fontSize: fullHD ? 16 : 15),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 2, bottom: 2),
+                                            width: isPortrait
+                                                ? screenWidth * 0.404
+                                                : screenWidth * 0.318,
+                                            child: Text(
+                                              widget.tracking.code,
+                                              overflow: TextOverflow.ellipsis,
+                                              // maxLines: 2,
+                                              style: TextStyle(
+                                                fontSize: fullHD ? 16 : 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
+        Padding(
+            padding: EdgeInsets.only(bottom: 10), child: AdNative("medium")),
+      ],
+    );
   }
   // Widget function
 

@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/status.dart';
 
@@ -21,10 +22,11 @@ class DriveBackupsList extends StatelessWidget {
                       Icon(Icons.cloud_off, size: 60),
                       SizedBox(width: 20, height: 20),
                       Padding(
-                        padding: EdgeInsets.all(20),
+                        padding: EdgeInsets.all(10),
                         child: Text(
                           'No se encontraron respaldos en su cuenta.',
                           style: TextStyle(fontSize: 20),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],
@@ -35,16 +37,18 @@ class DriveBackupsList extends StatelessWidget {
                       Icon(Icons.cloud_off, size: 60),
                       SizedBox(width: 40, height: 20),
                       Padding(
-                        padding: EdgeInsets.all(20),
+                        padding: EdgeInsets.all(10),
                         child: Text(
                           'No se encontraron respaldos en su cuenta.',
                           style: TextStyle(fontSize: 20),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],
                   ),
           )
-        : Padding(
+        : Container(
+            height: 200,
             padding: const EdgeInsets.only(top: 6, bottom: 6),
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 2, right: 2, left: 2),
@@ -52,8 +56,7 @@ class DriveBackupsList extends StatelessWidget {
               itemBuilder: (context, index) =>
                   BackupItem(backupsData[index], index),
               // shrinkWrap: _verificando,
-            ),
-          );
+            ));
   }
 }
 
@@ -315,6 +318,9 @@ class BackupItem extends StatelessWidget {
                     thickness: 0.7,
                   ),
                 ),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(bottom: 8)),
             ],
           );
   }

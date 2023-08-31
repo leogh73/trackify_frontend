@@ -79,8 +79,8 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSelected(int idEliminar) {
-    _selection.removeWhere((tracking) => tracking.idSB == idEliminar);
+  void removeSelected(int idRemove) {
+    _selection.removeWhere((tracking) => tracking.idSB == idRemove);
     notifyListeners();
   }
 

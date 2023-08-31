@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:trackify/providers/http_request_handler.dart';
-
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/http_request_handler.dart';
 import '../providers/preferences.dart';
-
-import 'dialog_and_toast.dart';
-import 'meli_item.dart';
+import './dialog_and_toast.dart';
 
 class ServicesCheck extends StatefulWidget {
   const ServicesCheck({super.key});
@@ -108,7 +105,7 @@ class ServiceStatusItem extends StatelessWidget {
     final Map<String, Image> imagesList = {
       "Andreani": Image.asset('assets/services/andreani.png'),
       "ClicOh": Image.asset('assets/services/clicoh.png'),
-      "Correo Argentino": Image.asset('assets/services/ca.png'),
+      "Correo Argentino": Image.asset('assets/services/correoargentino.png'),
       "DHL": Image.asset('assets/services/dhl.png'),
       "EcaPack": Image.asset('assets/services/ecapack.png'),
       "Enviopack": Image.asset('assets/services/enviopack.png'),
@@ -118,7 +115,7 @@ class ServiceStatusItem extends StatelessWidget {
       "OCASA": Image.asset('assets/services/ocasa.png'),
       "Renaper": Image.asset('assets/services/renaper.png'),
       "Urbano": Image.asset('assets/services/urbano.png'),
-      "ViaCargo": Image.asset('assets/services/via_cargo.png'),
+      "ViaCargo": Image.asset('assets/services/viacargo.png'),
     };
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

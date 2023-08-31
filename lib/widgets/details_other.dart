@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 class ResponseRow extends StatelessWidget {
   final String type;
@@ -117,6 +118,36 @@ class OtherData extends StatelessWidget {
         ),
       ),
       // ),
+    );
+  }
+}
+
+class NoMoreData extends StatelessWidget {
+  const NoMoreData({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              child: AdNative("medium"),
+              padding: EdgeInsets.only(top: 10, bottom: 60),
+            ),
+            Center(
+              child: Text(
+                'No hay más datos',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            Padding(
+              child: AdNative("medium"),
+              padding: EdgeInsets.only(top: 60, bottom: 10),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

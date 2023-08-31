@@ -9,6 +9,7 @@ import 'package:trackify/services/fasttrack.dart';
 import 'package:trackify/services/mdcargas.dart';
 import 'package:trackify/services/renaper.dart';
 import 'package:trackify/services/urbano.dart';
+import 'package:trackify/widgets/details_other.dart';
 
 import '../providers/classes.dart';
 import '../providers/status.dart';
@@ -145,6 +146,9 @@ class _TrackingDetailState extends State<TrackingDetail> {
         ),
         body: Column(
           children: [
+            // Padding(
+            //     padding: EdgeInsets.only(top: 10, bottom: 10),
+            //     child: AdNative("medium")),
             if (checking)
               Column(
                 children: [
@@ -213,15 +217,16 @@ class MoreData extends StatelessWidget {
   const MoreData(this.otherData, this.service, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    Widget noMoreData = const NoMoreData();
     final Map<String, dynamic> responseList = {
       "Andreani": MoreDataAndreani(otherData),
       "ClicOh": MoreDataClicOh(otherData),
-      "Correo Argentino": const MoreDataCorreoArgentino(),
+      "Correo Argentino": noMoreData,
       "DHL": MoreDataDHL(otherData),
-      "EcaPack": const MoreDataEcaPack(),
+      "EcaPack": noMoreData,
       "Enviopack": MoreDataEnviopack(otherData),
-      "FastTrack": const MoreDataFastTrack(),
-      "MDCargas": const MoreDataMDCargas(),
+      "FastTrack": noMoreData,
+      "MDCargas": noMoreData,
       "OCA": MoreDataOCA(otherData),
       "OCASA": MoreDataOCASA(otherData),
       "Renaper": MoreDataRenaper(otherData),

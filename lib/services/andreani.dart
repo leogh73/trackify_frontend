@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/status.dart';
 
@@ -28,13 +29,11 @@ class Andreani {
     List<List<String>> otherData = [];
     List<Map<String, String>> events = generateEventList(data['events']);
     List<String> lastVisit = [
-      data["visits"]['visits'][0]?["date"] ?? "Sin datos",
-      data["visits"]['visits'][0]?["time"] ?? "Sin datos",
-      data["visits"]['visits'][0]?["motive"] ?? "Sin datos",
+      data["visits"]['visits'][0]["date"],
+      data["visits"]['visits'][0]["time"],
+      data["visits"]['visits'][0]["motive"],
     ];
-    List<String> pendingVisits = [
-      data["visits"]?["pendingVisits"].toString() ?? "Sin datos"
-    ];
+    List<String> pendingVisits = [data["visits"]["pendingVisits"].toString()];
     otherData.add(lastVisit);
     otherData.add(pendingVisits);
 
@@ -56,15 +55,13 @@ class Andreani {
     List<Map<String, String>> events =
         generateEventList(data['result']['events']);
     List<List<String>> otherData = [];
-    List<String> lastVisit = [];
-    if (data['result']["visits"]?["visits"].isNotEmpty)
-      lastVisit = [
-        data['result']["visits"]?["visits"][0]["date"] ?? "Sin datos",
-        data['result']["visits"]?["visits"][0]["time"] ?? "Sin datos",
-        data['result']["visits"]?["visits"][0]["motive"] ?? "Sin datos",
-      ];
+    List<String> lastVisit = [
+      data['result']["visits"]["visits"][0]["date"],
+      data['result']["visits"]["visits"][0]["time"],
+      data['result']["visits"]["visits"][0]["motive"],
+    ];
     List<String> pendingVisits = [
-      data['result']["visits"]?["pendingVisits"].toString() ?? "Sin datos"
+      data['result']["visits"]["pendingVisits"].toString(),
     ];
     otherData.add(lastVisit);
     otherData.add(pendingVisits);
@@ -79,29 +76,38 @@ class MoreDataAndreani extends StatelessWidget {
   const MoreDataAndreani(this.otherData, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          OtherData(
-            DataRowHandler(
-              otherData![0],
-              [
-                "Fecha",
-                "Hora",
-                "Motivo",
-              ],
-            ).createTable(),
-            "ULTIMA VISITA",
-          ),
-          OtherData(
-            DataRowHandler(
-              otherData![1],
-              ["Pendientes"],
-            ).createTable(),
-            "VISITAS PENDIENTES",
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          children: [
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 8, bottom: 8)),
+            OtherData(
+              DataRowHandler(
+                otherData![0],
+                [
+                  "Fecha",
+                  "Hora",
+                  "Motivo",
+                ],
+              ).createTable(),
+              "ULTIMA VISITA",
+            ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
+            OtherData(
+              DataRowHandler(
+                otherData![1],
+                ["Pendientes"],
+              ).createTable(),
+              "VISITAS PENDIENTES",
+            ),
+            Padding(
+                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
+          ],
+        ),
       ),
     );
   }
@@ -144,7 +150,6 @@ class _EventListAndreaniState extends State<EventListAndreani> {
         itemCount: widget.events.length,
         itemBuilder: (context, index) =>
             EventAndreani(widget.events[index], index, widget.events.length),
-        // shrinkWrap: _verificando,
       ),
     );
   }
@@ -178,6 +183,12 @@ class EventAndreani extends StatelessWidget {
       //     ),
       child: Column(
         children: [
+          if (index == 0)
+            Padding(
+                padding: EdgeInsets.only(top: 3, bottom: 3),
+                child: AdNative("medium")),
+          if (index == 0)
+            Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
             // padding: isPortrait && widget.modoSeleccion
             //     ? EdgeInsets.only(right: 4)
@@ -380,6 +391,10 @@ class EventAndreani extends StatelessWidget {
               ],
             ),
           ),
+          Divider(color: Theme.of(context).primaryColor, thickness: 1),
+          Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium")),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

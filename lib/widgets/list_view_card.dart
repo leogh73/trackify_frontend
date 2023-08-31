@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import '../providers/trackings_archived.dart';
 import '../providers/classes.dart';
@@ -77,8 +78,13 @@ class _ListCardNormalState extends State<ListCardNormal> {
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       itemCount: widget.trackingsData.length,
       controller: _controller,
-      itemBuilder: (context, index) => ItemCard(
-          widget.trackingsData[index], widget.selection, interstitialAd),
+      itemBuilder: (context, index) => Column(children: [
+        if (index == 0)
+          Padding(
+              padding: EdgeInsets.only(top: 5, bottom: 10),
+              child: AdNative("medium")),
+        ItemCard(widget.trackingsData[index], widget.selection, interstitialAd),
+      ]),
     );
   }
 }
@@ -124,8 +130,13 @@ class _ListCardSelectionState extends State<ListCardSelection> {
       key: widget.listKey,
       padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
       itemCount: widget.trackingsData.length,
-      itemBuilder: (context, index) =>
-          ItemCard(widget.trackingsData[index], widget.selection, null),
+      itemBuilder: (context, index) => Column(children: [
+        if (index == 0)
+          Padding(
+              padding: EdgeInsets.only(top: 5, bottom: 10),
+              child: AdNative("medium")),
+        ItemCard(widget.trackingsData[index], widget.selection, null),
+      ]),
     );
   }
 }

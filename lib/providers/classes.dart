@@ -29,6 +29,7 @@ class ItemTracking {
   bool? checkError;
   bool? selected;
   bool? archived;
+  bool? fake;
 
   ItemTracking({
     this.idSB,
@@ -45,6 +46,7 @@ class ItemTracking {
     this.checkError,
     this.selected,
     this.archived,
+    this.fake,
   });
 
   factory ItemTracking.fromMap(int id, Map<String, dynamic> map) {
@@ -67,6 +69,7 @@ class ItemTracking {
       checkError: map['checkError'],
       selected: map['selected'],
       archived: map['archived'],
+      fake: map['fake'],
     );
   }
 
@@ -86,6 +89,7 @@ class ItemTracking {
       'checkError': checkError,
       'selected': selected,
       'archived': archived,
+      'fake': fake,
     };
   }
 
@@ -104,6 +108,7 @@ class ItemTracking {
     bool? checkError,
     bool? selected,
     bool? archived,
+    bool? fake,
   }) {
     return ItemTracking(
       idSB: id ?? idSB,
@@ -120,6 +125,7 @@ class ItemTracking {
       checkError: checkError ?? this.checkError,
       selected: selected ?? this.selected,
       archived: archived ?? this.archived,
+      fake: fake ?? this.fake,
     );
   }
 }

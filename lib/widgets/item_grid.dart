@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
 import 'ad_interstitial.dart';
 import 'menu_actions.dart';
@@ -109,359 +110,388 @@ class _ItemGridState extends State<ItemGrid> {
       screenHeight,
       String text,
       Widget? boton) {
-    return _retrying
-        ? Center(
-            child: Container(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 15),
-                    child: const SizedBox(
-                      height: 40,
-                      width: 40,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                  Text(
-                    'Verificando...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: portraitFullHD ? 16 : 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        : Padding(
-            padding:
-                const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 0),
-            child: InkWell(
-              onTap: () => _clickItem(context, widget.tracking, screenName),
-              onLongPress: () =>
-                  _longClickItem(context, widget.tracking, screenName),
-              splashColor: Theme.of(context).primaryColor,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).primaryColor, width: 2),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(18.0),
-                  ),
-                  color: widget.tracking.selected! ? Colors.black12 : null,
-                ),
-                // margin: EdgeInsets.all(4),
-                padding: const EdgeInsets.only(
-                    top: 6, right: 3, left: 15, bottom: 6),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Wrap(
-                      direction: Axis.vertical,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          height: isPortrait
-                              ? 45
-                              : landscapeFullHD
-                                  ? 52
-                                  : 49,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Container(
-                                // padding: EdgeInsets.zero,
-                                constraints: BoxConstraints(
-                                  maxWidth: !widget.tracking.checkError!
-                                      ? isPortrait
-                                          ? screenWidth * 0.312
-                                          : screenWidth * 0.232
-                                      // : widget.tracking.checkError!
-                                      //     ? isPortrait
-                                      //         ? screenWidth * 0.312
-                                      //         : screenWidth * 0.232
-                                      : screenWidth * 0.335,
-                                  maxHeight: 38,
-                                ),
-                                child: Text(
-                                  text,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: portraitFullHD ? 16 : 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              if (widget.tracking.checkError! &&
-                                  !widget.tracking.archived!)
-                                Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, right: 6),
-                                    child: boton),
-                              if (!widget.selectionMode &&
-                                  screenName != "search")
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      // constraints: BoxConstraints(maxWidth: 22),
-                                      width: 36,
-                                      height: 36,
-                                      // padding: EdgeInsets.only(right: 5),
-                                      // height: isPortrait ? 30 : 30,
-                                      child: ActionsMenu(
-                                        action: '',
-                                        screen: screenName,
-                                        menu: true,
-                                        detail: false,
-                                        icon: 24,
-                                        tracking: widget.tracking,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              if (widget.selectionMode)
-                                Column(
-                                  children: [
-                                    if (widget.tracking.selected!)
-                                      SizedBox(
-                                        width: 36,
-                                        child: Padding(
-                                          padding: isPortrait
-                                              ? const EdgeInsets.only(
-                                                  top: 3, right: 6)
-                                              : const EdgeInsets.only(
-                                                  top: 5, right: 1, left: 6),
-                                          child: Icon(
-                                            Icons.check_box,
-                                            size: 32,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                    if (!widget.tracking.selected!)
-                                      SizedBox(
-                                        width: 36,
-                                        child: Padding(
-                                          padding: isPortrait
-                                              ? const EdgeInsets.only(
-                                                  top: 3, right: 6)
-                                              : const EdgeInsets.only(
-                                                  top: 5, right: 1, left: 6),
-                                          child: Icon(
-                                            Icons.check_box_outline_blank,
-                                            size: 32,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                            ],
-                          ),
+    return Column(
+      children: [
+        _retrying
+            ? Center(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: const SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: CircularProgressIndicator(),
                         ),
-                      ],
+                      ),
+                      Text(
+                        'Verificando...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: portraitFullHD ? 16 : 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : Padding(
+                padding:
+                    const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 0),
+                child: InkWell(
+                  onTap: () => _clickItem(context, widget.tracking, screenName),
+                  onLongPress: () =>
+                      _longClickItem(context, widget.tracking, screenName),
+                  splashColor: Theme.of(context).primaryColor,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).primaryColor, width: 2),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(18.0),
+                      ),
+                      color: widget.tracking.selected! ? Colors.black12 : null,
                     ),
-                    Row(
+                    // margin: EdgeInsets.all(4),
+                    padding: const EdgeInsets.only(
+                        top: 6, right: 3, left: 15, bottom: 6),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Wrap(
                           direction: Axis.vertical,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.local_shipping, size: 20),
-                                    if (isPortrait &&
-                                        !widget.tracking.archived!)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 7),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(
-                                              width: screenWidth * 0.247,
-                                              child: Text(
-                                                'Ultimo movimiento:',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize:
-                                                      portraitFullHD ? 16 : 15,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                            Container(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              height: isPortrait
+                                  ? 45
+                                  : landscapeFullHD
+                                      ? 52
+                                      : 49,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    // padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(
+                                      maxWidth: !widget.tracking.checkError!
+                                          ? isPortrait
+                                              ? screenWidth * 0.312
+                                              : screenWidth * 0.232
+                                          // : widget.tracking.checkError!
+                                          //     ? isPortrait
+                                          //         ? screenWidth * 0.312
+                                          //         : screenWidth * 0.232
+                                          : screenWidth * 0.335,
+                                      maxHeight: 38,
+                                    ),
+                                    child: Text(
+                                      text,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: portraitFullHD ? 16 : 15,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    if (!isPortrait &&
-                                        !widget.tracking.archived!)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 7),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(
-                                              width: screenWidth * 0.232,
-                                              child: Text(
-                                                'Ultimo movimiento:',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize:
-                                                      portraitFullHD ? 16 : 15,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                    ),
+                                  ),
+                                  if (widget.tracking.checkError! &&
+                                      !widget.tracking.archived!)
+                                    Container(
+                                        padding: const EdgeInsets.only(
+                                            left: 20, right: 6),
+                                        child: boton),
+                                  if (!widget.selectionMode &&
+                                      screenName != "search")
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          // constraints: BoxConstraints(maxWidth: 22),
+                                          width: 36,
+                                          height: 36,
+                                          // padding: EdgeInsets.only(right: 5),
+                                          // height: isPortrait ? 30 : 30,
+                                          child: ActionsMenu(
+                                            action: '',
+                                            screen: screenName,
+                                            menu: true,
+                                            detail: false,
+                                            icon: 24,
+                                            tracking: widget.tracking,
+                                          ),
                                         ),
-                                      ),
-                                    if (isPortrait && widget.tracking.archived!)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 7),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(
-                                              width: screenWidth * 0.249,
-                                              child: Text(
-                                                'Ultimo movimiento:',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize:
-                                                      portraitFullHD ? 16 : 15,
-                                                ),
+                                      ],
+                                    ),
+                                  if (widget.selectionMode)
+                                    Column(
+                                      children: [
+                                        if (widget.tracking.selected!)
+                                          SizedBox(
+                                            width: 36,
+                                            child: Padding(
+                                              padding: isPortrait
+                                                  ? const EdgeInsets.only(
+                                                      top: 3, right: 6)
+                                                  : const EdgeInsets.only(
+                                                      top: 5,
+                                                      right: 1,
+                                                      left: 6),
+                                              child: Icon(
+                                                Icons.check_box,
+                                                size: 32,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
                                               ),
-                                            ),
-                                            Container(
-                                              width: 29,
-                                              child: const Icon(Icons.archive),
-                                              alignment: Alignment.center,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    if (!isPortrait &&
-                                        widget.tracking.archived!)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 7),
-                                        child: Row(
-                                          children: [
-                                            SizedBox(
-                                              width: landscapeFullHD
-                                                  ? screenWidth * 0.208
-                                                  : screenWidth * 0.189,
-                                              child: Text(
-                                                'Ultimo movimiento:',
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  fontSize:
-                                                      portraitFullHD ? 16 : 15,
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              width: 29,
-                                              child: const Icon(Icons.archive),
-                                              alignment: Alignment.center,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 6, bottom: 6),
-                                  child: SizedBox(
-                                    height: isPortrait
-                                        ? portraitFullHD
-                                            ? 42
-                                            : 38
-                                        : landscapeFullHD
-                                            ? 44
-                                            : 40,
-                                    width: isPortrait
-                                        ? screenWidth * 0.381
-                                        : screenWidth * 0.262,
-                                    child: widget.tracking.checkError!
-                                        ? const Text("Sin datos")
-                                        : Text(
-                                            widget.tracking.lastEvent!,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: TextStyle(
-                                              fontSize:
-                                                  portraitFullHD ? 16 : 15,
                                             ),
                                           ),
-                                  ),
-                                ),
+                                        if (!widget.tracking.selected!)
+                                          SizedBox(
+                                            width: 36,
+                                            child: Padding(
+                                              padding: isPortrait
+                                                  ? const EdgeInsets.only(
+                                                      top: 3, right: 6)
+                                                  : const EdgeInsets.only(
+                                                      top: 5,
+                                                      right: 1,
+                                                      left: 6),
+                                              child: Icon(
+                                                Icons.check_box_outline_blank,
+                                                size: 32,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Wrap(
+                              direction: Axis.vertical,
+                              children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.check, size: 20),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 7),
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                width: isPortrait
-                                                    ? screenWidth * 0.302
-                                                    : screenWidth * 0.214,
-                                                child: Text(
-                                                  'Ultimo chequeo:',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                    fontSize: portraitFullHD
-                                                        ? 16
-                                                        : 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          width: isPortrait
-                                              ? screenWidth * 0.381
-                                              : screenWidth * 0.271,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 6, bottom: 6),
-                                            child: widget.tracking.checkError!
-                                                ? const Text("Sin datos")
-                                                : Text(
-                                                    widget.tracking.lastCheck!,
+                                        const Icon(Icons.local_shipping,
+                                            size: 20),
+                                        if (isPortrait &&
+                                            !widget.tracking.archived!)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 7),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: screenWidth * 0.247,
+                                                  child: Text(
+                                                    'Ultimo movimiento:',
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
                                                       fontSize: portraitFullHD
                                                           ? 16
                                                           : 15,
                                                     ),
                                                   ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
+                                        if (!isPortrait &&
+                                            !widget.tracking.archived!)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 7),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: screenWidth * 0.232,
+                                                  child: Text(
+                                                    'Ultimo movimiento:',
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                      fontSize: portraitFullHD
+                                                          ? 16
+                                                          : 15,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (isPortrait &&
+                                            widget.tracking.archived!)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 7),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: screenWidth * 0.249,
+                                                  child: Text(
+                                                    'Ultimo movimiento:',
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                      fontSize: portraitFullHD
+                                                          ? 16
+                                                          : 15,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 29,
+                                                  child:
+                                                      const Icon(Icons.archive),
+                                                  alignment: Alignment.center,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (!isPortrait &&
+                                            widget.tracking.archived!)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 7),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                  width: landscapeFullHD
+                                                      ? screenWidth * 0.208
+                                                      : screenWidth * 0.189,
+                                                  child: Text(
+                                                    'Ultimo movimiento:',
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                      fontSize: portraitFullHD
+                                                          ? 16
+                                                          : 15,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 29,
+                                                  child:
+                                                      const Icon(Icons.archive),
+                                                  alignment: Alignment.center,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 6, bottom: 6),
+                                      child: SizedBox(
+                                        height: isPortrait
+                                            ? portraitFullHD
+                                                ? 42
+                                                : 38
+                                            : landscapeFullHD
+                                                ? 44
+                                                : 40,
+                                        width: isPortrait
+                                            ? screenWidth * 0.381
+                                            : screenWidth * 0.262,
+                                        child: widget.tracking.checkError!
+                                            ? const Text("Sin datos")
+                                            : Text(
+                                                widget.tracking.lastEvent!,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      portraitFullHD ? 16 : 15,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.check, size: 20),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 7),
+                                              child: Column(
+                                                children: [
+                                                  SizedBox(
+                                                    width: isPortrait
+                                                        ? screenWidth * 0.302
+                                                        : screenWidth * 0.214,
+                                                    child: Text(
+                                                      'Ultimo chequeo:',
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                        fontSize: portraitFullHD
+                                                            ? 16
+                                                            : 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              width: isPortrait
+                                                  ? screenWidth * 0.381
+                                                  : screenWidth * 0.271,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 6, bottom: 6),
+                                                child: widget
+                                                        .tracking.checkError!
+                                                    ? const Text("Sin datos")
+                                                    : Text(
+                                                        widget.tracking
+                                                            .lastCheck!,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              portraitFullHD
+                                                                  ? 16
+                                                                  : 15,
+                                                        ),
+                                                      ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -471,33 +501,34 @@ class _ItemGridState extends State<ItemGrid> {
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    Row(
-                      // mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          // padding: EdgeInsets.only(top: 2),
-                          constraints: isPortrait
-                              ? BoxConstraints(
-                                  maxHeight: screenHeight * 0.0582,
-                                  maxWidth: screenWidth * 0.344,
-                                )
-                              : BoxConstraints(
-                                  maxHeight: screenHeight * 0.095,
-                                  maxWidth: screenWidth * 0.2,
-                                ),
-                          child:
-                              ServiceData(widget.tracking.service).getImage(),
+                        Row(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              // padding: EdgeInsets.only(top: 2),
+                              constraints: isPortrait
+                                  ? BoxConstraints(
+                                      maxHeight: screenHeight * 0.0582,
+                                      maxWidth: screenWidth * 0.344,
+                                    )
+                                  : BoxConstraints(
+                                      maxHeight: screenHeight * 0.095,
+                                      maxWidth: screenWidth * 0.2,
+                                    ),
+                              child: ServiceData(widget.tracking.service)
+                                  .getImage(),
+                            ),
+                          ],
                         ),
+                        AdNative("medium"),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          );
+      ],
+    );
   }
 
   @override

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:trackify/screens/contact_form.dart';
-import 'package:trackify/screens/services_status.dart';
+// import 'package:trackify/screens/services_status.dart';
 
 import 'package:trackify/widgets/ad_interstitial.dart';
+import 'package:trackify/widgets/ad_native.dart';
 import 'package:trackify/widgets/dialog_and_toast.dart';
 
 import '../providers/preferences.dart';
@@ -16,6 +17,7 @@ import '../screens/archived.dart';
 // import '../screens/opciones.dart';
 import '../screens/mercadolibre.dart';
 import '../screens/googledrive.dart';
+import '../screens/claim.dart';
 
 class DrawerWidget extends StatelessWidget {
   final AdInterstitial drawerInterstitialAd1;
@@ -151,16 +153,16 @@ class DrawerWidget extends StatelessWidget {
             drawerInterstitialAd4,
           ),
           DrawerOption(
-            Icons.query_stats,
-            "Estado de servicios",
-            const ServicesStatus(),
+            Icons.error,
+            "Reclamo",
+            const Claim(),
             false,
             false,
             drawerInterstitialAd5,
           ),
           DrawerOption(
             Icons.mail_outline,
-            'Contáctanos',
+            'Contacto',
             ContactForm(),
             false,
             false,
@@ -174,6 +176,7 @@ class DrawerWidget extends StatelessWidget {
             true,
             AdInterstitial(),
           ),
+          Padding(padding: EdgeInsets.only(top: 10), child: AdNative("medium"))
         ],
       ),
     );

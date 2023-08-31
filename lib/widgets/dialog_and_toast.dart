@@ -162,7 +162,7 @@ class ShowDialog {
                 width: 245,
                 padding: const EdgeInsets.only(bottom: 12, top: 8),
                 child: Text(
-                  "Versión 1.0.4",
+                  "Versión 1.0.5",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -267,7 +267,7 @@ class ShowDialog {
 
   void startTrackingError() {
     errorDialog(
-      "Ocurrió un error al obtener datos de éste seguimiento. Verifique el estado del servicio, el código ingresado o reintente más tarde.",
+      "Ocurrió un error al obtener datos de éste seguimiento. Verifique el código ingresado o reintente más tarde.",
       false,
     );
   }
