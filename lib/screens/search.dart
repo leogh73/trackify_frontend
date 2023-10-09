@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/preferences.dart';
 import '../providers/status.dart';
 
 import '../widgets/search_list.dart';
 import '../widgets/ad_banner.dart';
 
-class Search extends StatelessWidget {
-  static const routeName = "/search";
-
+class Search extends StatefulWidget {
   const Search({Key? key}) : super(key: key);
+
+  @override
+  State<Search> createState() => _SearchState();
+}
+
+class _SearchState extends State<Search> {
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final TextEditingController mainController =
-        Provider.of<Status>(context).primaryController;
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0.0,
@@ -24,12 +37,12 @@ class Search extends StatelessWidget {
             Provider.of<Status>(context, listen: false).toggleResultList(false);
           },
         ),
-        title: SearchField(mainController),
+        title: SearchField(controller),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              Provider.of<Status>(context, listen: false).cleanMainController();
+              controller.clear();
               Provider.of<Status>(context, listen: false)
                   .toggleResultList(false);
             },
@@ -37,7 +50,7 @@ class Search extends StatelessWidget {
         ],
       ),
       body: const SearchList(),
-      bottomNavigationBar: const AdBanner(),
+      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
     );
   }
 }
@@ -73,10 +86,9 @@ class SearchField extends StatelessWidget {
         }
       },
       onFieldSubmitted: (_) {
-        if (controller.text.isEmpty) {
-          return;
-        }
-        Provider.of<Status>(context, listen: false).addSearch(controller.text);
+        if (controller.text.isNotEmpty)
+          Provider.of<Status>(context, listen: false)
+              .addSearch(controller.text);
       },
     );
   }

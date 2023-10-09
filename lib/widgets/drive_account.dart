@@ -1,18 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/database.dart';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/providers/tracking_functions.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
+import 'package:http/http.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:trackify/widgets/dialog_toast.dart';
 
-import 'package:trackify/widgets/drive_content.dart';
-
+import '../database.dart';
+import '../providers/http_request_handler.dart';
+import '../providers/tracking_functions.dart';
 import '../providers/status.dart';
 import '../providers/preferences.dart';
+
+import 'dialog_error.dart';
+import '../widgets/drive_content.dart';
 
 class GoogleDriveAccount extends StatefulWidget {
   const GoogleDriveAccount({Key? key}) : super(key: key);
@@ -37,29 +38,34 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
   }
 
   Future checkDriveAccount() async {
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'userId': _userId,
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/google/consult', body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       return loadFetchedData(response, true);
     } else {
-      Provider.of<Preferences>(context, listen: false)
+      Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      ShowDialog(context).googleDriveError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.googleDriveError(context);
     }
   }
 
   Future createUpdateBackup() async {
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(true);
-    var response =
+    Response response =
         await TrackingFunctions.updateCreateDriveBackup(false, context);
+    Map<String, dynamic> data = json.decode(response.body);
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> backupsData =
           Provider.of<Status>(context, listen: false).googleUserData;
       if (backupsData.isEmpty) {
@@ -73,9 +79,15 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       Provider.of<Status>(context, listen: false)
           .loadGoogleBackups(backupsData, false);
     } else {
-      Provider.of<Preferences>(context, listen: false)
+      Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      ShowDialog(context).googleDriveError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.googleDriveError(context);
     }
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(false);
   }
@@ -88,112 +100,55 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
   }
 
   void restoreDialog(bool fullHD, String selectedBackup) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(18.0),
-            ),
-          ),
-          contentPadding: const EdgeInsets.only(right: 5, left: 5),
-          content: restoringBackup
-              ? Padding(
-                  padding: const EdgeInsets.all(30),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 10, bottom: 25),
-                          child: const SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                        Text(
-                          'Restaurando...',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: fullHD ? 16 : 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 12),
-                      child: Icon(Icons.error_outline, size: 45),
-                    ),
-                    Container(
-                      width: 245,
-                      padding: const EdgeInsets.only(bottom: 12, top: 8),
-                      child: Text(
-                        '¿Confirma restaurar respaldo encontrado? Se borrarán todos los datos actuales y la aplicación se reiniciará.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: fullHD ? 16 : 15,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5, right: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            width: 120,
-                            padding: const EdgeInsets.only(bottom: 9, top: 2),
-                            child: ElevatedButton(
-                                child: const Text(
-                                  'CANCELAR',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 15),
-                                ),
-                                onPressed: () => {
-                                      Navigator.pop(context),
-                                    }),
-                          ),
-                          Container(
-                            width: 120,
-                            padding: const EdgeInsets.only(bottom: 9, top: 2),
-                            child: ElevatedButton(
-                              child: const Text(
-                                "RESTAURAR",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 15),
-                              ),
-                              onPressed: () async {
-                                setState(() {
-                                  restoringBackup = true;
-                                });
-                                restoreDialog(fullHD, selectedBackup);
-                                await StoredData()
-                                    .restoreBackupData(context, selectedBackup);
-                                Phoenix.rebirth(context);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    ShowDialog.restoreDriveBackup(
+      context,
+      selectedBackup,
+      restoringBackup
+          ? [
+              Container(
+                padding: const EdgeInsets.only(top: 10, bottom: 25),
+                child: const SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: CircularProgressIndicator(),
                 ),
-        );
+              ),
+              Text(
+                'Restaurando...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: fullHD ? 16 : 15,
+                ),
+              ),
+            ]
+          : [
+              Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Icon(Icons.error_outline, size: 55)),
+              Container(
+                padding: const EdgeInsets.all(15),
+                child: Text(
+                  '¿Confirma restaurar respaldo encontrado? Se borrarán todos los datos actuales y la aplicación se reiniciará.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: fullHD ? 16 : 15,
+                  ),
+                ),
+              )
+            ],
+      () async {
+        setState(() {
+          restoringBackup = true;
+        });
+        await StoredData().restoreBackupData(context, selectedBackup);
+        Phoenix.rebirth(context);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // final String driveEmail = Provider.of<Status>(context).googleEmail;
     final bool onGoogleProcess = Provider.of<Status>(context).onProcessStatus;
     final List<dynamic> backupData =
         Provider.of<Status>(context).googleUserData;

@@ -1,8 +1,10 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/ad_native.dart';
 
+import 'dialog_toast.dart';
+import '../widgets/ad_native.dart';
+import '../providers/preferences.dart';
 import '../providers/status.dart';
 
 class DriveBackupsList extends StatelessWidget {
@@ -65,80 +67,10 @@ class BackupItem extends StatelessWidget {
   final int index;
   const BackupItem(this.backup, this.index, {Key? key}) : super(key: key);
 
-  void deleteDialog(BuildContext context, bool fullHD, String id) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(18.0),
-            ),
-          ),
-          contentPadding: const EdgeInsets.only(right: 5, left: 5),
-          content: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: Icon(Icons.error_outline, size: 45),
-              ),
-              Container(
-                width: 245,
-                padding: const EdgeInsets.only(bottom: 12, top: 8),
-                child: Text(
-                  '¿Desea eliminar éste respaldo? Ésta acción no puede deshacerse.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: fullHD ? 16 : 15,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 5, right: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Container(
-                      width: 120,
-                      padding: const EdgeInsets.only(bottom: 9, top: 2),
-                      child: ElevatedButton(
-                        child: const Text(
-                          'CANCELAR',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                    Container(
-                      width: 120,
-                      padding: const EdgeInsets.only(bottom: 9, top: 2),
-                      child: ElevatedButton(
-                        child: const Text(
-                          "ELIMINAR",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        onPressed: () => {
-                          Navigator.of(context).pop(),
-                          Provider.of<Status>(context, listen: false)
-                              .deleteBackup(context, id),
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -305,7 +237,7 @@ class BackupItem extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete_forever, size: 32),
                       onPressed: () =>
-                          deleteDialog(context, fullHD, backup['id']),
+                          ShowDialog.deleteDriveBackup(context, backup['id']),
                     ),
                   ],
                 ),
@@ -318,9 +250,10 @@ class BackupItem extends StatelessWidget {
                     thickness: 0.7,
                   ),
                 ),
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(bottom: 8)),
+              if (!premiumUser)
+                Padding(
+                    child: AdNative("medium"),
+                    padding: EdgeInsets.only(bottom: 8)),
             ],
           );
   }

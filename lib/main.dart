@@ -6,35 +6,35 @@ import 'package:overlay_support/overlay_support.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:trackify/providers/tracking_functions.dart';
-import 'package:trackify/widgets/ad_interstitial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'initial_data.dart';
 
 import 'providers/preferences.dart';
 import 'providers/theme.dart';
 import 'providers/status.dart';
 import 'providers/trackings_active.dart';
 import 'providers/trackings_archived.dart';
+import '/providers/tracking_functions.dart';
 
 import 'screens/main_screen.dart';
-import 'screens/archived.dart';
-import 'screens/search.dart';
 
-import 'initial_data.dart';
+import '../widgets/ad_interstitial.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
   tz.initializeTimeZones();
-  MobileAds.instance.initialize();
+  await dotenv.load();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp(
-      name: "TrackeAR",
-      options: FirebaseOptions(
-        apiKey: "${dotenv.env['FIRBASE_API_KEY']}",
-        appId: "${dotenv.env['FIREBASE_APP_ID']}",
-        messagingSenderId: "${dotenv.env['FIREBASE_MS_SENDER_ID']}",
-        projectId: "${dotenv.env['FIREBASE_PROJECT_ID']}",
-      ));
+    name: "TrackeAR",
+    options: FirebaseOptions(
+      apiKey: "${dotenv.env['FIRBASE_API_KEY']}",
+      appId: "${dotenv.env['FIREBASE_APP_ID']}",
+      messagingSenderId: "${dotenv.env['FIREBASE_MS_SENDER_ID']}",
+      projectId: "${dotenv.env['FIREBASE_PROJECT_ID']}",
+    ),
+  );
 
   runApp(
     Phoenix(child: const TrackeAR()),
@@ -57,7 +57,8 @@ class TrackeAR extends StatelessWidget {
                   create: (context) => Status(snapshot.data as StartData),
                 ),
                 ChangeNotifierProvider(
-                  create: (context) => Preferences(snapshot.data as StartData),
+                  create: (context) =>
+                      UserPreferences(snapshot.data as StartData),
                 ),
                 ChangeNotifierProvider(
                   create: (context) => UserTheme(snapshot.data as StartData),
@@ -112,7 +113,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-  AdInterstitial interstitialAd = AdInterstitial();
+  AdInterstitial? interstitialAd = AdInterstitial();
 
   void firebaseSettings(context) async {
     FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) {
@@ -150,8 +151,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     AppStateEventNotifier.startListening();
     AppStateEventNotifier.appStateStream.forEach(
       (state) => {
-        if (state == AppState.foreground)
-          syncData(navigatorKey.currentContext!),
+        if (state == AppState.foreground) syncData(context),
       },
     );
   }
@@ -160,30 +160,34 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    String userId = Provider.of<Preferences>(context, listen: false).userId;
-    print("USERID_$userId");
-    if (userId.isEmpty)
+    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    if (userId.isEmpty) {
       Provider.of<Status>(context, listen: false)
           .setStartError('User not created');
+    }
     firebaseSettings(context);
     syncData(context);
     listenToAppStateChanges();
-    interstitialAd.createInterstitialAd();
+    interstitialAd?.createInterstitialAd();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      interstitialAd.showInterstitialAd();
+      interstitialAd?.showInterstitialAd();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
-    bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
-    String userId = Provider.of<Preferences>(context, listen: false).userId;
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
+    interstitialAd = premiumUser ? null : interstitialAd;
+    final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
+    final bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
+    final String userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: mainColor,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -200,8 +204,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
             FloatingActionButtonThemeData(backgroundColor: mainColor),
         switchTheme: const SwitchThemeData(),
         primarySwatch: mainColor,
-        // accentColor: mainColor,
-        // accentColorBrightness: Brightness.light,
         iconTheme: IconThemeData(color: mainColor),
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
       ),
@@ -210,20 +212,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
             FloatingActionButtonThemeData(backgroundColor: mainColor),
         primarySwatch: mainColor,
         primaryColor: mainColor,
-        // accentColor: mainColor,
         brightness: Brightness.dark,
-        // accentColorBrightness: Brightness.light,
         iconTheme: IconThemeData(color: mainColor),
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
-      // home: MainScreen(userId),
       home: MainScreen(userId),
-      routes: {
-        MainScreen.routeName: (context) => MainScreen(userId),
-        Archived.routeName: (context) => const Archived(),
-        Search.routeName: (context) => const Search(),
-      },
     );
   }
 }

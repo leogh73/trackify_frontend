@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:trackify/widgets/ad_native.dart';
-import 'package:trackify/widgets/drive_account.dart';
-import 'package:trackify/widgets/drive_content.dart';
+import '../widgets/ad_native.dart';
+import '../widgets/drive_account.dart';
+import '../widgets/drive_content.dart';
 
 import '../providers/preferences.dart';
 import '../providers/status.dart';
@@ -30,7 +30,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
     if (action == "login") {
       userAccount = await _googleSignIn.signIn();
       if (userAccount != null) {
-        Provider.of<Preferences>(context, listen: false).initializeGoogle(
+        Provider.of<UserPreferences>(context, listen: false).initializeGoogle(
           context,
           userAccount.serverAuthCode!,
           userAccount.email,
@@ -46,7 +46,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
       setState(() {
         isLoggedIn = false;
       });
-      return Provider.of<Preferences>(context, listen: false)
+      Provider.of<UserPreferences>(context, listen: false)
           .toggleGoogleStatus(false);
     }
   }
@@ -68,10 +68,12 @@ class _GoogleDriveState extends State<GoogleDrive> {
 
   @override
   Widget build(BuildContext context) {
-    final bool driveStatus = Provider.of<Preferences>(context).gdStatus;
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
+    final bool driveStatus = Provider.of<UserPreferences>(context).gdStatus;
     final String driveEmail = Provider.of<Status>(context).googleEmail;
     final bool errorCheckDrive =
-        Provider.of<Preferences>(context).errorOperationGD;
+        Provider.of<UserPreferences>(context).errorOperationGD;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -81,7 +83,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
         "Puede usar su cuenta de Google Drive para crear una copia de seguridad de sus seguimientos y preferencias, por cada dispositivo donde instale la aplicación. Luego podrá restaurar éstos datos si cambia de dispositivo, o reinstala la aplicación.";
     // print(email);
     // final gdrive.DriveApi driveApi =
-    //     Provider.of<Preferences>(context).getDriveApi!;
+    //     Provider.of<UserPreferences>(context).getDriveApi!;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Google Drive"),
@@ -105,9 +107,12 @@ class _GoogleDriveState extends State<GoogleDrive> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-                child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
+            if (!premiumUser)
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(bottom: 8)),
             if (isPortrait && !driveStatus)
               Container(
                 padding: const EdgeInsets.only(right: 20, left: 25),
@@ -154,8 +159,9 @@ class _GoogleDriveState extends State<GoogleDrive> {
                         false,
                         'Error de consulta a GoogleDrive',
                         'REINTENTAR',
-                        () => Provider.of<Preferences>(context, listen: false)
-                            .toggleGDErrorStatus(false),
+                        () =>
+                            Provider.of<UserPreferences>(context, listen: false)
+                                .toggleGDErrorStatus(false),
                         null,
                       )
                     : GoogleDriveAccount()
@@ -167,9 +173,10 @@ class _GoogleDriveState extends State<GoogleDrive> {
                     () => googleAccount("login", context),
                     null,
                   ),
-            Padding(
-                child: AdNative("medium"),
-                padding: EdgeInsets.only(top: 20, bottom: 8)),
+            if (!premiumUser)
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 20, bottom: 8)),
           ],
         ),
       ),

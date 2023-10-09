@@ -18,9 +18,8 @@ class UserTheme with ChangeNotifier {
   MaterialColor get startColor => _startColor;
 
   void updateDatabase(String type, dynamic value) async {
-    UserPreferences _storedPreferences =
-        [...await storedData.loadUserPreferences()][0];
-    late UserPreferences _newPreferences;
+    UserData _storedPreferences = [...await storedData.loadUserData()][0];
+    late UserData _newPreferences;
     if (type == "color") {
       _newPreferences = _storedPreferences.edit(color: value);
     }
@@ -39,7 +38,7 @@ class UserTheme with ChangeNotifier {
 
   bool get darkModeStatus => _darkMode;
 
-  void toggleMode() {
+  void toggleDarkMode() {
     _darkMode = !_darkMode;
     updateDatabase("darkMode", _darkMode);
     notifyListeners();

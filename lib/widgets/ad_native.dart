@@ -17,7 +17,7 @@ class _AdNativeState extends State<AdNative> {
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    _load();
   }
 
   @override
@@ -26,7 +26,7 @@ class _AdNativeState extends State<AdNative> {
     super.dispose();
   }
 
-  void _loadAd() {
+  void _load() {
     setState(() {
       _isLoaded = false;
     });
@@ -64,54 +64,6 @@ class _AdNativeState extends State<AdNative> {
       ),
     )..load();
   }
-
-  // Future<void> loadAd() async {
-  //   _nativeAd = NativeAd(
-  //     adUnitId: "${dotenv.env['AD_NATIVE_UNIT_ID']}",
-  //     listener: NativeAdListener(
-  //       onAdLoaded: (ad) {
-  //         debugPrint('$NativeAd loaded.');
-  //         setState(() {
-  //           _isLoaded = true;
-  //         });
-  //       },
-  //       onAdFailedToLoad: (ad, error) {
-  //         // Dispose the ad here to free resources.
-  //         debugPrint('$NativeAd failed to load: $error');
-  //         ad.dispose();
-  //       },
-  //     ),
-  //     request: const AdRequest(),
-  //     // Styling
-  //     nativeTemplateStyle: NativeTemplateStyle(
-  //         // Required: Choose a template.
-  //         templateType: TemplateType.medium,
-  //         // Optional: Customize the ad's style.
-  //         mainBackgroundColor: Colors.blueGrey,
-  //         cornerRadius: 10.0,
-  //         callToActionTextStyle: NativeTemplateTextStyle(
-  //             textColor: Colors.cyan,
-  //             backgroundColor: Colors.red,
-  //             style: NativeTemplateFontStyle.monospace,
-  //             size: 16.0),
-  //         primaryTextStyle: NativeTemplateTextStyle(
-  //             textColor: Colors.red,
-  //             backgroundColor: Colors.cyan,
-  //             style: NativeTemplateFontStyle.italic,
-  //             size: 16.0),
-  //         secondaryTextStyle: NativeTemplateTextStyle(
-  //             textColor: Colors.green,
-  //             backgroundColor: Colors.black,
-  //             style: NativeTemplateFontStyle.bold,
-  //             size: 16.0),
-  //         tertiaryTextStyle: NativeTemplateTextStyle(
-  //             textColor: Colors.brown,
-  //             backgroundColor: Colors.amber,
-  //             style: NativeTemplateFontStyle.normal,
-  //             size: 16.0)),
-  //   );
-  //   _nativeAd?.load();
-  // }
 
   @override
   Widget build(BuildContext context) {

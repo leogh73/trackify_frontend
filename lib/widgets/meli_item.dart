@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:trackify/widgets/ad_native.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/classes.dart';
-import '../screens/tracking_form.dart';
+import '../providers/preferences.dart';
+import '../screens/form_add_edit.dart';
+import '../widgets/ad_native.dart';
 
 import 'meli_check.dart';
 
@@ -19,6 +21,8 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -81,19 +85,21 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => TrackingForm(
+                              builder: (_) => FormAddEdit(
                                 edit: false,
                                 mercadoLibre: true,
                                 title: widget.itemML.title,
                                 code: widget.itemML.code,
                                 tracking: ItemTracking(
-                                    idSB: 0,
-                                    idMDB: 'idMDB',
-                                    code: 'code',
-                                    service: 'service',
-                                    events: [],
-                                    otherData: [],
-                                    checkError: false),
+                                  idSB: 0,
+                                  idMDB: 'idMDB',
+                                  code: 'code',
+                                  service: 'service',
+                                  events: [],
+                                  moreData: [],
+                                  checkError: false,
+                                  lastEvent: "Not checked yet",
+                                ),
                               ),
                             ),
                           );
@@ -410,7 +416,8 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
           ),
         ),
       ),
-      Padding(child: AdNative("small"), padding: EdgeInsets.only(bottom: 8)),
+      if (!premiumUser)
+        Padding(child: AdNative("small"), padding: EdgeInsets.only(bottom: 8)),
     ]);
   }
 }

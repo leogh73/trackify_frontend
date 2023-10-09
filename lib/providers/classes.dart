@@ -20,16 +20,14 @@ class ItemTracking {
   String? title;
   String code;
   String service;
+  List<Map<String, String>> events;
+  List<Map<String, dynamic>> moreData;
   String? lastEvent;
-  List<Map<String, String>>? events;
-  List<List<String>>? otherData;
   String? lastCheck;
   String? startCheck;
-  bool? search;
   bool? checkError;
   bool? selected;
   bool? archived;
-  bool? fake;
 
   ItemTracking({
     this.idSB,
@@ -37,16 +35,14 @@ class ItemTracking {
     this.title,
     required this.code,
     required this.service,
+    required this.events,
+    required this.moreData,
     this.lastEvent,
-    this.events,
-    this.otherData,
     this.lastCheck,
     this.startCheck,
-    this.search,
     this.checkError,
     this.selected,
     this.archived,
-    this.fake,
   });
 
   factory ItemTracking.fromMap(int id, Map<String, dynamic> map) {
@@ -60,16 +56,14 @@ class ItemTracking {
       events: (map['events'] as List)
           .map((e) => Map<String, String>.from(e))
           .toList(),
-      otherData: (map['otherData'] as List)
-          .map((e) => (e as List).map((e) => e as String).toList())
+      moreData: (map['moreData'] as List)
+          .map((e) => Map<String, dynamic>.from(e))
           .toList(),
       lastCheck: map['lastCheck'],
       startCheck: map['startCheck'],
-      search: map['search'],
       checkError: map['checkError'],
       selected: map['selected'],
       archived: map['archived'],
-      fake: map['fake'],
     );
   }
 
@@ -82,14 +76,12 @@ class ItemTracking {
       'service': service,
       'lastEvent': lastEvent,
       'events': events,
-      'otherData': otherData,
+      'moreData': moreData,
       'lastCheck': lastCheck,
       'startCheck': startCheck,
-      'search': search,
       'checkError': checkError,
       'selected': selected,
       'archived': archived,
-      'fake': fake,
     };
   }
 
@@ -101,14 +93,13 @@ class ItemTracking {
     String? service,
     String? lastEvent,
     List<Map<String, String>>? events,
-    List<List<String>>? otherData,
+    List<Map<String, dynamic>>? moreData,
     String? lastCheck,
     String? startCheck,
     bool? search,
     bool? checkError,
     bool? selected,
     bool? archived,
-    bool? fake,
   }) {
     return ItemTracking(
       idSB: id ?? idSB,
@@ -118,19 +109,17 @@ class ItemTracking {
       service: service ?? this.service,
       lastEvent: lastEvent ?? this.lastEvent,
       events: events ?? this.events,
-      otherData: otherData ?? this.otherData,
+      moreData: moreData ?? this.moreData,
       lastCheck: lastCheck ?? this.lastCheck,
       startCheck: startCheck ?? this.startCheck,
-      search: search ?? this.search,
       checkError: checkError ?? this.checkError,
       selected: selected ?? this.selected,
       archived: archived ?? this.archived,
-      fake: fake ?? this.fake,
     );
   }
 }
 
-class UserPreferences {
+class UserData {
   int id;
   String userId;
   String color;
@@ -139,8 +128,9 @@ class UserPreferences {
   List<String> searchHistory;
   bool meLiStatus;
   bool googleDriveStatus;
+  bool premiumStatus;
 
-  UserPreferences({
+  UserData({
     required this.id,
     required this.userId,
     required this.color,
@@ -149,10 +139,11 @@ class UserPreferences {
     required this.searchHistory,
     required this.meLiStatus,
     required this.googleDriveStatus,
+    required this.premiumStatus,
   });
 
-  factory UserPreferences.fromMap(int id, Map<String, dynamic> map) {
-    return UserPreferences(
+  factory UserData.fromMap(int id, Map<String, dynamic> map) {
+    return UserData(
       id: id,
       userId: map['userId'],
       color: map['color'],
@@ -162,6 +153,7 @@ class UserPreferences {
           (map['searchHistory'] as List).map((e) => e as String).toList(),
       meLiStatus: map['meLiStatus'],
       googleDriveStatus: map['googleDriveStatus'],
+      premiumStatus: map['premiumStatus'],
     );
   }
 
@@ -175,6 +167,7 @@ class UserPreferences {
       'searchHistory': searchHistory,
       'meLiStatus': meLiStatus,
       'googleDriveStatus': googleDriveStatus,
+      'premiumStatus': premiumStatus,
     };
   }
 
@@ -187,8 +180,9 @@ class UserPreferences {
     List<String>? searchHistory,
     bool? meLiStatus,
     bool? googleDriveStatus,
+    bool? premiumStatus,
   }) {
-    return UserPreferences(
+    return UserData(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       color: color ?? this.color,
@@ -197,6 +191,7 @@ class UserPreferences {
       searchHistory: searchHistory ?? this.searchHistory,
       meLiStatus: meLiStatus ?? this.meLiStatus,
       googleDriveStatus: googleDriveStatus ?? this.googleDriveStatus,
+      premiumStatus: premiumStatus ?? this.premiumStatus,
     );
   }
 }

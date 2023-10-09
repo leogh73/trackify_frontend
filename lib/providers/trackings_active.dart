@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/providers/preferences.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
 
+import '../providers/classes.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
-import '../widgets/data_response.dart';
+import '../providers/http_request_handler.dart';
+import '../providers/preferences.dart';
 
-import 'classes.dart';
+import '../widgets/dialog_error.dart';
 
 class ActiveTrackings extends ChangeNotifier {
   StoredData storedData = StoredData();
@@ -22,63 +22,44 @@ class ActiveTrackings extends ChangeNotifier {
 
   List<ItemTracking> get trackings => [..._trackings];
 
-  void addTracking(Tracking tracking) async {
+  void addTracking(Tracking tracking) {
     if (tracking.title.isEmpty) {
       tracking.title = tracking.code;
     }
-
     ItemTracking newTracking = ItemTracking(
       idSB: tracking.id,
       idMDB: null,
       title: tracking.title,
       code: tracking.code,
       service: tracking.service,
-      search: false,
+      events: [],
+      moreData: [],
+      lastEvent: "Not checked yet",
       checkError: null,
       selected: false,
       archived: false,
-      fake: false,
     );
     _trackings.insert(0, newTracking);
     notifyListeners();
   }
 
-  void loadStartData(ItemTracking tracking, ItemResponseData itemData) {
+  void loadStartData(BuildContext context, ItemTracking tracking,
+      Map<String, dynamic> itemData) {
     int trackingIndex =
         _trackings.indexWhere((element) => element.idSB == tracking.idSB);
-    _trackings[trackingIndex].events = itemData.events!;
-    _trackings[trackingIndex].otherData =
-        itemData.otherData?.cast<List<String>>();
-    _trackings[trackingIndex].lastEvent = itemData.lastEvent;
-    String dateAndTime = '${itemData.checkDate} - ${itemData.checkTime}';
+    _trackings[trackingIndex].events = (itemData['events'] as List)
+        .map((e) => Map<String, String>.from(e))
+        .toList();
+    _trackings[trackingIndex].lastEvent = itemData['lastEvent'];
+    _trackings[trackingIndex].moreData =
+        List<Map<String, dynamic>>.from(itemData['moreData'] ?? []);
+    String dateAndTime = '${itemData['checkDate']} - ${itemData['checkTime']}';
     _trackings[trackingIndex].startCheck = dateAndTime;
     _trackings[trackingIndex].lastCheck = dateAndTime;
-    _trackings[trackingIndex].checkError = false;
-    _trackings[trackingIndex].idMDB = itemData.trackingId!;
+    _trackings[trackingIndex].idMDB = itemData['trackingId'];
+    notifyListeners();
     storedData.newMainTracking(_trackings[trackingIndex]);
   }
-
-  // void loadFakeTracking() {
-  //   ItemTracking fakeTracking = ItemTracking(
-  //     idSB: 1,
-  //     idMDB: '',
-  //     title: "",
-  //     code: "",
-  //     service: "",
-  //     search: false,
-  //     checkError: false,
-  //     selected: false,
-  //     archived: false,
-  //     fake: true,
-  //     events: [],
-  //     otherData: [[]],
-  //     lastEvent: '',
-  //     startCheck: '',
-  //     lastCheck: '',
-  //   );
-  //   _trackings.insert(0, fakeTracking);
-  //   storedData.newMainTracking(fakeTracking);
-  // }
 
   void retryErrorTracking(int trackingId) {
     int trackingIndex = _trackings.indexWhere((t) => t.idSB == trackingId);
@@ -86,23 +67,32 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTracking(List<ItemTracking> trackingList, BuildContext context,
-      bool startError) async {
+  void removeTracking(
+    List<ItemTracking> trackingList,
+    BuildContext context,
+    bool startError,
+  ) async {
     List<String> trackingIds = [];
     for (var tracking in trackingList) {
       _trackings.remove(tracking);
-      if (!tracking.checkError!) {
+      if (tracking.checkError == false) {
         storedData.removeMainTracking(tracking);
         trackingIds.add(tracking.idMDB!);
       }
     }
     notifyListeners();
     if (startError) return;
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {'trackingIds': json.encode(trackingIds)};
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/user/$_userId/remove/', body);
-    if (response is Map) ShowDialog(context).connectionServerError(false);
+    if (response.body == "Server timeout") {
+      return DialogError.serverTimeout(context);
+    }
+    if (response.body.startsWith("error")) {
+      return DialogError.serverError(context);
+    }
   }
 
   void editTracking(ItemTracking tracking) {
@@ -142,21 +132,13 @@ class ActiveTrackings extends ChangeNotifier {
   List<ItemTracking> _selection = [];
   List<ItemTracking> get selectionElements => [..._selection];
 
-  late int startSelection;
-  int get activatedSelection => startSelection;
-
-  void activateStartSelection(ItemTracking tracking) {
-    startSelection = tracking.idSB!;
-    addSelected(tracking);
-  }
-
   void addSelected(ItemTracking tracking) {
     _selection.add(tracking);
     notifyListeners();
   }
 
-  void removeSelected(int idEliminar) {
-    _selection.removeWhere((tracking) => tracking.idSB == idEliminar);
+  void removeSelected(int idRemove) {
+    _selection.removeWhere((tracking) => tracking.idSB == idRemove);
     notifyListeners();
   }
 

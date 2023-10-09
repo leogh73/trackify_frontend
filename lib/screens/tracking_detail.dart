@@ -1,30 +1,17 @@
-// import 'package:Trackify/screens/detalle_seg_mas.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
-import 'package:trackify/providers/tracking_functions.dart';
-import 'package:trackify/services/ecapack.dart';
-import 'package:trackify/services/enviopack.dart';
-import 'package:trackify/services/fasttrack.dart';
-import 'package:trackify/services/mdcargas.dart';
-import 'package:trackify/services/renaper.dart';
-import 'package:trackify/services/urbano.dart';
-import 'package:trackify/widgets/details_other.dart';
 
 import '../providers/classes.dart';
+import '../providers/preferences.dart';
 import '../providers/status.dart';
+import '../providers/tracking_functions.dart';
+
+import '../screens/tracking_more.dart';
 
 import '../widgets/ad_interstitial.dart';
-import '../widgets/menu_actions.dart';
 import '../widgets/ad_banner.dart';
-
-import '../services/clicoh.dart';
-import '../services/andreani.dart';
-import '../services/correo_argentino.dart';
-import '../services/dhl.dart';
-import '../services/oca.dart';
-import '../services/ocasa.dart';
-import '../services/viacargo.dart';
+import '../widgets/options_tracking.dart';
+import '../widgets/events_list.dart';
 
 class TrackingDetail extends StatefulWidget {
   final ItemTracking tracking;
@@ -34,9 +21,9 @@ class TrackingDetail extends StatefulWidget {
   State<TrackingDetail> createState() => _TrackingDetailState();
 }
 
-class _TrackingDetailState extends State<TrackingDetail> {
-  AdInterstitial interstitialAd = AdInterstitial();
+AdInterstitial interstitialAd = AdInterstitial();
 
+class _TrackingDetailState extends State<TrackingDetail> {
   @override
   void initState() {
     super.initState();
@@ -45,34 +32,15 @@ class _TrackingDetailState extends State<TrackingDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     bool checking = Provider.of<Status>(context).checkingStatus;
     bool endList = Provider.of<Status>(context).endOfEvents;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    var screenList = "main";
-    if (widget.tracking.search!) {
-      screenList = "search";
-    } else if (widget.tracking.archived!) {
-      screenList = "archived";
-    }
-    List<Map<String, String>> events = widget.tracking.events!;
-    final Map<String, dynamic> responseList = {
-      "Andreani": EventListAndreani(events),
-      "ClicOh": EventListClicOh(events),
-      "Correo Argentino": EventListCorreoArgentino(events),
-      "DHL": EventListDHL(events),
-      "EcaPack": EventListEcaPack(events),
-      "Enviopack": EventListEnviopack(events),
-      "FastTrack": EventListFastTrack(events),
-      "MDCargas": EventListMDCargas(events),
-      "OCA": EventListOCA(events),
-      "OCASA": EventListOCASA(events),
-      "Renaper": EventListRenaper(events),
-      "Urbano": EventListUrbano(events),
-      "ViaCargo": EventListViaCargo(events),
-    };
-    Widget result = responseList[widget.tracking.service];
+    String screenList = widget.tracking.archived! ? "archived" : "main";
+    List<Map<String, String>> events = widget.tracking.events;
 
     return WillPopScope(
       onWillPop: () => Future.value(!checking),
@@ -85,16 +53,12 @@ class _TrackingDetailState extends State<TrackingDetail> {
             style: TextStyle(fontSize: fullHD ? 18 : 17),
           ),
           actions: [
-            if (screenList != "search")
-              ActionsMenu(
-                action: '',
-                screen: screenList,
-                menu: true,
-                detail: true,
-                tracking: widget.tracking,
-                // accion: "eliminar",
-                icon: 24,
-              ),
+            OptionsTracking(
+              tracking: widget.tracking,
+              menu: true,
+              action: '',
+              detail: true,
+            ),
             if (screenList == "search")
               PopupMenuButton<String>(
                 // padding: EdgeInsets.zero,
@@ -112,9 +76,8 @@ class _TrackingDetailState extends State<TrackingDetail> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MoreData(
-                            widget.tracking.otherData!,
-                            widget.tracking.service,
+                          builder: (_) => TrackingMore(
+                            widget.tracking.moreData,
                           ),
                         ),
                       );
@@ -146,9 +109,6 @@ class _TrackingDetailState extends State<TrackingDetail> {
         ),
         body: Column(
           children: [
-            // Padding(
-            //     padding: EdgeInsets.only(top: 10, bottom: 10),
-            //     child: AdNative("medium")),
             if (checking)
               Column(
                 children: [
@@ -182,7 +142,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                 ],
               ),
             Expanded(
-              child: result,
+              child: EventsList(events, widget.tracking.service),
             ),
           ],
         ),
@@ -191,56 +151,13 @@ class _TrackingDetailState extends State<TrackingDetail> {
             : FloatingActionButton(
                 heroTag: 'events',
                 onPressed: () => {
-                  interstitialAd.showInterstitialAd(),
+                  if (!premiumUser) interstitialAd.showInterstitialAd(),
                   TrackingFunctions.searchUpdates(context, widget.tracking),
                 },
                 child: const Icon(Icons.update, size: 29),
               ),
-        bottomNavigationBar: const AdBanner(),
+        bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
       ),
-    );
-  }
-}
-
-class DetailsWidget {
-  Widget dataList;
-  String service;
-  DetailsWidget(
-    this.dataList,
-    this.service,
-  );
-}
-
-class MoreData extends StatelessWidget {
-  final List<List<String>> otherData;
-  final String service;
-  const MoreData(this.otherData, this.service, {Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    Widget noMoreData = const NoMoreData();
-    final Map<String, dynamic> responseList = {
-      "Andreani": MoreDataAndreani(otherData),
-      "ClicOh": MoreDataClicOh(otherData),
-      "Correo Argentino": noMoreData,
-      "DHL": MoreDataDHL(otherData),
-      "EcaPack": noMoreData,
-      "Enviopack": MoreDataEnviopack(otherData),
-      "FastTrack": noMoreData,
-      "MDCargas": noMoreData,
-      "OCA": MoreDataOCA(otherData),
-      "OCASA": MoreDataOCASA(otherData),
-      "Renaper": MoreDataRenaper(otherData),
-      "Urbano": MoreDataUrbano(otherData),
-      "ViaCargo": MoreDataViaCargo(otherData),
-    };
-
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 1.0,
-        title: const Text("Más datos"),
-      ),
-      body: responseList[service],
-      bottomNavigationBar: const AdBanner(),
     );
   }
 }

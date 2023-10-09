@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:trackify/providers/http_request_handler.dart';
+import 'package:http/http.dart';
 
 import './classes.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
-import '../widgets/dialog_and_toast.dart';
+import '../providers/http_request_handler.dart';
+import '../widgets/dialog_error.dart';
 
-class Preferences with ChangeNotifier {
+class UserPreferences with ChangeNotifier {
   StoredData storedData = StoredData();
 
   late String _userView;
   late bool _mercadoLibre;
   late String _userId;
+  late bool _premiumUser;
 
-  Preferences(StartData startData) {
+  UserPreferences(StartData startData) {
     _userView = startData.startView;
     _mercadoLibre = startData.mercadoLibre;
     _googleDrive = startData.googleDrive;
     _userId = startData.userId;
+    _premiumUser = startData.premiumStatus;
   }
 
   void updateDatabase(String type, dynamic value) async {
-    UserPreferences _storedPreferences =
-        [...await storedData.loadUserPreferences()][0];
-    late UserPreferences _newPreferences;
+    UserData _storedPreferences = [...await storedData.loadUserData()][0];
+    late UserData _newPreferences;
     if (type == "view") {
       _newPreferences = _storedPreferences.edit(view: value);
     }
@@ -33,6 +35,9 @@ class Preferences with ChangeNotifier {
     }
     if (type == "googleDriveStatus") {
       _newPreferences = _storedPreferences.edit(googleDriveStatus: value);
+    }
+    if (type == "premiumStatus") {
+      _newPreferences = _storedPreferences.edit(premiumStatus: value);
     }
     storedData.updatePreferences(_newPreferences);
   }
@@ -52,15 +57,19 @@ class Preferences with ChangeNotifier {
       'userId': _userId,
       'code': code,
     };
-    dynamic response = await HttpRequestHandler.newRequest(
+    Response response = await HttpRequestHandler.newRequest(
         "/api/mercadolibre/initialize/", body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       toggleMeLiStatus(true);
     } else {
       toggleMeLiStatus(false);
-      ShowDialog(context).meLiLoginError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.meLiLoginError(context);
     }
   }
 
@@ -87,14 +96,18 @@ class Preferences with ChangeNotifier {
       'authCode': authCode,
       'email': email,
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest("/api/google/initialize/", body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       toggleGoogleStatus(true);
     } else {
-      ShowDialog(context).googleLoginError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.googleLoginError(context);
     }
   }
 
@@ -120,6 +133,14 @@ class Preferences with ChangeNotifier {
 
   void toggleGDErrorStatus(bool newStatus) {
     errorGDStatus = newStatus;
+    notifyListeners();
+  }
+
+  bool get premiumStatus => _premiumUser;
+
+  void togglePremiumStatus(bool newStatus) {
+    _premiumUser = newStatus;
+    updateDatabase("premiumStatus", newStatus);
     notifyListeners();
   }
 }

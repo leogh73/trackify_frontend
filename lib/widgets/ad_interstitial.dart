@@ -19,7 +19,7 @@ class AdInterstitial {
           onAdFailedToLoad: (LoadAdError error) {
             // debugPrint('InterstitialAd failed to load: $error');
           },
-        ));
+        ),);
   }
 
   void showInterstitialAd() {

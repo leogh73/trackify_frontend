@@ -45,7 +45,7 @@ class AdOpen {
     return _appOpenAd != null;
   }
 
-  void showAdIfAvailable() {
+  void showIfAvailable() {
     if (!isAdAvailable) {
       // print('Tried to show ad before available.');
       loadAd();

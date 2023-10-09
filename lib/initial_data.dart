@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
+import 'providers/http_request_handler.dart';
 import 'providers/classes.dart';
 import 'database.dart';
 
@@ -55,17 +55,15 @@ class Init {
     return deviceToken;
   }
 
-  static Future<UserPreferences> _loadNewUserData() async {
+  static Future<UserData> _loadNewUserData() async {
     String? firebaseToken = await firebaseMessagingNotifications();
+    Response response = await HttpRequestHandler.newRequest(
+        '/api/user/initialize/', {'token': firebaseToken});
     String userId = '';
-    Object body = {
-      'token': firebaseToken,
-    };
-    dynamic response =
-        await HttpRequestHandler.newRequest('/api/user/initialize/', body);
-    if (response is http.Response)
-      userId = json.decode(response.body)['userId'];
-    UserPreferences startPreferences = UserPreferences(
+    if (response.body != "Server timeout" || response.body.startsWith('error')) {
+      userId = json.decode(response.body)['userId'] ?? '';
+    }
+    UserData startPreferences = UserData(
       id: 0,
       userId: userId,
       color: "teal",
@@ -74,14 +72,14 @@ class Init {
       searchHistory: [],
       meLiStatus: false,
       googleDriveStatus: false,
+      premiumStatus: false,
     );
     if (userId.isNotEmpty) storedData.loadStartPreferences(startPreferences);
     return startPreferences;
   }
 
   static Future<StartData> loadStartData() async {
-    List<UserPreferences> userPreferences =
-        await storedData.loadUserPreferences();
+    List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
       userPreferences = [await _loadNewUserData()];
     }
@@ -94,6 +92,7 @@ class Init {
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
     bool driveStatus = userPreferences[0].googleDriveStatus;
+    bool premiumStatus = userPreferences[0].premiumStatus;
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
     List<ItemTracking> startActiveTrackings =
@@ -109,6 +108,7 @@ class Init {
       startThemeDarkMode,
       meliStatus,
       driveStatus,
+      premiumStatus,
       searchHistory,
       startActiveTrackings,
       startArchivedTrackings,
@@ -123,6 +123,7 @@ class StartData {
   bool darkMode;
   bool mercadoLibre;
   bool googleDrive;
+  bool premiumStatus;
   List<String> searchHistory;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
@@ -133,6 +134,7 @@ class StartData {
     this.darkMode,
     this.mercadoLibre,
     this.googleDrive,
+    this.premiumStatus,
     this.searchHistory,
     this.activeTrackings,
     this.archivedTrackings,

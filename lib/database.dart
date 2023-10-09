@@ -7,11 +7,13 @@ import 'package:sembast/sembast_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:timezone/standalone.dart' as tz;
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/widgets/dialog_and_toast.dart';
+import 'package:http/http.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-import 'providers/classes.dart';
+import '../providers/classes.dart';
+import '../providers/http_request_handler.dart';
+
+import 'widgets/dialog_error.dart';
 
 class AppDatabase {
   static Future<Database> get database async {
@@ -28,20 +30,20 @@ class StoredData {
   static const String userPreferences = "User Preferences";
   final _userPreferences = intMapStoreFactory.store(userPreferences);
 
-  void loadStartPreferences(UserPreferences preferences) async {
+  void loadStartPreferences(UserData preferences) async {
     _userPreferences.record(preferences.id).add(await _db, preferences.toMap());
   }
 
-  void updatePreferences(UserPreferences preferences) async {
+  void updatePreferences(UserData preferences) async {
     _userPreferences
         .record(preferences.id)
         .update(await _db, preferences.toMap());
   }
 
-  Future<List<UserPreferences>> loadUserPreferences() async {
+  Future<List<UserData>> loadUserData() async {
     final recordSnapshot = await _userPreferences.find(await _db);
     return recordSnapshot.map((snapshot) {
-      return UserPreferences.fromMap(snapshot.key, snapshot.value);
+      return UserData.fromMap(snapshot.key, snapshot.value);
     }).toList();
   }
 
@@ -125,27 +127,30 @@ class StoredData {
   }
 
   Future<void> restoreBackupData(BuildContext context, String backupId) async {
-    UserPreferences userPreferences =
-        [...await StoredData().loadUserPreferences()][0];
+    UserData userPreferences = [...await StoredData().loadUserData()][0];
     String userId = userPreferences.userId;
     Object body = {
       'userId': userId,
       'backupId': backupId,
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/google/restore/', body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
+    if (response.body == "Server timeout") {
+      return DialogError.serverTimeout(context);
+    }
+    if (json.decode(response.body)['error'] != null) {
+      return DialogError.serverError(context);
+    }
     await reCreate();
     Map<String, dynamic>? backupData = json.decode(response.body);
-    UserPreferences backupPreferences = UserPreferences.fromMap(
+    UserData backupPreferences = UserData.fromMap(
         backupData?['preferences']['id'],
         backupData?['preferences'] as Map<String, dynamic>);
-    UserPreferences newUserPreferences = backupPreferences.edit(
+    UserData newUserData = backupPreferences.edit(
       id: userPreferences.id,
       userId: userPreferences.userId,
     );
-    StoredData().updatePreferences(newUserPreferences);
+    StoredData().updatePreferences(newUserData);
     List<ItemTracking> activeTrackings =
         (backupData?['activeTrackings'] as List<dynamic>)
             .map((t) => ItemTracking.fromMap(t['idSB'], t))

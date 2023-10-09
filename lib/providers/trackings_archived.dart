@@ -21,7 +21,8 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTracking(List<ItemTracking> trackings, BuildContext? context) {
+  void removeTracking(
+      List<ItemTracking> trackings, BuildContext? context, bool startError) {
     for (ItemTracking tracking in trackings) {
       storedData.removeArchivedTracking(tracking);
       _trackings.remove(tracking);
@@ -69,11 +70,6 @@ class ArchivedTrackings with ChangeNotifier {
   late int startSelection;
   int get activatedSelection => startSelection;
 
-  void activateStartSelection(ItemTracking tracking) {
-    startSelection = tracking.idSB!;
-    addSelected(tracking);
-  }
-
   void addSelected(ItemTracking tracking) {
     _selection.add(tracking);
     notifyListeners();
@@ -100,8 +96,8 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSelection() {
-    removeTracking(_selection, null);
+  void removeSelection(BuildContext context) {
+    removeTracking(_selection, context, false);
     _selection.clear();
     notifyListeners();
   }

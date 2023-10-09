@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/widgets/ad_native.dart';
+import 'package:http/http.dart';
+
+import '../providers/http_request_handler.dart';
+import '../widgets/ad_native.dart';
+import 'dialog_error.dart';
 
 import '../providers/preferences.dart';
 
-import 'dialog_and_toast.dart';
 import 'meli_item.dart';
 
 class MeLiCheck extends StatefulWidget {
@@ -69,12 +71,10 @@ class _MeLiCheckState extends State<MeLiCheck> {
       'shippingIds': json.encode(shippingCheck),
       'httpHeaders': json.encode(httpHeaders)
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/mercadolibre/loadmore', body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
+    Map<String, String> fetchedData = json.decode(response.body);
     if (response.statusCode == 200) {
-      var fetchedData = json.decode(response.body);
       List<MeLiItemData> responseData = processMLData(fetchedData);
       setState(() {
         for (var element in responseData) {
@@ -83,22 +83,27 @@ class _MeLiCheckState extends State<MeLiCheck> {
         loadMore = false;
       });
     } else {
-      ShowDialog(context).meLiCheckError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.meLiCheckError(context);
     }
   }
 
   Future checkData(String checkInput) async {
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'userId': _userId,
       'consultType': checkInput,
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/mercadolibre/consult', body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
+    Map<String, dynamic> fetchedData = json.decode(response.body);
     if (response.statusCode == 200) {
-      var fetchedData = json.decode(response.body);
       List<MeLiItemData> responseData =
           processMLData(fetchedData['shippingsData']);
       setState(() {
@@ -108,9 +113,15 @@ class _MeLiCheckState extends State<MeLiCheck> {
       });
       return responseData;
     } else {
-      Provider.of<Preferences>(context, listen: false)
+      Provider.of<UserPreferences>(context, listen: false)
           .toggleMeLiErrorStatus(true);
-      ShowDialog(context).meLiCheckError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.meLiCheckError(context);
     }
   }
 
@@ -143,7 +154,8 @@ class _MeLiCheckState extends State<MeLiCheck> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     return FutureBuilder(
       future: checkInput,
       builder: (context, snapshot) {
@@ -154,20 +166,22 @@ class _MeLiCheckState extends State<MeLiCheck> {
                     child: Column(
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          child: AdNative("medium"),
-                          padding: EdgeInsets.only(top: 10, bottom: 30),
-                        ),
+                        if (!premiumUser)
+                          Padding(
+                            child: AdNative("medium"),
+                            padding: EdgeInsets.only(top: 10, bottom: 30),
+                          ),
                         const Icon(Icons.local_shipping_outlined, size: 80),
                         const SizedBox(width: 30, height: 30),
                         Text(
                           "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
                           style: const TextStyle(fontSize: 24),
                         ),
-                        Padding(
-                          child: AdNative("medium"),
-                          padding: EdgeInsets.only(top: 30, bottom: 10),
-                        )
+                        if (!premiumUser)
+                          Padding(
+                            child: AdNative("medium"),
+                            padding: EdgeInsets.only(top: 30, bottom: 10),
+                          )
                       ],
                     ),
                   ),
@@ -182,7 +196,7 @@ class _MeLiCheckState extends State<MeLiCheck> {
                           itemCount: itemsList.length,
                           itemBuilder: (context, index) {
                             return Column(children: [
-                              if (index == 0)
+                              if (index == 0 && !premiumUser)
                                 Padding(
                                     child: AdNative("small"),
                                     padding: EdgeInsets.only(bottom: 8)),

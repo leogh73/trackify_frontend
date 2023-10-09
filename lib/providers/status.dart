@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/providers/preferences.dart';
+import 'package:trackify/widgets/dialog_error.dart';
+import 'package:http/http.dart';
+
+import '../providers/http_request_handler.dart';
+import '../providers/preferences.dart';
 
 import '../database.dart';
 import '../initial_data.dart';
-import '../screens/tracking_form.dart';
-
-import '../widgets/ad_interstitial.dart';
-import '../widgets/dialog_and_toast.dart';
+import '../services/_services.dart';
 
 import 'classes.dart';
 import 'trackings_archived.dart';
@@ -26,9 +26,6 @@ class Status with ChangeNotifier {
     notifyListeners();
   }
 
-  AdInterstitial interstitialAd = AdInterstitial();
-  AdInterstitial get getInterstitialAd => interstitialAd;
-
   late List<String> recentSearch;
 
   Status(StartData startData) {
@@ -44,7 +41,7 @@ class Status with ChangeNotifier {
     loadedService = service.chosen;
     exampleCode = "Ejemplo: ${service.exampleCode}";
     if (service.chosen == "Correo Argentino") {
-      ShowDialog(context).serviceCAWarning();
+      DialogError.serviceCAWarning(context);
     }
     notifyListeners();
   }
@@ -57,8 +54,7 @@ class Status with ChangeNotifier {
   List<String> get searchRecent => [...recentSearch];
 
   void searchElementHandler(String action, String value) async {
-    List<UserPreferences> _storedPreferences =
-        await storedData.loadUserPreferences();
+    List<UserData> _storedPreferences = await storedData.loadUserData();
     List<String> _searchHistory = _storedPreferences[0].searchHistory;
     if (action == "add") {
       _searchHistory.add(value);
@@ -66,7 +62,7 @@ class Status with ChangeNotifier {
     if (action == "remove") {
       _searchHistory.removeWhere((element) => element == value);
     }
-    UserPreferences _newPreferences =
+    UserData _newPreferences =
         _storedPreferences[0].edit(searchHistory: _searchHistory);
     storedData.updatePreferences(_newPreferences);
   }
@@ -91,27 +87,6 @@ class Status with ChangeNotifier {
     notifyListeners();
   }
 
-  late TextEditingController mainController;
-  TextEditingController get primaryController => mainController;
-
-  void loadMainController(String? startText) {
-    if (startText == null) {
-      mainController = TextEditingController();
-    } else {
-      mainController = TextEditingController(text: startText);
-    }
-    notifyListeners();
-  }
-
-  void cleanMainController() {
-    mainController.clear();
-    notifyListeners();
-  }
-
-  void removeMainController() {
-    mainController.dispose();
-  }
-
   List<ItemTracking> searchResults = [];
   List<ItemTracking> get searchResult => [...searchResults];
 
@@ -128,7 +103,7 @@ class Status with ChangeNotifier {
       String searchData = searchInput.toLowerCase();
       if (tracking.service.toLowerCase().contains(searchData) ||
           tracking.title!.toLowerCase().contains(searchData) ||
-          tracking.otherData.toString().toLowerCase().contains(searchData) ||
+          tracking.moreData.toString().toLowerCase().contains(searchData) ||
           tracking.events.toString().toLowerCase().contains(searchData) &&
               !tracking.checkError!) return true;
     }
@@ -260,15 +235,13 @@ class Status with ChangeNotifier {
 
   void deleteBackup(BuildContext context, String id) async {
     toggleGoogleProcess(true);
-    String userId = [...await StoredData().loadUserPreferences()][0].userId;
+    String userId = [...await StoredData().loadUserData()][0].userId;
     Object body = {
       'userId': userId,
       'backupId': id,
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/google/remove/', body);
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
     if (response.statusCode == 200) {
       int index = googleBackups.indexWhere((backup) => backup['id'] == id);
       googleBackups.removeAt(index);
@@ -283,9 +256,15 @@ class Status with ChangeNotifier {
       }
       loadGoogleBackups(googleBackups, false);
     } else {
-      Provider.of<Preferences>(context, listen: false)
+      Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      ShowDialog(context).googleDriveError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      DialogError.googleDriveError(context);
     }
     toggleGoogleProcess(false);
   }

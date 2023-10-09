@@ -39,51 +39,11 @@ class DriveContent extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Padding(child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
         if (isLoggedIn) DriveBackupsList(backupsData),
-        // Padding(
-        //   padding: const EdgeInsets.only(right: 10, left: 10),
-        //   child: Divider(
-        //     color: Theme.of(context).primaryColor,
-        //     thickness: 0.7,
-        //   ),
-
-        // ),
-        // Container(
-        //   padding: const EdgeInsets.only(
-        //       right: 15, left: 20, top: 10, bottom: 5),
-        //   child: Row(
-        //     children: [
-        //       Expanded(
-        //           child: Container(
-        //             child: const Icon(Icons.cloud_off_outlined, size: 50),
-        //             padding: const EdgeInsets.only(right: 10),
-        //           ),
-        //           flex: 1),
-        //       const SizedBox(width: 25),
-        //       Expanded(
-        //           child: Container(
-        //             child: screenText('No hay datos para mostrar', fullHD),
-        //             padding: const EdgeInsets.only(right: 20),
-        //           ),
-        //           flex: 6),
-        //     ],
-        //   ),
-        // ),
-        // if (!isLoggedIn)
-        //   Padding(
-        //     padding: const EdgeInsets.only(right: 10, left: 10),
-        //     child: Divider(
-        //       color: Theme.of(context).primaryColor,
-        //       thickness: 0.7,
-        //     ),
-        //   ),
-
         Container(
           padding: const EdgeInsets.only(right: 20, left: 20),
           child: isPortrait
               ? Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     if (text.isNotEmpty) screenText(text, fullHD),
                     Padding(

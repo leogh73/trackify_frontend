@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:timezone/standalone.dart' as tz;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/dialog_error.dart';
 import 'dart:convert';
-import 'package:trackify/providers/http_request_handler.dart';
-import 'package:trackify/providers/preferences.dart';
+import 'package:http/http.dart';
+
+import '../providers/http_request_handler.dart';
+import '../providers/preferences.dart';
 
 import '../database.dart';
 import '../providers/trackings_active.dart';
 import '../screens/tracking_detail.dart';
-import '../widgets/dialog_and_toast.dart';
-import '../widgets/data_response.dart';
+import '../widgets/dialog_toast.dart';
 
 import 'classes.dart';
 import 'status.dart';
@@ -20,55 +22,62 @@ class TrackingFunctions {
     bool completedStatus =
         checkCompletedStatus(tracking.service, tracking.lastEvent!);
     if (completedStatus)
-      return GlobalToast(context, "No hay actualizaciones").displayToast();
-    List<ItemTracking> _trackings =
+      return GlobalToast.displayToast(context, "No hay actualizaciones");
+    List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'userId': _userId,
       'trackingData': json.encode(tracking.toMap())
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/user/check/', body);
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    if (response is Map)
-      return ShowDialog(context).connectionServerError(false);
-    var data = json.decode(response.body);
-    int index = _trackings.indexWhere((t) => t.idMDB == tracking.idMDB);
-    trackingCheckUpdate(context, index, data);
+    Map<String, dynamic> responseData = json.decode(response.body);
+    int index = trackingsList.indexWhere((t) => t.idMDB == tracking.idMDB);
+    trackingCheckUpdate(context, index, responseData);
     if (response.statusCode == 200) {
-      if (data['result']['events'].isEmpty) {
-        GlobalToast(context, "No hay actualizaciones").displayToast();
+      if (responseData['result']['events'].isEmpty) {
+        GlobalToast.displayToast(context, "No hay actualizaciones");
       } else {
-        trackingDataUpdate(context, index, data);
-        GlobalToast(context, "Seguimiento actualizado").displayToast();
+        trackingDataUpdate(context, index, responseData['result']);
+        GlobalToast.displayToast(context, "Seguimiento actualizado");
       }
-    } else if (response.statusCode == 204) {
-      ShowDialog(context).trackingError(_trackings[index].service);
     } else {
-      ShowDialog(context).checkUpdateError();
+      if (response.body == "Server timeout") {
+        return DialogError.serverTimeout(context);
+      }
+      if (response.body.startsWith("error")) {
+        return DialogError.serverError(context);
+      }
+      if (responseData['error'] == "No data") {
+        return DialogError.trackingNoDataRemoved(context, tracking.service);
+      }
+      responseData['error']['body'] == "Service timeout"
+          ? DialogError.serviceTimeout(context, tracking.service)
+          : DialogError.startTrackingError(context);
     }
   }
 
   static void loadNotificationData(
       bool foreground, RemoteMessage message, BuildContext context) {
-    List<ItemTracking> _trackings =
+    List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     RemoteNotification notification = message.notification!;
     List<dynamic> response = json.decode(message.data['data']);
-
     late int index;
     for (var item in response) {
-      index = _trackings.indexWhere((t) => t.idMDB == item['idMDB']);
-      if (item['result']['lastEvent'] != _trackings[index].lastEvent) {
+      index = trackingsList.indexWhere((t) => t.idMDB == item['idMDB']);
+      if (item['result']['lastEvent'] != trackingsList[index].lastEvent) {
         trackingCheckUpdate(context, index, item);
         trackingDataUpdate(context, index, item);
       }
     }
     if (!foreground && response.length == 1) {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => TrackingDetail(_trackings[index])));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => TrackingDetail(trackingsList[index])));
     }
     if (foreground || !foreground && response.length > 1) {
       Provider.of<Status>(context, listen: false)
@@ -78,30 +87,33 @@ class TrackingFunctions {
 
   static void trackingCheckUpdate(
       BuildContext context, int index, dynamic itemDataTracking) {
-    List<ItemTracking> _trackings =
+    List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     String checkDate = itemDataTracking['checkDate'];
     String checkTime = itemDataTracking['checkTime'];
-    _trackings[index].lastCheck = '$checkDate - $checkTime';
+    trackingsList[index].lastCheck = '$checkDate - $checkTime';
   }
 
   static void trackingDataUpdate(
-      BuildContext context, int index, dynamic itemDataTracking) {
+      BuildContext context, int index, Map<String, dynamic> itemData) {
     StoredData storedData = StoredData();
-    List<ItemTracking> _trackings =
+    List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    ItemResponseData itemResponseData = Response.dataHandler(
-        itemDataTracking['service'], itemDataTracking, true);
-    List<Map<String, String>>? newEventList = _trackings[index].events!;
-    for (var event in itemResponseData.events!.reversed) {
-      newEventList.insert(0, event);
+    List<Map<String, String>> newEventList = trackingsList[index].events;
+    for (dynamic event in itemData['events'].reversed) {
+      newEventList.insert(0, Map<String, String>.from(event));
     }
-    _trackings[index].events = newEventList;
-    _trackings[index].lastEvent = itemDataTracking['result']['lastEvent'];
-    if (_trackings[index].service == 'DHL') {
-      _trackings[index].otherData![1] = itemResponseData.otherData![1]!;
+    trackingsList[index].events = newEventList;
+    trackingsList[index].lastEvent = itemData['lastEvent'];
+    if (itemData['moreData'] != null) {
+      for (Map<String, dynamic> element in itemData['moreData']) {
+        int dataIndex = trackingsList[index]
+            .moreData
+            .indexWhere((d) => d["title"] == element["title"]);
+        trackingsList[index].moreData[dataIndex]['data'] = element["data"];
+      }
     }
-    storedData.updateMainTracking(_trackings[index]);
+    storedData.updateMainTracking(trackingsList[index]);
   }
 
   static bool checkCompletedStatus(String service, String lastEvent) {
@@ -126,21 +138,18 @@ class TrackingFunctions {
   }
 
   static void syncronizeUserData(BuildContext context) async {
-    List<ItemTracking> _trackings =
+    List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     List<Object> lastEventsList = [];
-    if (_trackings.isNotEmpty) {
-      for (var element in _trackings) {
-        if (element.lastEvent == null) return;
+    if (trackingsList.isNotEmpty) {
+      for (ItemTracking tracking in trackingsList) {
         bool completedTracking =
-            checkCompletedStatus(element.service, element.lastEvent!);
+            checkCompletedStatus(tracking.service, tracking.lastEvent!);
         Object lastEvent = {
-          'idMDB': element.idMDB,
-          'eventDescription': element.lastEvent
+          'idMDB': tracking.idMDB,
+          'eventDescription': tracking.lastEvent
         };
-        if (element.idMDB != null &&
-            element.lastEvent != null &&
-            !completedTracking) {
+        if (tracking.idMDB != null && !completedTracking) {
           lastEventsList.add(lastEvent);
         }
       }
@@ -149,8 +158,9 @@ class TrackingFunctions {
     var now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
-        Provider.of<Preferences>(context, listen: false).gdStatus;
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+        Provider.of<UserPreferences>(context, listen: false).gdStatus;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'userId': _userId,
       'token': await FirebaseMessaging.instance.getToken(),
@@ -158,29 +168,29 @@ class TrackingFunctions {
       'currentDate':
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.0.5'
+      'version': '1.1.0'
     };
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
-    if (response is Map) return;
-    var decodedData = json.decode(response.body);
-    if (decodedData['error'] != null) {
+    if (response.body == "Server timeout" || response.statusCode == 500) return;
+    Map<String, dynamic> responseData = json.decode(response.body);
+    if (responseData['error'] != null) {
       return Provider.of<Status>(context, listen: false)
-          .setStartError(decodedData['error']);
+          .setStartError(responseData['error']);
     } else {
       Provider.of<Status>(context, listen: false).setStartError("");
     }
-    if (decodedData['driveStatus'] == "Update required" ||
-        decodedData['driveStatus'] == 'Backup not found') {
+    if (responseData['driveStatus'] == "Update required" ||
+        responseData['driveStatus'] == 'Backup not found') {
       await updateCreateDriveBackup(true, context);
     }
-    if (decodedData['data'].isEmpty) return;
+    if (responseData['data'].isEmpty) return;
     List<String> updatedItems = [];
-    for (var tDB in decodedData['data']) {
-      int index = _trackings.indexWhere((seg) => seg.idMDB == tDB['id']);
+    for (dynamic tDB in responseData['data']) {
+      int index = trackingsList.indexWhere((seg) => seg.idMDB == tDB['id']);
       trackingCheckUpdate(context, index, tDB);
       trackingDataUpdate(context, index, tDB);
-      String tracking = _trackings[index].title!;
+      String tracking = trackingsList[index].title!;
       updatedItems.add(tracking);
     }
     if (updatedItems.isNotEmpty) {
@@ -190,7 +200,7 @@ class TrackingFunctions {
         message = "Varios seguimientos actualizados";
       }
       Provider.of<Status>(context, listen: false)
-          .showNotificationOverlay("Datos syncronizados", message);
+          .showNotificationOverlay("Datos sincronizados", message);
     }
   }
 
@@ -198,11 +208,13 @@ class TrackingFunctions {
       bool background, BuildContext context) async {
     final Map<String, dynamic> databaseData =
         await StoredData().userBackupData();
-    String _userId = Provider.of<Preferences>(context, listen: false).userId;
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {'userId': _userId, 'userData': json.encode(databaseData)};
-    dynamic response =
+    Response response =
         await HttpRequestHandler.newRequest('/api/google/createUpdate', body);
-    if (response is Map) return;
+    if (response.body.isNotEmpty || json.decode(response.body)['error'] != null)
+      return;
     return background ? null : response;
   }
 }
