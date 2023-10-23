@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '_services.dart';
 
-class BalutExpress {
+class CooperativaSportman {
   List<Map<String, dynamic>> eventData(event) =>
       Services.eventServiceData("sisorg", event);
 
   static final Image serviceLogo =
-      Image.asset('assets/services/balut_express.png');
+      Image.asset('assets/services/cooperativa_sportman.png');
 
   Image get logo => serviceLogo;
 
@@ -16,20 +16,20 @@ class BalutExpress {
       {
         "type": "link",
         "title": "Contacto",
-        "data": "http://balutexpress.com.ar/#contact",
+        "data": "https://www.coopsportman.com/contacto",
       },
       {
-        "type": "whatsapp",
-        "title": "WhatsApp",
-        "data": "+5493886820299",
+        "type": "email",
+        "title": "Cargas",
+        "data": "cargas@coopsportman.com",
       },
     ],
-    "source": "https://balutexpress.com.ar/",
+    "source": "https://www.coopsportman.com/",
   };
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
-    "Balut Express",
-    "B0278-00026104",
+    "Cooperativa Sportman",
+    "R0035-00039276",
   );
 }

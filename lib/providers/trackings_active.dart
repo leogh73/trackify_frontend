@@ -7,10 +7,8 @@ import '../providers/classes.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
-import '../providers/http_request_handler.dart';
+import 'http_connection.dart';
 import '../providers/preferences.dart';
-
-import '../widgets/dialog_error.dart';
 
 class ActiveTrackings extends ChangeNotifier {
   StoredData storedData = StoredData();
@@ -86,13 +84,8 @@ class ActiveTrackings extends ChangeNotifier {
         Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {'trackingIds': json.encode(trackingIds)};
     Response response =
-        await HttpRequestHandler.newRequest('/api/user/$_userId/remove/', body);
-    if (response.body == "Server timeout") {
-      return DialogError.serverTimeout(context);
-    }
-    if (response.body.startsWith("error")) {
-      return DialogError.serverError(context);
-    }
+        await HttpConnection.requestHandler('/api/user/$_userId/remove/', body);
+    HttpConnection.responseHandler(response, context);
   }
 
   void editTracking(ItemTracking tracking) {

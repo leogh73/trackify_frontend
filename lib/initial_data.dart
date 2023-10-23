@@ -7,7 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-import 'providers/http_request_handler.dart';
+import 'providers/http_connection.dart';
 import 'providers/classes.dart';
 import 'database.dart';
 
@@ -55,17 +55,10 @@ class Init {
     return deviceToken;
   }
 
-  static Future<UserData> _loadNewUserData() async {
-    String? firebaseToken = await firebaseMessagingNotifications();
-    Response response = await HttpRequestHandler.newRequest(
-        '/api/user/initialize/', {'token': firebaseToken});
-    String userId = '';
-    if (response.body != "Server timeout" || response.body.startsWith('error')) {
-      userId = json.decode(response.body)['userId'] ?? '';
-    }
+  static Future<UserData> loadNewUserData() async {
     UserData startPreferences = UserData(
       id: 0,
-      userId: userId,
+      userId: '',
       color: "teal",
       view: "row",
       darkMode: false,
@@ -74,14 +67,21 @@ class Init {
       googleDriveStatus: false,
       premiumStatus: false,
     );
-    if (userId.isNotEmpty) storedData.loadStartPreferences(startPreferences);
+    String? firebaseToken = await firebaseMessagingNotifications();
+    if (firebaseToken == "BLACKLISTED") return startPreferences;
+    Response response = await HttpConnection.requestHandler(
+        '/api/user/initialize/', {'token': firebaseToken});
+    if (response.statusCode == 200) {
+      startPreferences.userId = json.decode(response.body)['userId'];
+      storedData.loadStartPreferences(startPreferences);
+    }
     return startPreferences;
   }
 
   static Future<StartData> loadStartData() async {
     List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
-      userPreferences = [await _loadNewUserData()];
+      userPreferences = [await loadNewUserData()];
     }
     List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
     List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();

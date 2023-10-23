@@ -74,16 +74,17 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     );
   }
 
-  void _editTracking(bool premiumUser) {
+  void renameTracking(bool premiumUser) {
     if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => FormAddEdit(
           code: '',
-          mercadoLibre: false,
+          mercadoLibre:
+              widget.tracking.service == "Mercado Libre" ? true : false,
           title: '',
-          edit: true,
+          rename: true,
           tracking: widget.tracking,
         ),
       ),
@@ -197,8 +198,8 @@ class _OptionsTrackingState extends State<OptionsTracking> {
               case 'Más datos':
                 seeMoreTrackingData(premiumUser);
                 break;
-              case 'Editar':
-                _editTracking(premiumUser);
+              case 'Renombrar':
+                renameTracking(premiumUser);
                 break;
               case 'Seleccionar':
                 toggleSelectionMode();
@@ -216,7 +217,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
               optionMenu('Detalles', Icons.info_outline),
             if (!widget.tracking.checkError!)
               optionMenu('Más datos', Icons.info),
-            optionMenu('Editar', Icons.edit),
+            optionMenu('Renombrar', Icons.edit),
             optionMenu('Seleccionar', Icons.select_all_sharp),
             if (!widget.tracking.checkError!)
               optionMenu("Archivar", Icons.archive),

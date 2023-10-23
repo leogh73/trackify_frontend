@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 
-import '../providers/http_request_handler.dart';
+import '../providers/http_connection.dart';
 import '../widgets/ad_native.dart';
 import 'dialog_error.dart';
 
@@ -72,24 +72,20 @@ class _MeLiCheckState extends State<MeLiCheck> {
       'httpHeaders': json.encode(httpHeaders)
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/mercadolibre/loadmore', body);
-    Map<String, String> fetchedData = json.decode(response.body);
+        await HttpConnection.requestHandler('/api/mercadolibre/loadmore', body);
+    dynamic responseData = HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
-      List<MeLiItemData> responseData = processMLData(fetchedData);
+      List<MeLiItemData> meliItems =
+          processMLData(responseData as List<dynamic>);
       setState(() {
-        for (var element in responseData) {
-          itemsList.add(element);
+        for (MeLiItemData item in meliItems) {
+          itemsList.add(item);
         }
         loadMore = false;
       });
     } else {
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
-      }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      DialogError.meLiCheckError(context);
+      if (responseData['errorDisplayed'] == false)
+        DialogError.meLiCheckError(context);
     }
   }
 
@@ -101,27 +97,23 @@ class _MeLiCheckState extends State<MeLiCheck> {
       'consultType': checkInput,
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/mercadolibre/consult', body);
-    Map<String, dynamic> fetchedData = json.decode(response.body);
+        await HttpConnection.requestHandler('/api/mercadolibre/consult', body);
+    Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
-      List<MeLiItemData> responseData =
-          processMLData(fetchedData['shippingsData']);
+      List<MeLiItemData> meliItems =
+          processMLData(responseData['shippingsData']);
       setState(() {
-        totalShippingsData = [...fetchedData['shippingsTotal']];
-        itemsList = responseData;
-        httpHeaders = fetchedData['httpHeaders'];
+        totalShippingsData = [...responseData['shippingsTotal']];
+        itemsList = meliItems;
+        httpHeaders = responseData['httpHeaders'];
       });
-      return responseData;
+      return meliItems;
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleMeLiErrorStatus(true);
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
-      }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      DialogError.meLiCheckError(context);
+      if (responseData['errorDisplayed'] == false)
+        DialogError.meLiCheckError(context);
     }
   }
 
@@ -259,9 +251,10 @@ class _MeLiCheckState extends State<MeLiCheck> {
   }
 }
 
-List<MeLiItemData> processMLData(dynamic fetchedData) {
+List<MeLiItemData> processMLData(fetchedData) {
   List<MeLiItemData> responseList = [];
   fetchedData.forEach((item) {
+    String shippingId = item['shippingId'];
     String title = item['title'];
     String code = item['code'] ?? 'Sin datos';
     List<String> items = [];
@@ -274,7 +267,15 @@ List<MeLiItemData> processMLData(dynamic fetchedData) {
       'name': item['destination']['name']
     };
     MeLiItemData newItem = MeLiItemData(
-        title, code, items, creationDate, lastUpdate, origin, destination);
+      shippingId,
+      title,
+      code,
+      items,
+      creationDate,
+      lastUpdate,
+      origin,
+      destination,
+    );
     responseList.add(newItem);
   });
 
@@ -282,6 +283,7 @@ List<MeLiItemData> processMLData(dynamic fetchedData) {
 }
 
 class MeLiItemData {
+  final String shippingId;
   final String title;
   final String code;
   final List<String> items;
@@ -290,6 +292,7 @@ class MeLiItemData {
   final String origin;
   final Map<dynamic, String> destination;
   MeLiItemData(
+    this.shippingId,
     this.title,
     this.code,
     this.items,

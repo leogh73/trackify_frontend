@@ -13,7 +13,7 @@ class DialogError {
   static void startTrackingError(BuildContext context) {
     ShowDialog.error(
       context,
-      "Ocurrió un error al obtener datos de éste seguimiento. Verifique el código ingresado o reintente más tarde.",
+      "Ocurrió un error al obtener datos de éste seguimiento. Verifique los datos ingresados o reintente más tarde.",
     );
   }
 
@@ -96,7 +96,7 @@ class DialogError {
 
   static void startError(BuildContext context, String type) {
     String message = '';
-    if (type == "User not created") {
+    if (type == "User not initialized") {
       message =
           "Ocurrió un error de conexión, debido al cual, la aplicación se instaló incorrectamente y no la podrá utilizar. Verifique su conexión a internet y reintente instalarla más tarde.";
     }

@@ -105,79 +105,81 @@ class _GoogleDriveState extends State<GoogleDrive> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (!premiumUser)
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(bottom: 8)),
-            if (isPortrait && !driveStatus)
-              Container(
-                padding: const EdgeInsets.only(right: 20, left: 25),
-                height: screenWidth * 0.6,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Icon(Icons.cloud_queue, size: 80),
-                    Text(
-                      description,
-                      maxLines: 7,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: fullHD ? 17 : 16,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (!premiumUser)
+                Padding(
+                    child: AdNative("medium"),
+                    padding: EdgeInsets.only(bottom: 8)),
+              if (isPortrait && !driveStatus)
+                Container(
+                  padding: const EdgeInsets.only(right: 20, left: 25),
+                  height: screenWidth * 0.6,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Icon(Icons.cloud_queue, size: 80),
+                      Text(
+                        description,
+                        maxLines: 7,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: fullHD ? 17 : 16,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            if (!isPortrait && !driveStatus)
-              Container(
-                padding: const EdgeInsets.only(
-                    right: 15, left: 20, top: 10, bottom: 5),
-                child: Row(
-                  children: [
-                    Container(
-                      child: const Icon(Icons.cloud_queue, size: 80),
-                      padding: const EdgeInsets.only(right: 10),
-                    ),
-                    const SizedBox(width: 25),
-                    Expanded(
-                      child: Container(
-                        child: screenText(description, fullHD),
-                        padding: const EdgeInsets.only(right: 20),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            driveStatus
-                ? errorCheckDrive
-                    ? DriveContent(
-                        context,
-                        false,
-                        'Error de consulta a GoogleDrive',
-                        'REINTENTAR',
-                        () =>
-                            Provider.of<UserPreferences>(context, listen: false)
-                                .toggleGDErrorStatus(false),
-                        null,
-                      )
-                    : GoogleDriveAccount()
-                : DriveContent(
-                    context,
-                    false,
-                    '',
-                    'INGRESAR',
-                    () => googleAccount("login", context),
-                    null,
+                    ],
                   ),
-            if (!premiumUser)
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 20, bottom: 8)),
-          ],
+                ),
+              if (!isPortrait && !driveStatus)
+                Container(
+                  padding: const EdgeInsets.only(
+                      right: 15, left: 20, top: 10, bottom: 5),
+                  child: Row(
+                    children: [
+                      Container(
+                        child: const Icon(Icons.cloud_queue, size: 80),
+                        padding: const EdgeInsets.only(right: 10),
+                      ),
+                      const SizedBox(width: 25),
+                      Expanded(
+                        child: Container(
+                          child: screenText(description, fullHD),
+                          padding: const EdgeInsets.only(right: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              driveStatus
+                  ? errorCheckDrive
+                      ? DriveContent(
+                          context,
+                          false,
+                          'Error de consulta a GoogleDrive',
+                          'REINTENTAR',
+                          () => Provider.of<UserPreferences>(context,
+                                  listen: false)
+                              .toggleGDErrorStatus(false),
+                          null,
+                        )
+                      : GoogleDriveAccount()
+                  : DriveContent(
+                      context,
+                      false,
+                      '',
+                      'INGRESAR',
+                      () => googleAccount("login", context),
+                      null,
+                    ),
+              if (!premiumUser)
+                Padding(
+                    child: AdNative("medium"),
+                    padding: EdgeInsets.only(top: 20, bottom: 8)),
+            ],
+          ),
         ),
       ),
     );

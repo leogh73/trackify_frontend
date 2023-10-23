@@ -16,20 +16,22 @@ import '../widgets/dialog_toast.dart';
 import '../widgets/ad_banner.dart';
 
 class FormAddEdit extends StatefulWidget {
-  final bool edit;
+  final bool rename;
   final ItemTracking? tracking;
   final bool mercadoLibre;
+  final String? shippingId;
   final String? title;
   final String? code;
 
-  const FormAddEdit(
-      {Key? key,
-      required this.edit,
-      this.tracking,
-      required this.mercadoLibre,
-      this.title,
-      this.code})
-      : super(key: key);
+  const FormAddEdit({
+    Key? key,
+    required this.rename,
+    this.tracking,
+    required this.mercadoLibre,
+    this.shippingId,
+    this.title,
+    this.code,
+  }) : super(key: key);
 
   @override
   _FormAddEditState createState() => _FormAddEditState();
@@ -40,15 +42,16 @@ final _formKey = GlobalKey<FormState>();
 class _FormAddEditState extends State<FormAddEdit> {
   AdInterstitial interstitialAd = AdInterstitial();
   ServiceItemModel? loadedService;
-
-  final List<ServiceItemModel> services = Services.itemModelList();
+  late List<ServiceItemModel> services;
+  late dynamic providerFunctions;
 
   @override
   void initState() {
     super.initState();
-    if (widget.edit == true) {
-      var widgetTitle = widget.tracking?.title;
-      var widgetCode = widget.tracking?.code;
+    services = Services.itemModelList(widget.mercadoLibre);
+    if (widget.rename == true) {
+      String? widgetTitle = widget.tracking?.title;
+      String? widgetCode = widget.tracking?.code;
       title.text = widgetTitle!;
       code.text = widgetCode!;
       int serviceIndex = services
@@ -56,11 +59,19 @@ class _FormAddEditState extends State<FormAddEdit> {
       loadedService = services[serviceIndex];
     } else if (widget.mercadoLibre == true) {
       title.text = widget.title!;
-      code.text = widget.code!;
-      Provider.of<Status>(context, listen: false).clearStartService();
+      code.text =
+          widget.code!.startsWith("MEL", 0) ? widget.shippingId! : widget.code!;
+      if (widget.code!.startsWith("MEL", 0)) {
+        loadedService = services[28];
+      } else {
+        Provider.of<Status>(context, listen: false).clearStartService();
+      }
     } else {
       Provider.of<Status>(context, listen: false).clearStartService();
     }
+    providerFunctions = widget.tracking?.archived == true
+        ? Provider.of<ArchivedTrackings>(context, listen: false)
+        : Provider.of<ActiveTrackings>(context, listen: false);
     interstitialAd.createInterstitialAd();
   }
 
@@ -74,38 +85,34 @@ class _FormAddEditState extends State<FormAddEdit> {
     code.dispose();
   }
 
-  void _pagePopMessage(context, edit) {
+  void _pagePopMessage(context, edit, premiumUser) {
     Navigator.pop(context);
     if (edit) {
       GlobalToast.displayToast(context, "Seguimiento editado");
     }
-  }
-
-  selectProvider(BuildContext context, String listView) {
-    if (listView == "main") {
-      return Provider.of<ActiveTrackings>(context, listen: false);
-    } else if (listView == "archived") {
-      return Provider.of<ArchivedTrackings>(context, listen: false);
+    if (widget.mercadoLibre && widget.rename == false) {
+      Navigator.pop(context);
     }
+    if (!premiumUser) interstitialAd.showInterstitialAd();
   }
 
-  void _addTracking(context, String? service) {
+  void _addTracking(context, service, premiumUser) {
     if (_formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
       final newTracking = Tracking(
         id: DateTime.now().millisecondsSinceEpoch,
         title: title.text,
-        code: code.text,
+        code: code.text.trim(),
         service: service,
       );
       Provider.of<ActiveTrackings>(context, listen: false)
           .addTracking(newTracking);
-      _pagePopMessage(context, widget.edit);
+      _pagePopMessage(context, widget.rename, premiumUser);
     }
   }
 
-  void _editTracking(context, service, listView) {
+  void _editTracking(context, service, listView, premiumUser) {
     if (_formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
@@ -119,8 +126,8 @@ class _FormAddEditState extends State<FormAddEdit> {
         moreData: [],
         lastEvent: "Sample",
       );
-      selectProvider(context, listView).editTracking(editedTracking);
-      _pagePopMessage(context, widget.edit);
+      providerFunctions.editTracking(editedTracking);
+      _pagePopMessage(context, widget.rename, premiumUser);
     }
   }
 
@@ -128,20 +135,23 @@ class _FormAddEditState extends State<FormAddEdit> {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
-    var listView = "main";
-    final String? service = Provider.of<Status>(context).chosenService;
+    String listView = "main";
+    final String? service =
+        loadedService?.chosen ?? Provider.of<Status>(context).chosenService;
     final String exampleCode = Provider.of<Status>(context).chosenServiceCode;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: widget.edit ? const Text('Editar') : const Text('Agregar'),
+        title: widget.rename ? const Text('Renombrar') : const Text('Agregar'),
         actions: [
           IconButton(
-            icon: widget.edit ? const Icon(Icons.save) : const Icon(Icons.add),
+            icon:
+                widget.rename ? const Icon(Icons.save) : const Icon(Icons.add),
             iconSize: 26,
-            onPressed: widget.edit
-                ? () => _editTracking(context, service, listView)
-                : () => _addTracking(context, widget.tracking?.service),
+            onPressed: widget.rename
+                ? () => _editTracking(context, service, listView, premiumUser)
+                : () => _addTracking(
+                    context, widget.tracking?.service, premiumUser),
           ),
         ],
       ),
@@ -168,14 +178,21 @@ class _FormAddEditState extends State<FormAddEdit> {
                             preLoadedService: loadedService,
                             chosen: false,
                             optionWidth: 200,
+                            mercadoLibre: widget.mercadoLibre,
                           ),
                           // SelectService(),
                         ),
                       ],
                     ),
+                    if (!premiumUser)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: AdNative("small"),
+                      ),
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: TextFormField(
+                        readOnly: widget.rename,
                         focusNode: FocusNode(),
                         decoration: InputDecoration(
                           labelText: "Código",
@@ -198,13 +215,18 @@ class _FormAddEditState extends State<FormAddEdit> {
                       child: TextFormField(
                         decoration: const InputDecoration(
                           contentPadding: EdgeInsets.only(top: 5),
-                          labelText: "Descripción (opcional)",
+                          labelText: "Título (opcional)",
                           hintText: "Ejemplo: Celular",
                         ),
                         controller: title,
                         textInputAction: TextInputAction.next,
                       ),
                     ),
+                    if (!premiumUser)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: AdNative("small"),
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(top: 15, left: 7),
                       child: Container(
@@ -220,6 +242,8 @@ class _FormAddEditState extends State<FormAddEdit> {
                                   style: TextStyle(fontSize: 17),
                                 ),
                                 onPressed: () {
+                                  if (!premiumUser)
+                                    interstitialAd.showInterstitialAd();
                                   Navigator.pop(context);
                                 },
                               ),
@@ -230,13 +254,14 @@ class _FormAddEditState extends State<FormAddEdit> {
                               height: 39,
                               child: ElevatedButton(
                                 child: Text(
-                                  widget.edit ? 'Guardar' : 'Agregar',
+                                  widget.rename ? 'Guardar' : 'Agregar',
                                   style: const TextStyle(fontSize: 17),
                                 ),
-                                onPressed: widget.edit
+                                onPressed: widget.rename
                                     ? () => _editTracking(
-                                        context, service, listView)
-                                    : () => _addTracking(context, service),
+                                        context, service, listView, premiumUser)
+                                    : () => _addTracking(
+                                        context, service, premiumUser),
                               ),
                             ),
                           ],
@@ -262,11 +287,13 @@ class SelectService extends StatefulWidget {
   final ServiceItemModel? preLoadedService;
   final double? optionWidth;
   final bool? chosen;
+  final bool? mercadoLibre;
   const SelectService({
     Key? key,
     this.preLoadedService,
     this.optionWidth,
     this.chosen,
+    this.mercadoLibre,
   }) : super(key: key);
 
   @override
@@ -284,7 +311,8 @@ class _SelectServiceState extends State<SelectService> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ServiceItemModel> services = Services.itemModelList();
+    final List<ServiceItemModel> services =
+        Services.itemModelList(widget.mercadoLibre!);
     return DropdownButton<ServiceItemModel>(
       borderRadius: BorderRadius.all(Radius.circular(10)),
       elevation: 4,
@@ -307,15 +335,17 @@ class _SelectServiceState extends State<SelectService> {
       iconEnabledColor: Theme.of(context).primaryColor,
       value: loadedService,
       underline: Container(),
-      onChanged: (ServiceItemModel? service) {
-        setState(() {
-          loadedService = service!;
-        });
-        if (widget.chosen == false) {
-          Provider.of<Status>(context, listen: false)
-              .loadService(service!, context);
-        }
-      },
+      onChanged: widget.preLoadedService != null
+          ? null
+          : (ServiceItemModel? service) {
+              setState(() {
+                loadedService = service!;
+              });
+              if (widget.chosen == false) {
+                Provider.of<Status>(context, listen: false)
+                    .loadService(service!, context);
+              }
+            },
       items: services
           .map<DropdownMenuItem<ServiceItemModel>>((ServiceItemModel service) {
         return DropdownMenuItem<ServiceItemModel>(

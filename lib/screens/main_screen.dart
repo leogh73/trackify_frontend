@@ -39,12 +39,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      String error = Provider.of<Status>(context, listen: false).getStartError;
-      if (error.isNotEmpty) {
-        DialogError.startError(context, error);
-      }
-    });
+    Future.delayed(
+      const Duration(seconds: 3),
+      () {
+        String error =
+            Provider.of<Status>(context, listen: false).getStartError;
+        if (error.isNotEmpty) {
+          DialogError.startError(context, error);
+        }
+      },
+    );
     mainInterstitialAd.createInterstitialAd();
     drawerInterstitialAd1.createInterstitialAd();
     drawerInterstitialAd2.createInterstitialAd();
@@ -201,7 +205,7 @@ class AddTracking extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => const FormAddEdit(
-          edit: false,
+          rename: false,
           mercadoLibre: false,
         ),
       ),

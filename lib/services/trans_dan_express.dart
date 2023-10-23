@@ -1,35 +1,34 @@
 import 'package:flutter/material.dart';
-
 import '_services.dart';
 
-class BalutExpress {
+class TransDanExpress {
   List<Map<String, dynamic>> eventData(event) =>
-      Services.eventServiceData("sisorg", event);
+      Services.eventServiceData("cristal", event);
 
   static final Image serviceLogo =
-      Image.asset('assets/services/balut_express.png');
+      Image.asset('assets/services/trans_dan_express.png');
 
   Image get logo => serviceLogo;
 
   final Map<String, dynamic> contactData = {
     "contact": [
       {
-        "type": "link",
-        "title": "Contacto",
-        "data": "http://balutexpress.com.ar/#contact",
-      },
-      {
         "type": "whatsapp",
         "title": "WhatsApp",
-        "data": "+5493886820299",
+        "data": "+5491133401759",
+      },
+      {
+        "type": "link",
+        "title": "Contacto",
+        "data": "https://transdanexpress.com/#contacto",
       },
     ],
-    "source": "https://balutexpress.com.ar/",
+    "source": "https://transdanexpress.com/",
   };
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
-    "Balut Express",
-    "B0278-00026104",
+    "Trans Dan Express",
+    "00065-000004273-U",
   );
 }

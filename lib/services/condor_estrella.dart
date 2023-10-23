@@ -1,36 +1,18 @@
 import 'package:flutter/material.dart';
-import '../services/_services.dart';
+
+import '_services.dart';
 
 class CondorEstrella {
-  List<Map<String, dynamic>> eventData(event) {
-    return [
-      {
-        "icon": const Icon(Icons.local_shipping, size: 20),
-        "text": event['status']!
-      },
-    ];
-  }
+  List<Map<String, dynamic>> eventData(event) =>
+      Services.eventServiceData("plusmar", event);
 
   static final Image serviceLogo =
       Image.asset('assets/services/condor_entrella.png');
 
   Image get logo => serviceLogo;
 
-  final Map<String, dynamic> contactData = {
-    "contact": [
-      {
-        "type": "phone",
-        "title": "Atención al cliente",
-        "data": "0800-666-2993",
-      },
-      {
-        "type": "email",
-        "title": "Correo electrónico",
-        "data": "atencionalcliente@plusmar.com.ar",
-      },
-    ],
-    "source": "https://www.plusmar.com.ar/servicio-de-encomiendas.html",
-  };
+  Map<String, dynamic> get contactData =>
+      Services.contactServiceData("Plusmar");
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,

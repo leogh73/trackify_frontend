@@ -4,7 +4,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 import 'package:http/http.dart';
 
-import '../providers/http_request_handler.dart';
+import 'http_connection.dart';
 import '../providers/preferences.dart';
 
 import '../database.dart';
@@ -23,7 +23,6 @@ class Status with ChangeNotifier {
 
   void setStartError(String newError) {
     startError = newError;
-    notifyListeners();
   }
 
   late List<String> recentSearch;
@@ -32,7 +31,7 @@ class Status with ChangeNotifier {
     recentSearch = [...startData.searchHistory];
   }
 
-  late String? loadedService;
+  String? loadedService;
   String? get chosenService => loadedService;
   String exampleCode = "Seleccione un servicio";
   String get chosenServiceCode => exampleCode;
@@ -241,7 +240,7 @@ class Status with ChangeNotifier {
       'backupId': id,
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/google/remove/', body);
+        await HttpConnection.requestHandler('/api/googledrive/remove/', body);
     if (response.statusCode == 200) {
       int index = googleBackups.indexWhere((backup) => backup['id'] == id);
       googleBackups.removeAt(index);
@@ -258,13 +257,10 @@ class Status with ChangeNotifier {
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
-      }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      DialogError.googleDriveError(context);
+      Map<String, dynamic> responseData =
+          HttpConnection.responseHandler(response, context);
+      if (responseData['errorDisplayed'] == false)
+        DialogError.googleDriveError(context);
     }
     toggleGoogleProcess(false);
   }

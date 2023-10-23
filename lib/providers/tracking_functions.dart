@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:timezone/standalone.dart' as tz;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:provider/provider.dart';
-import 'package:trackify/widgets/dialog_error.dart';
-import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
-import '../providers/http_request_handler.dart';
+import 'dart:async';
+import 'dart:convert';
+
+import '../widgets/dialog_error.dart';
+import 'http_connection.dart';
 import '../providers/preferences.dart';
 
 import '../database.dart';
@@ -32,61 +34,60 @@ class TrackingFunctions {
       'userId': _userId,
       'trackingData': json.encode(tracking.toMap())
     };
+    await HttpConnection.awakeAPIs();
     Response response =
-        await HttpRequestHandler.newRequest('/api/user/check/', body);
-    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    Map<String, dynamic> responseData = json.decode(response.body);
+        await HttpConnection.requestHandler('/api/user/check/', body);
+    Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
+    if (response.statusCode == 500) {
+      if (responseData['error'] == "No data") {
+        DialogError.trackingNoDataRemoved(context, tracking.service);
+      }
+      if (responseData['result']['error']['body'] == "Service timeout") {
+        DialogError.serviceTimeout(context, tracking.service);
+      }
+      return;
+    }
     int index = trackingsList.indexWhere((t) => t.idMDB == tracking.idMDB);
     trackingCheckUpdate(context, index, responseData);
-    if (response.statusCode == 200) {
-      if (responseData['result']['events'].isEmpty) {
-        GlobalToast.displayToast(context, "No hay actualizaciones");
-      } else {
-        trackingDataUpdate(context, index, responseData['result']);
-        GlobalToast.displayToast(context, "Seguimiento actualizado");
-      }
+    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
+    if (responseData['result']['events'].isEmpty) {
+      GlobalToast.displayToast(context, "No hay actualizaciones");
     } else {
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
-      }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      if (responseData['error'] == "No data") {
-        return DialogError.trackingNoDataRemoved(context, tracking.service);
-      }
-      responseData['error']['body'] == "Service timeout"
-          ? DialogError.serviceTimeout(context, tracking.service)
-          : DialogError.startTrackingError(context);
+      trackingDataUpdate(context, index, responseData['result']);
+      GlobalToast.displayToast(context, "Seguimiento actualizado");
     }
   }
 
   static void loadNotificationData(
-      bool foreground, RemoteMessage message, BuildContext context) {
+    bool foreground,
+    RemoteMessage message,
+    BuildContext context,
+  ) {
     List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     RemoteNotification notification = message.notification!;
-    List<dynamic> response = json.decode(message.data['data']);
+    List<dynamic> responseData = json.decode(message.data['data']);
     late int index;
-    for (var item in response) {
+    for (dynamic item in responseData) {
       index = trackingsList.indexWhere((t) => t.idMDB == item['idMDB']);
       if (item['result']['lastEvent'] != trackingsList[index].lastEvent) {
         trackingCheckUpdate(context, index, item);
-        trackingDataUpdate(context, index, item);
+        trackingDataUpdate(context, index, item['result']);
       }
     }
-    if (!foreground && response.length == 1) {
+    if (!foreground && responseData.length == 1) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => TrackingDetail(trackingsList[index])));
     }
-    if (foreground || !foreground && response.length > 1) {
+    if (foreground || !foreground && responseData.length > 1) {
       Provider.of<Status>(context, listen: false)
           .showNotificationOverlay(notification.title!, notification.body!);
     }
   }
 
   static void trackingCheckUpdate(
-      BuildContext context, int index, dynamic itemDataTracking) {
+      BuildContext context, int index, Map<String, dynamic> itemDataTracking) {
     List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     String checkDate = itemDataTracking['checkDate'];
@@ -118,20 +119,37 @@ class TrackingFunctions {
 
   static bool checkCompletedStatus(String service, String lastEvent) {
     List<String> words = [
-      'entregado',
-      'entregada',
+      "entregado",
+      "entregada",
       'entregamos',
       'devuelto',
       'entrega en',
       'devolución',
+      'devuelto',
       'rehusado',
+      "decomisado",
+      "descomisado",
+      "retenido",
+      "incautado",
       'no pudo ser retirado',
       'entrega en sucursal',
     ];
+    List<String> notWords = [
+      'no entregada',
+      'no entregado',
+      'no fue entregado',
+      'no fue entregada',
+    ];
+    String lCLastEvent = lastEvent.toLowerCase();
     bool status = false;
-    for (var w in words) {
-      if (!status && lastEvent.toLowerCase().contains(w)) {
+    for (String w in words) {
+      if (lCLastEvent.contains(w)) {
         status = true;
+      }
+    }
+    for (String w in notWords) {
+      if (status && lCLastEvent.contains(w)) {
+        status = false;
       }
     }
     return status;
@@ -154,8 +172,8 @@ class TrackingFunctions {
         }
       }
     }
-    // if (lastEventsList.isEmpty) return;
-    var now =
+    if (lastEventsList.isEmpty) return;
+    tz.TZDateTime now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
@@ -171,12 +189,12 @@ class TrackingFunctions {
       'version': '1.1.0'
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/user/syncronize/', body);
-    if (response.body == "Server timeout" || response.statusCode == 500) return;
+        await HttpConnection.requestHandler('/api/user/syncronize/', body);
+    if (response.statusCode != 200) return;
     Map<String, dynamic> responseData = json.decode(response.body);
-    if (responseData['error'] != null) {
+    if (responseData['syncError'] != null) {
       return Provider.of<Status>(context, listen: false)
-          .setStartError(responseData['error']);
+          .setStartError(responseData['syncError']);
     } else {
       Provider.of<Status>(context, listen: false).setStartError("");
     }
@@ -189,7 +207,7 @@ class TrackingFunctions {
     for (dynamic tDB in responseData['data']) {
       int index = trackingsList.indexWhere((seg) => seg.idMDB == tDB['id']);
       trackingCheckUpdate(context, index, tDB);
-      trackingDataUpdate(context, index, tDB);
+      trackingDataUpdate(context, index, tDB['result']);
       String tracking = trackingsList[index].title!;
       updatedItems.add(tracking);
     }
@@ -211,10 +229,11 @@ class TrackingFunctions {
     String _userId =
         Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {'userId': _userId, 'userData': json.encode(databaseData)};
-    Response response =
-        await HttpRequestHandler.newRequest('/api/google/createUpdate', body);
-    if (response.body.isNotEmpty || json.decode(response.body)['error'] != null)
-      return;
+    Response response = await HttpConnection.requestHandler(
+        '/api/googledrive/createUpdate', body);
+    Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
+    if (responseData['error'] != null) return;
     return background ? null : response;
   }
 }

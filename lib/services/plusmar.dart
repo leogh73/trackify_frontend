@@ -15,21 +15,8 @@ class Plusmar {
 
   Image get logo => serviceLogo;
 
-  final Map<String, dynamic> contactData = {
-    "contact": [
-      {
-        "type": "phone",
-        "title": "Atención al cliente",
-        "data": "0800-666-2993",
-      },
-      {
-        "type": "email",
-        "title": "Correo electrónico",
-        "data": "atencionalcliente@plusmar.com.ar",
-      },
-    ],
-    "source": "https://www.plusmar.com.ar/servicio-de-encomiendas.html",
-  };
+  Map<String, dynamic> get contactData =>
+      Services.contactServiceData("Plusmar");
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,

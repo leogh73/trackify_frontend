@@ -5,7 +5,7 @@ import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../database.dart';
 import '../providers/classes.dart';
-import '../providers/http_request_handler.dart';
+import '../providers/http_connection.dart';
 import '../widgets/ad_native.dart';
 
 import '../providers/preferences.dart';
@@ -58,8 +58,7 @@ class _FormContactState extends State<FormContact> {
         'email': requestEmail,
       };
       Response response =
-          await HttpRequestHandler.newRequest('/api/user/contact/', body);
-
+          await HttpConnection.requestHandler('/api/user/contact/', body);
       if (response.statusCode == 200) {
         setState(() {
           index = 1;
@@ -72,12 +71,6 @@ class _FormContactState extends State<FormContact> {
         setState(() {
           index = 3;
         });
-        if (response.body == "Server timeout") {
-          return DialogError.serverTimeout(context);
-        }
-        if (response.body.startsWith("error")) {
-          return DialogError.serverError(context);
-        }
       }
       Navigator.pop(context);
     }

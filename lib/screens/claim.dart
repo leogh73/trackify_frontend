@@ -139,7 +139,7 @@ class _ClaimState extends State<Claim> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ServiceItemModel> services = Services.itemModelList();
+    final List<ServiceItemModel> services = Services.itemModelList(true);
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
     final bool fullHD = MediaQuery.of(context).size.width *

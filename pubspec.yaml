@@ -91,6 +91,12 @@ flutter:
   assets:
     - .env
     - assets/icon/icon.png
+    - assets/listView/row.png
+    - assets/listView/card.png
+    - assets/listView/grid.png
+    - assets/other/googledrive.png
+    - assets/other/mercadolibre.png
+
     - assets/services/andesmar_cargas.png
     - assets/services/andreani.png
     - assets/services/arg_cargo.png
@@ -101,54 +107,40 @@ flutter:
     - assets/services/clicoh.png
     - assets/services/clicpaq.png
     - assets/services/condor_entrella.png
+    - assets/services/cooperativa_sportman.png
     - assets/services/correo_argentino.png
     - assets/services/credifin_logistica.png
     - assets/services/crucero_express.png
     - assets/services/cruz_del_sur.png
     - assets/services/dhl.png
-    - assets/services/distribucion_y_logistica.png
     - assets/services/ecapack.png
+    - assets/services/el_practico_pack.png
     - assets/services/el_turista_pack.png
     - assets/services/encotrans_express.png
     - assets/services/enviopack.png
     - assets/services/epsa.png
-    - assets/services/expreso_bibiloni.jpg
-    - assets/services/expreso_bisonte.png
-    - assets/services/expreso_interprovincial.png
     - assets/services/expreso_lancioni.png
-    - assets/services/expreso_lo_bruno.png
-    - assets/services/expreso_maipu.png
-    - assets/services/expreso_oro_negro.png
-    - assets/services/expreso_rocinante.png
+    - assets/services/expreso_malargue.png
     - assets/services/fasttrack.png
-    - assets/services/ferrocargas_del_sur.png
     - assets/services/fono_pack.png
-    - assets/services/jetmar.png
     - assets/services/integral_pack.png
-    - assets/services/la_veloz_pack.png
-    - assets/services/logistica_salta.png
+    - assets/services/jetmar.png
     - assets/services/md_cargas.png
+    - assets/services/nandupack.png
     - assets/services/oca.png
     - assets/services/ocasa.png
     - assets/services/pickit.png
     - assets/services/plusmar.png
     - assets/services/pulqui_pack.png
+    - assets/services/rabbione.png
+    - assets/services/renaper.png
+    - assets/services/rodriguez_hermanos_transportes.png
     - assets/services/ruta_cargo.png
     - assets/services/sendbox.png
-    - assets/services/serpaq.png
     - assets/services/south_post.png
-    - assets/services/rodriguez_hermanos_transportes.png
-    - assets/services/transporte_pico.png
-    - assets/services/transportes_nandubay.png
-    - assets/services/transportes_tomassini.png
-    - assets/services/trenque_lauquen_expreso.png
+    - assets/services/trans_dan_express.png
     - assets/services/urbano.png
     - assets/services/via_cargo.png
-    - assets/listView/row.png
-    - assets/listView/card.png
-    - assets/listView/grid.png
-    - assets/other/googledrive.png
-    - assets/other/mercadolibre.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

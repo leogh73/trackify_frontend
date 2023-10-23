@@ -114,6 +114,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   AdInterstitial? interstitialAd = AdInterstitial();
+  late String userId;
 
   void firebaseSettings(context) async {
     FirebaseMessaging.instance.onTokenRefresh.listen((String newToken) {
@@ -141,17 +142,18 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   void syncData(BuildContext context) async {
-    Future.delayed(
-      const Duration(seconds: 2),
-      () => TrackingFunctions.syncronizeUserData(context),
-    );
+    Future.delayed(const Duration(seconds: 2), () {
+      TrackingFunctions.syncronizeUserData(context);
+    });
   }
 
   void listenToAppStateChanges() {
     AppStateEventNotifier.startListening();
     AppStateEventNotifier.appStateStream.forEach(
-      (state) => {
-        if (state == AppState.foreground) syncData(context),
+      (state) {
+        if (state == AppState.foreground) {
+          syncData(context);
+        }
       },
     );
   }
@@ -160,10 +162,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    userId = Provider.of<UserPreferences>(context, listen: false).userId;
     if (userId.isEmpty) {
       Provider.of<Status>(context, listen: false)
-          .setStartError('User not created');
+          .setStartError('User not initialized');
     }
     firebaseSettings(context);
     syncData(context);
@@ -186,8 +188,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     interstitialAd = premiumUser ? null : interstitialAd;
     final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     final bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
-    final String userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: mainColor,
       padding: const EdgeInsets.symmetric(horizontal: 16),

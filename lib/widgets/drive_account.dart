@@ -7,7 +7,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../database.dart';
-import '../providers/http_request_handler.dart';
+import '../providers/http_connection.dart';
 import '../providers/tracking_functions.dart';
 import '../providers/status.dart';
 import '../providers/preferences.dart';
@@ -44,19 +44,16 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       'userId': _userId,
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/google/consult', body);
+        await HttpConnection.requestHandler('/api/googledrive/consult', body);
     if (response.statusCode == 200) {
       return loadFetchedData(response, true);
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
-      }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      DialogError.googleDriveError(context);
+      Map<String, dynamic> responseData =
+          HttpConnection.responseHandler(response, context);
+      if (responseData['errorDisplayed'] == false)
+        DialogError.googleDriveError(context);
     }
   }
 

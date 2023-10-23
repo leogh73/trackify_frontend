@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../services/_services.dart';
+
+import '_services.dart';
 
 class IntegralPack {
   List<Map<String, dynamic>> eventData(event) {
     return [
-      {"icon": Icons.place, "text": event['location']!},
-      {"icon": Icons.local_shipping, "text": event['branch']!},
-      {"icon": Icons.description, "text": event['description']!},
+      {"icon": Icons.place, "text": event['location']},
+      {"icon": Icons.location_city, "text": event['branch']},
+      {"icon": Icons.local_shipping, "text": event['description']},
     ];
   }
 
@@ -34,6 +35,6 @@ class IntegralPack {
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
     "Integral Pack",
-    "7082-B-253377",
+    "7982-B-253377",
   );
 }

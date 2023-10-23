@@ -273,7 +273,7 @@ class ViewGrid {
                                   child: tracking.checkError!
                                       ? const Text("Sin datos")
                                       : Text(
-                                          tracking.lastEvent!,
+                                          tracking.lastEvent!.split(" - ").last,
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 2,
                                           style: TextStyle(

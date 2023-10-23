@@ -2,30 +2,34 @@ import 'package:flutter/material.dart';
 
 import '_services.dart';
 
-class RodriguezHermanosTransportes {
+class ExpresoMalargue {
   List<Map<String, dynamic>> eventData(event) =>
       Services.eventServiceData("cristal", event);
 
   static final Image serviceLogo =
-      Image.asset('assets/services/rodriguez_hermanos_transportes.png');
+      Image.asset('assets/services/expreso_malargue.png');
 
   Image get logo => serviceLogo;
 
-  Map<String, dynamic> contactData = {
+  final Map<String, dynamic> contactData = {
     "contact": [
+      {
+        "type": "whatsapp",
+        "title": "WhatsApp",
+        "data": "+5491163622778",
+      },
       {
         "type": "phone",
         "title": "Teléfono",
-        "data": "0341-4582986",
-      }
+        "data": "0810-112-2020",
+      },
     ],
-    "source":
-        "https://ar.todosnegocios.com/rodriguez-hnos-transportes-s-a-0341-458-2986",
+    "source": "https://expresomalargue.com.ar/",
   };
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
-    "Rodríguez Hermanos Transportes",
-    "00021-0000183489-U",
+    "Expreso Malargïe",
+    "0002-000000084478-U",
   );
 }

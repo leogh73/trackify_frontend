@@ -86,8 +86,9 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => FormAddEdit(
-                                edit: false,
+                                rename: false,
                                 mercadoLibre: true,
+                                shippingId: widget.itemML.shippingId,
                                 title: widget.itemML.title,
                                 code: widget.itemML.code,
                                 tracking: ItemTracking(

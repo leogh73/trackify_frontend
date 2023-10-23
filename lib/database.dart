@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:sembast/sembast.dart';
@@ -11,9 +10,7 @@ import 'package:http/http.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 import '../providers/classes.dart';
-import '../providers/http_request_handler.dart';
-
-import 'widgets/dialog_error.dart';
+import 'providers/http_connection.dart';
 
 class AppDatabase {
   static Future<Database> get database async {
@@ -134,32 +131,28 @@ class StoredData {
       'backupId': backupId,
     };
     Response response =
-        await HttpRequestHandler.newRequest('/api/google/restore/', body);
-    if (response.body == "Server timeout") {
-      return DialogError.serverTimeout(context);
-    }
-    if (json.decode(response.body)['error'] != null) {
-      return DialogError.serverError(context);
-    }
+        await HttpConnection.requestHandler('/api/googledrive/restore/', body);
+    Map<String, dynamic> backupData =
+        HttpConnection.responseHandler(response, context);
+    if (backupData['errorDisplayed'] == true) return;
     await reCreate();
-    Map<String, dynamic>? backupData = json.decode(response.body);
     UserData backupPreferences = UserData.fromMap(
-        backupData?['preferences']['id'],
-        backupData?['preferences'] as Map<String, dynamic>);
+        backupData['preferences']['id'],
+        backupData['preferences'] as Map<String, dynamic>);
     UserData newUserData = backupPreferences.edit(
       id: userPreferences.id,
       userId: userPreferences.userId,
     );
     StoredData().updatePreferences(newUserData);
     List<ItemTracking> activeTrackings =
-        (backupData?['activeTrackings'] as List<dynamic>)
+        (backupData['activeTrackings'] as List<dynamic>)
             .map((t) => ItemTracking.fromMap(t['idSB'], t))
             .toList();
     for (ItemTracking tracking in activeTrackings) {
       StoredData().newMainTracking(tracking);
     }
     List<ItemTracking> archivedTrackings =
-        (backupData?['archivedTrackings'] as List<dynamic>)
+        (backupData['archivedTrackings'] as List<dynamic>)
             .map((t) => ItemTracking.fromMap(t['idSB'], t))
             .toList();
     for (ItemTracking tracking in archivedTrackings) {

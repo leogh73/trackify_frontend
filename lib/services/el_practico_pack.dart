@@ -2,34 +2,29 @@ import 'package:flutter/material.dart';
 
 import '_services.dart';
 
-class BalutExpress {
+class ElPracticoPack {
   List<Map<String, dynamic>> eventData(event) =>
       Services.eventServiceData("sisorg", event);
 
   static final Image serviceLogo =
-      Image.asset('assets/services/balut_express.png');
+      Image.asset('assets/services/el_practico_pack.png');
 
   Image get logo => serviceLogo;
 
   final Map<String, dynamic> contactData = {
     "contact": [
       {
-        "type": "link",
-        "title": "Contacto",
-        "data": "http://balutexpress.com.ar/#contact",
-      },
-      {
-        "type": "whatsapp",
-        "title": "WhatsApp",
-        "data": "+5493886820299",
+        "type": "email",
+        "title": "Reclamos",
+        "data": "info@elpractico.com",
       },
     ],
-    "source": "https://balutexpress.com.ar/",
+    "source": "https://www.elpractico.com/encomiendas/",
   };
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
-    "Balut Express",
+    "El Práctico Pack",
     "B0278-00026104",
   );
 }

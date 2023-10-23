@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/providers/http_connection.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 import 'package:http/http.dart';
 import 'package:trackify/widgets/tracking_item.dart';
 
-import '../providers/http_request_handler.dart';
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/preferences.dart';
@@ -24,14 +22,13 @@ class TrackingData {
       'service': tracking.service,
       'code': tracking.code.trim(),
     };
+    await HttpConnection.awakeAPIs();
     Response response =
-        await HttpRequestHandler.newRequest('/api/user/$userId/add', body);
-    // Response response = await HttpRequestHandler.newRequest('/api/dev/2', body);
-    if (response.body == "Server timeout") {
-      return DialogError.serverTimeout(context);
-    }
-    Map<String, dynamic> responseData = json.decode(response.body);
-    if (responseData['error'] == null) {
+        await HttpConnection.requestHandler('/api/user/$userId/add', body);
+    // Response response = await HttpConnection.requestHandler('/api/dev/2', body);
+    Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
+    if (response.statusCode == 200) {
       Provider.of<ActiveTrackings>(context, listen: false)
           .loadStartData(context, tracking, responseData);
       GlobalToast.displayToast(context, "Seguimiento agregado");
@@ -44,9 +41,13 @@ class TrackingData {
       DialogError.trackingNoData(context, tracking.service);
       return;
     }
-    responseData['error']['body'] == "Service timeout"
-        ? DialogError.serviceTimeout(context, tracking.service)
-        : DialogError.startTrackingError(context);
+    if (responseData['error'] is String == false) {
+      if (responseData['error']['body'] == "Service timeout") {
+        DialogError.serviceTimeout(context, tracking.service);
+      } else {
+        DialogError.startTrackingError(context);
+      }
+    }
     tracking.checkError = true;
     return tracking;
   }

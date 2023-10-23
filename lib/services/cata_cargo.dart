@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import '../services/_services.dart';
+
+import '_services.dart';
 
 class CataCargo {
-  List<Map<String, dynamic>> eventData(event) {
-    return [
-      {"icon": Icons.local_shipping, "text": event['description']!},
-    ];
-  }
+  List<Map<String, dynamic>> eventData(event) =>
+      Services.eventServiceData("sisorg", event);
 
   static final Image serviceLogo =
       Image.asset('assets/services/cata_cargo.png');
