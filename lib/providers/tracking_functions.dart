@@ -201,7 +201,8 @@ class TrackingFunctions {
         Provider.of<UserPreferences>(context, listen: false);
     final String statusMessage = preferencesProvider.getStatusMessage;
     final bool showAgainStatusMessage = preferencesProvider.showMessageAgain;
-    if (statusMessage != responseData['statusMessage']) {
+    if (statusMessage != responseData['statusMessage'] &&
+        responseData['statusMessage'].isNotEmpty) {
       preferencesProvider.setStatusMessage(responseData['statusMessage']);
       preferencesProvider.setShowMessageAgain(true);
       DialogError.statusMessage(context, responseData['statusMessage']);
