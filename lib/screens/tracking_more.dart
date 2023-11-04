@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:trackify/widgets/ad_banner.dart';
 
-import '../providers/preferences.dart';
+import '../widgets/ad_banner.dart';
 import '../widgets/ad_native.dart';
 
 class TrackingMore extends StatelessWidget {
@@ -11,8 +9,6 @@ class TrackingMore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -26,22 +22,20 @@ class TrackingMore extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
-                        padding: EdgeInsets.only(top: 10, bottom: 60),
-                      ),
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 10, bottom: 60),
+                    ),
                     Center(
                       child: Text(
                         'No hay más datos',
                         style: TextStyle(fontSize: 24),
                       ),
                     ),
-                    if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
-                        padding: EdgeInsets.only(top: 60, bottom: 10),
-                      )
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 60, bottom: 10),
+                    )
                   ],
                 ),
               ),
@@ -51,77 +45,80 @@ class TrackingMore extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Column(
                   children: [
-                    if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
-                        padding: EdgeInsets.only(bottom: 8),
-                      ),
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(bottom: 8),
+                    ),
                     ...moreDataList
                         .map(
-                          (moreData) => Padding(
-                            padding: const EdgeInsets.only(
-                                right: 8, left: 8, bottom: 8),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Theme.of(context).primaryColor,
-                                    width: 2),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(12.0),
-                                ),
-                              ),
-                              // margin: EdgeInsets.only(bottom: 4, top: ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                          (moreData) => Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    right: 8, left: 8, bottom: 8),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Theme.of(context).primaryColor,
+                                        width: 2),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(12.0),
+                                    ),
+                                  ),
+                                  // margin: EdgeInsets.only(bottom: 4, top: ),
+                                  child: Column(
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.only(top: 12),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          moreData['title'],
-                                          maxLines: 3,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: fullHD ? 16 : 15,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Container(
+                                            padding:
+                                                const EdgeInsets.only(top: 12),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              moreData['title'],
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: fullHD ? 16 : 15,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        ],
+                                      ),
+                                      Divider(
+                                          color: Theme.of(context).primaryColor,
+                                          thickness: 1),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: Column(
+                                            children: (moreData['data']
+                                                    as Map<String, dynamic>)
+                                                .entries
+                                                .map((entry) => ResponseRow(
+                                                    entry.key,
+                                                    entry.value.toString()))
+                                                .toList()),
                                       ),
                                     ],
                                   ),
-                                  Divider(
-                                      color: Theme.of(context).primaryColor,
-                                      thickness: 1),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Column(
-                                        children: (moreData['data']
-                                                as Map<String, dynamic>)
-                                            .entries
-                                            .map((entry) => ResponseRow(
-                                                entry.key,
-                                                entry.value.toString()))
-                                            .toList()),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
+                              Padding(
+                                child: AdNative("medium"),
+                                padding: EdgeInsets.only(bottom: 8),
+                              ),
+                            ],
                           ),
                         )
                         .toList(),
-                    if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
-                        padding: EdgeInsets.only(bottom: 8),
-                      ),
                   ],
                 ),
               ),
             ),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

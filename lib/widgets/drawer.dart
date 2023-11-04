@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
-import '../screens/form_contact.dart';
+import 'package:trackify/widgets/ad_native.dart';
 
+import '../screens/form_contact.dart';
 import '../widgets/ad_interstitial.dart';
-import '../widgets/ad_native.dart';
+
 import 'dialog_toast.dart';
 
 import '../providers/preferences.dart';
@@ -69,8 +69,6 @@ class DrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool meliStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool googleStatus = Provider.of<UserPreferences>(context).gdStatus;
     final int mainAmount =
@@ -78,122 +76,82 @@ class DrawerWidget extends StatelessWidget {
     String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     final int archivedAmount =
         Provider.of<ArchivedTrackings>(context).trackings.length;
-    final List<Widget> adsWidget = [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child: SizedBox(
-          height: 80,
-          child: InkWell(
-            onTap: () => ShowDialog.premiumSubscription(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.workspace_premium, size: 26),
-                    const Padding(
-                      padding: EdgeInsets.all(7.0),
-                    ),
-                    Container(
-                      width: 180,
-                      child: Text(
-                        "¿Demasiados anuncios? Suscríbete a la versión Premium",
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 16),
-                        maxLines: 3,
-                      ),
-                    ),
-                  ],
-                ),
-                const Icon(Icons.arrow_right),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Colors.grey.shade400),
-              bottom: BorderSide(color: Colors.grey.shade400),
-            ),
-          ),
-          padding: EdgeInsets.only(top: 8, bottom: 8),
-          child: AdNative("medium"),
-        ),
-      ),
-    ];
     return Drawer(
       child: ListView(
         children: <Widget>[
           SizedBox(
-            height: 120,
+            height: 95,
             child: DrawerHeader(
+              margin: EdgeInsets.only(bottom: 1),
+              padding: EdgeInsets.only(left: 14),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: <Color>[
                   Theme.of(context).primaryColor,
                   Theme.of(context).primaryColorLight
                 ]),
               ),
-              child: Padding(
-                  padding: EdgeInsets.only(bottom: 5),
-                  child: Row(
-                    children: <Widget>[
-                      Material(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(100.0)),
-                        // elevation: 10,
-                        child: Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Image.asset("assets/icon/icon.png",
-                              height: 70, width: 70),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 21, right: 13),
-                        child: Text(
-                          'TrackeAR',
-                          style: TextStyle(
-                              color: Theme.of(context).primaryColorDark,
-                              fontSize: 25.0),
-                        ),
-                      ),
-                      if (premiumUser) Icon(Icons.workspace_premium, size: 50)
-                    ],
-                  )),
+              child: Row(
+                children: <Widget>[
+                  Material(
+                    borderRadius:
+                        const BorderRadius.all(Radius.circular(100.0)),
+                    // elevation: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: Image.asset("assets/icon/icon.png",
+                          height: 60, width: 60),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 21, right: 13),
+                    child: Text(
+                      'TrackeAR',
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColorDark,
+                          fontSize: 25.0),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          optionAPI(
-              () => {
-                    Navigator.pop(context),
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const GoogleDrive(),
-                        )),
-                    if (!premiumUser) drawerInterstitialAd1.showInterstitialAd()
-                  },
-              Image.asset('assets/other/googledrive.png'),
-              40,
-              180,
+          optionAPI(() {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const GoogleDrive(),
+                ));
+            drawerInterstitialAd1.showInterstitialAd();
+          }, Image.asset('assets/other/googledrive.png'), 40, 180,
               googleStatus),
           optionAPI(
-            () => {
-              Navigator.pop(context),
+            () {
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => MercadoLibre(),
                 ),
-              ),
-              if (!premiumUser) drawerInterstitialAd2.showInterstitialAd()
+              );
+              drawerInterstitialAd2.showInterstitialAd();
             },
             Image.asset('assets/other/mercadolibre.png'),
             38,
             155,
             meliStatus,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade400),
+                ),
+              ),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
+              child: AdNative("medium"),
+            ),
           ),
           DrawerOption(
             Icons.local_shipping,
@@ -227,11 +185,22 @@ class DrawerWidget extends StatelessWidget {
             false,
             drawerInterstitialAd6,
           ),
-          if (!premiumUser) ...adsWidget,
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade400),
+                ),
+              ),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
+              child: AdNative("medium"),
+            ),
+          ),
           DrawerOption(
             Icons.info_outline,
             'Acerca de ésta aplicación',
-            () => ShowDialog.aboutThisApp(context, premiumUser),
+            () => ShowDialog.aboutThisApp(context),
             false,
             true,
             null,
@@ -257,22 +226,18 @@ class DrawerOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    // final drawerWidth = MediaQuery.of(context).size.width * 0.8;
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InkWell(
-        onTap: () => {
-          if (!premiumUser) interstitialAd?.showInterstitialAd(),
-          if (main) Navigator.pop(context),
-          if (!main && !about)
-            {
-              Navigator.pop(context),
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => destination!))
-            },
-          if (about) destination(),
+        onTap: () {
+          interstitialAd?.showInterstitialAd();
+          if (main) Navigator.pop(context);
+          if (!main && !about) {
+            Navigator.pop(context);
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => destination!));
+          }
+          if (about) destination();
         },
         child: Container(
           decoration: BoxDecoration(

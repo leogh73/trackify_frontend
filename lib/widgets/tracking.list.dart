@@ -54,8 +54,6 @@ class _TrackingListState extends State<TrackingList> {
   Widget build(BuildContext context) {
     final String chosenView = Provider.of<UserPreferences>(context).startList;
     final PageStorageKey<String> listKey = PageStorageKey<String>(chosenView);
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -69,22 +67,20 @@ class _TrackingListState extends State<TrackingList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (!premiumUser)
-                    Padding(
-                      child: AdNative("medium"),
-                      padding: EdgeInsets.only(top: 8, bottom: 50),
-                    ),
+                  Padding(
+                    child: AdNative("medium"),
+                    padding: EdgeInsets.only(top: 8, bottom: 50),
+                  ),
                   Icon(Icons.local_shipping_outlined, size: 80),
                   SizedBox(width: 30, height: 30),
                   Text(
                     'No hay seguimientos',
                     style: TextStyle(fontSize: 24),
                   ),
-                  if (!premiumUser)
-                    Padding(
-                      child: AdNative("medium"),
-                      padding: EdgeInsets.only(top: 50, bottom: 8),
-                    ),
+                  Padding(
+                    child: AdNative("medium"),
+                    padding: EdgeInsets.only(top: 50, bottom: 8),
+                  ),
                 ],
               ),
             ),
@@ -94,11 +90,11 @@ class _TrackingListState extends State<TrackingList> {
                 key: listKey,
                 childAspectRatio: isPortrait
                     ? portraitfullHD
-                        ? 2 / 2.449
-                        : 2 / 2.622
+                        ? 2 / 4.449
+                        : 2 / 4.622
                     : landscapeFullHD
-                        ? 2 / 2.025
-                        : 2 / 2.288,
+                        ? 2 / 4.025
+                        : 2 / 4.288,
                 padding: const EdgeInsets.all(4),
                 crossAxisCount: isPortrait ? 2 : 3,
                 children: List.generate(
@@ -113,7 +109,7 @@ class _TrackingListState extends State<TrackingList> {
                 itemCount: widget.trackingsData.length,
                 itemBuilder: (context, index) => Column(
                   children: [
-                    if (index == 0 && !premiumUser)
+                    if (index == 0)
                       Padding(
                         padding: EdgeInsets.only(top: 10, bottom: 10),
                         child: AdNative("small"),

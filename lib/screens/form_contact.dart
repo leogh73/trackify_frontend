@@ -38,13 +38,20 @@ class _FormContactState extends State<FormContact> {
     mainColor = ColorItem.load([...await StoredData().loadUserData()][0].color);
   }
 
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   final message = TextEditingController();
   final email = TextEditingController();
 
-  void _sendRequest(fullHD) async {
-    if (_formKey.currentState?.validate() == false) {
+  @override
+  void dispose() {
+    super.dispose();
+    message.dispose();
+    email.dispose();
+  }
+
+  void sendRequest(fullHD) async {
+    if (formKey.currentState?.validate() == false) {
       DialogError.formError(context);
     } else {
       ShowDialog.sending(context);
@@ -73,10 +80,11 @@ class _FormContactState extends State<FormContact> {
         });
       }
       Navigator.pop(context);
+      interstitialAd.showInterstitialAd();
     }
   }
 
-  Widget requestForm(bool fullHD, bool premiumUser) {
+  Widget requestForm(bool fullHD) {
     MaterialColor mainColor =
         Provider.of<UserTheme>(context, listen: false).startColor;
     return SingleChildScrollView(
@@ -87,18 +95,17 @@ class _FormContactState extends State<FormContact> {
           top: 10,
         ),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             children: [
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 8, bottom: 8)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 8, bottom: 8)),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto por correo electrónico y te responderemos a la brevedad.",
+                    "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto y te responderemos a la brevedad.",
                     maxLines: 10,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -172,9 +179,8 @@ class _FormContactState extends State<FormContact> {
                               style: TextStyle(fontSize: 17),
                             ),
                             onPressed: () => {
-                                  if (!premiumUser)
-                                    interstitialAd.showInterstitialAd(),
                                   Navigator.pop(context),
+                                  interstitialAd.showInterstitialAd(),
                                 }),
                       ),
                       const SizedBox(width: 10),
@@ -186,19 +192,17 @@ class _FormContactState extends State<FormContact> {
                               style: TextStyle(fontSize: 17),
                             ),
                             onPressed: () => {
-                                  if (!premiumUser)
-                                    interstitialAd.showInterstitialAd(),
-                                  _sendRequest(fullHD),
+                                  sendRequest(fullHD),
+                                  interstitialAd.showInterstitialAd(),
                                 }),
                       ),
                     ],
                   ),
                 ),
               ),
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 8, bottom: 8)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 8, bottom: 8)),
             ],
           ),
         ),
@@ -235,12 +239,15 @@ class _FormContactState extends State<FormContact> {
               'Aceptar',
               style: TextStyle(fontSize: 17),
             ),
-            onPressed: () => {
-              success
-                  ? Navigator.pop(context)
-                  : setState(() {
-                      index = 0;
-                    })
+            onPressed: () {
+              if (success) {
+                Navigator.pop(context);
+                interstitialAd.showInterstitialAd();
+              } else {
+                setState(() {
+                  index = 0;
+                });
+              }
             },
           ),
         ),
@@ -250,13 +257,11 @@ class _FormContactState extends State<FormContact> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Map<int, Widget> results = {
-      0: requestForm(fullHD, premiumUser),
+      0: requestForm(fullHD),
       1: sendResult(
           'Su mensaje fue enviado correctamente.',
           'Muchas gracias por su tiempo. Nos pondremos en contacto de ser necesario.',
@@ -280,14 +285,14 @@ class _FormContactState extends State<FormContact> {
               icon: const Icon(Icons.send),
               iconSize: 26,
               onPressed: () => {
-                if (!premiumUser) interstitialAd.showInterstitialAd(),
-                _sendRequest(fullHD),
+                interstitialAd.showInterstitialAd(),
+                sendRequest(fullHD),
               },
             ),
         ],
       ),
       body: results[index],
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

@@ -11,12 +11,11 @@ class ViewCard {
     VoidCallback onTap,
     VoidCallback onLongPress,
     double screenWidth,
-    String text,
+    String title,
     Widget button,
     bool expand,
     bool selectionMode,
     bool isPortrait,
-    bool premiumUser,
     bool fullHD,
     Widget optionsButton,
   ) {
@@ -84,7 +83,7 @@ class ViewCard {
                                 ? const EdgeInsets.only(left: 35)
                                 : EdgeInsets.zero,
                             child: Text(
-                              text,
+                              title,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: fullHD ? 16 : 15,
@@ -358,11 +357,10 @@ class ViewCard {
             ),
           ),
         ),
-        if (!premiumUser)
-          Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: AdNative("medium"),
-          ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: AdNative("medium"),
+        ),
       ],
     );
   }

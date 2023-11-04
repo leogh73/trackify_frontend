@@ -128,7 +128,8 @@ class UserData {
   List<String> searchHistory;
   bool meLiStatus;
   bool googleDriveStatus;
-  bool premiumStatus;
+  String statusMessage;
+  bool showAgainStatusMessage;
 
   UserData({
     required this.id,
@@ -139,7 +140,8 @@ class UserData {
     required this.searchHistory,
     required this.meLiStatus,
     required this.googleDriveStatus,
-    required this.premiumStatus,
+    required this.statusMessage,
+    required this.showAgainStatusMessage,
   });
 
   factory UserData.fromMap(int id, Map<String, dynamic> map) {
@@ -153,7 +155,8 @@ class UserData {
           (map['searchHistory'] as List).map((e) => e as String).toList(),
       meLiStatus: map['meLiStatus'],
       googleDriveStatus: map['googleDriveStatus'],
-      premiumStatus: map['premiumStatus'],
+      statusMessage: map['statusMessage'],
+      showAgainStatusMessage: map['showAgainStatusMessage'],
     );
   }
 
@@ -167,21 +170,22 @@ class UserData {
       'searchHistory': searchHistory,
       'meLiStatus': meLiStatus,
       'googleDriveStatus': googleDriveStatus,
-      'premiumStatus': premiumStatus,
+      'statusMessage': statusMessage,
+      'showAgainStatusMessage': showAgainStatusMessage,
     };
   }
 
-  edit({
-    int? id,
-    String? userId,
-    String? color,
-    String? view,
-    bool? darkMode,
-    List<String>? searchHistory,
-    bool? meLiStatus,
-    bool? googleDriveStatus,
-    bool? premiumStatus,
-  }) {
+  edit(
+      {int? id,
+      String? userId,
+      String? color,
+      String? view,
+      bool? darkMode,
+      List<String>? searchHistory,
+      bool? meLiStatus,
+      bool? googleDriveStatus,
+      String? statusMessage,
+      bool? showAgainStatusMessage}) {
     return UserData(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -191,7 +195,9 @@ class UserData {
       searchHistory: searchHistory ?? this.searchHistory,
       meLiStatus: meLiStatus ?? this.meLiStatus,
       googleDriveStatus: googleDriveStatus ?? this.googleDriveStatus,
-      premiumStatus: premiumStatus ?? this.premiumStatus,
+      statusMessage: statusMessage ?? this.statusMessage,
+      showAgainStatusMessage:
+          showAgainStatusMessage ?? this.showAgainStatusMessage,
     );
   }
 }

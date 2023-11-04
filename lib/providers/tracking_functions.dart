@@ -7,8 +7,8 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:convert';
 
-import '../widgets/dialog_error.dart';
 import 'http_connection.dart';
+import '../widgets/dialog_error.dart';
 import '../providers/preferences.dart';
 
 import '../database.dart';
@@ -28,10 +28,9 @@ class TrackingFunctions {
     List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
-    String _userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
+    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
-      'userId': _userId,
+      'userId': userId,
       'trackingData': json.encode(tracking.toMap())
     };
     await HttpConnection.awakeAPIs();
@@ -172,7 +171,7 @@ class TrackingFunctions {
         }
       }
     }
-    if (lastEventsList.isEmpty) return;
+    // if (lastEventsList.isEmpty) return;
     tz.TZDateTime now =
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
@@ -197,6 +196,17 @@ class TrackingFunctions {
           .setStartError(responseData['syncError']);
     } else {
       Provider.of<Status>(context, listen: false).setStartError("");
+    }
+    dynamic preferencesProvider =
+        Provider.of<UserPreferences>(context, listen: false);
+    final String statusMessage = preferencesProvider.getStatusMessage;
+    final bool showAgainStatusMessage = preferencesProvider.showMessageAgain;
+    if (statusMessage != responseData['statusMessage']) {
+      preferencesProvider.setStatusMessage(responseData['statusMessage']);
+      preferencesProvider.setShowMessageAgain(true);
+      DialogError.statusMessage(context, responseData['statusMessage']);
+    } else if (showAgainStatusMessage) {
+      DialogError.statusMessage(context, statusMessage);
     }
     if (responseData['driveStatus'] == "Update required" ||
         responseData['driveStatus'] == 'Backup not found') {

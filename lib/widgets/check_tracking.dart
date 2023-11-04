@@ -9,20 +9,17 @@ import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/preferences.dart';
 
-import 'ad_interstitial.dart';
 import 'dialog_toast.dart';
 
 class TrackingData {
   static Future fetch(BuildContext context, ItemTracking tracking) async {
-    AdInterstitial interstitialAd = AdInterstitial();
-    interstitialAd.createInterstitialAd();
+    await HttpConnection.awakeAPIs();
     String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'title': tracking.title,
       'service': tracking.service,
       'code': tracking.code.trim(),
     };
-    await HttpConnection.awakeAPIs();
     Response response =
         await HttpConnection.requestHandler('/api/user/$userId/add', body);
     // Response response = await HttpConnection.requestHandler('/api/dev/2', body);

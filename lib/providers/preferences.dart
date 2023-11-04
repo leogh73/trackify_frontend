@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
@@ -16,17 +14,20 @@ class UserPreferences with ChangeNotifier {
   late String userId;
   late String userView;
   late bool mercadoLibre;
-  late bool premiumUser;
+  late bool googleDrive;
+  late String statusMessage;
+  late bool showAgainStatusMessage;
 
   UserPreferences(StartData startData) {
     userId = startData.userId;
     userView = startData.startView;
     mercadoLibre = startData.mercadoLibre;
     googleDrive = startData.googleDrive;
-    premiumUser = startData.premiumStatus;
+    statusMessage = startData.statusMessage;
+    showAgainStatusMessage = startData.showAgainStatusMessage;
   }
 
-  void updateDatabase(String type, dynamic value) async {
+  updateDatabase(String type, dynamic value) async {
     UserData storedPreferences = [...await storedData.loadUserData()][0];
     late UserData newPreferences;
     if (type == "view") {
@@ -38,8 +39,11 @@ class UserPreferences with ChangeNotifier {
     if (type == "googleDriveStatus") {
       newPreferences = storedPreferences.edit(googleDriveStatus: value);
     }
-    if (type == "premiumStatus") {
-      newPreferences = storedPreferences.edit(premiumStatus: value);
+    if (type == "statusMessage") {
+      newPreferences = storedPreferences.edit(statusMessage: value);
+    }
+    if (type == "showAgainStatusMessage") {
+      newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
     }
     storedData.updatePreferences(newPreferences);
   }
@@ -107,7 +111,6 @@ class UserPreferences with ChangeNotifier {
     }
   }
 
-  bool googleDrive = false;
   bool get gdStatus => googleDrive;
 
   void toggleGoogleStatus(bool newStatus) {
@@ -132,11 +135,18 @@ class UserPreferences with ChangeNotifier {
     notifyListeners();
   }
 
-  bool get premiumStatus => premiumUser;
+  String get getStatusMessage => statusMessage;
+  bool get showMessageAgain => showAgainStatusMessage;
 
-  void togglePremiumStatus(bool newStatus) {
-    premiumUser = newStatus;
-    updateDatabase("premiumStatus", newStatus);
+  void setStatusMessage(String newMessage) {
+    statusMessage = newMessage;
+    updateDatabase("statusMessage", newMessage);
+    notifyListeners();
+  }
+
+  void setShowMessageAgain(bool newStatus) {
+    showAgainStatusMessage = newStatus;
+    updateDatabase("showAgainStatusMessage", newStatus);
     notifyListeners();
   }
 }

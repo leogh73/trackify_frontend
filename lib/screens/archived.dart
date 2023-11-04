@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/classes.dart';
-import '../providers/preferences.dart';
 import '../providers/trackings_archived.dart';
 
 import '../widgets/options_tracking.dart';
@@ -13,8 +12,6 @@ class Archived extends StatelessWidget {
   const Archived({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool selectionMode =
         Provider.of<ArchivedTrackings>(context).selectionModeStatus;
     final List<ItemTracking> selection =
@@ -69,7 +66,7 @@ class Archived extends StatelessWidget {
       body: Center(
         child: TrackingList(trackings),
       ),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

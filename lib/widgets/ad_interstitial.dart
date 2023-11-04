@@ -7,19 +7,20 @@ class AdInterstitial {
 
   void createInterstitialAd() {
     InterstitialAd.load(
-        adUnitId: "${dotenv.env['AD_INTERSTITIAL_UNIT_ID']}",
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          // Called when an ad is successfully received.
-          onAdLoaded: (ad) {
-            // debugPrint('$ad loaded.');
-            _interstitialAd = ad;
-            isLoaded = true;
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            // debugPrint('InterstitialAd failed to load: $error');
-          },
-        ),);
+      adUnitId: "${dotenv.env['AD_INTERSTITIAL_UNIT_ID']}",
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          // debugPrint('$ad loaded.');
+          _interstitialAd = ad;
+          isLoaded = true;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          // debugPrint('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
   }
 
   void showInterstitialAd() {

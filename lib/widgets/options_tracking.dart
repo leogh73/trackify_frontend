@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:trackify/screens/tracking_more.dart';
 
 import '../providers/classes.dart';
-import '../providers/preferences.dart';
 import '../providers/status.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
@@ -47,15 +46,15 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     interstitialAd.createInterstitialAd();
   }
 
-  void screenPopToast(String message, bool premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
-    Provider.of<Status>(context, listen: false).restartListEnd();
+  void screenPopToast(String message) {
     Navigator.pop(context);
+    Provider.of<Status>(context, listen: false).restartListEnd();
     GlobalToast.displayToast(context, message);
+    interstitialAd.showInterstitialAd();
   }
 
-  void seeTrackingDetail(bool premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+  void seeTrackingDetail() {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -64,8 +63,8 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     );
   }
 
-  void seeMoreTrackingData(bool premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+  void seeMoreTrackingData() {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -74,8 +73,8 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     );
   }
 
-  void renameTracking(bool premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+  void renameTracking() {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -102,30 +101,30 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     if (widget.detail) Navigator.pop(context);
   }
 
-  void removeTracking(bool premiumUser) {
+  void removeTracking() {
     provider
         .removeTracking([widget.tracking], context, widget.tracking.checkError);
-    screenPopToast("Seguimiento eliminado", premiumUser);
+    screenPopToast("Seguimiento eliminado");
     if (widget.detail) Navigator.pop(context);
   }
 
-  void removeSelection(bool premiumUser) {
+  void removeSelection() {
     provider.removeSelection(context);
     provider.toggleSelectionMode();
-    screenPopToast("Selección eliminada", premiumUser);
+    screenPopToast("Selección eliminada");
   }
 
-  void archiveTracking(bool premiumUser) {
+  void archiveTracking() {
     widget.tracking.archived = true;
     Provider.of<ArchivedTrackings>(context, listen: false)
         .addTracking(widget.tracking);
     provider
         .removeTracking([widget.tracking], context, widget.tracking.checkError);
-    screenPopToast("Seguimiento archivado", premiumUser);
+    screenPopToast("Seguimiento archivado");
     if (widget.detail) Navigator.pop(context);
   }
 
-  void archiveSelection(bool premiumUser) {
+  void archiveSelection() {
     List<ItemTracking> selection = provider.selectionElements;
     for (var element in selection) {
       element.selected = false;
@@ -135,19 +134,15 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     }
     provider.removeSelection(context);
     provider.toggleSelectionMode();
-    screenPopToast("Selección archivada", premiumUser);
+    screenPopToast("Selección archivada");
   }
 
-  void displayDialog(String action, bool premiumUser) {
+  void displayDialog(String action) {
     VoidCallback dialogFunction;
     String buttonText = action == "archivar" ? "Archivar" : 'Eliminar';
     dialogFunction = action == "archivar"
-        ? () => widget.menu
-            ? archiveTracking(premiumUser)
-            : archiveSelection(premiumUser)
-        : () => widget.menu
-            ? removeTracking(premiumUser)
-            : removeSelection(premiumUser);
+        ? () => widget.menu ? archiveTracking() : archiveSelection()
+        : () => widget.menu ? removeTracking() : removeSelection();
     ShowDialog.actionConfirmation(context, action, buttonText, dialogFunction);
   }
 
@@ -176,8 +171,6 @@ class _OptionsTrackingState extends State<OptionsTracking> {
   @override
   Widget build(BuildContext context) {
     final String trackingType = widget.tracking.archived! ? "archived" : "main";
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final Map<String, dynamic> optionsList = {
       "main": {
         "menu": PopupMenuButton<String>(
@@ -193,22 +186,22 @@ class _OptionsTrackingState extends State<OptionsTracking> {
           onSelected: (String value) {
             switch (value) {
               case 'Detalles':
-                seeTrackingDetail(premiumUser);
+                seeTrackingDetail();
                 break;
               case 'Más datos':
-                seeMoreTrackingData(premiumUser);
+                seeMoreTrackingData();
                 break;
               case 'Renombrar':
-                renameTracking(premiumUser);
+                renameTracking();
                 break;
               case 'Seleccionar':
                 toggleSelectionMode();
                 break;
               case 'Archivar':
-                displayDialog("archivar", premiumUser);
+                displayDialog("archivar");
                 break;
               case 'Eliminar':
-                displayDialog("eliminar", premiumUser);
+                displayDialog("eliminar");
                 break;
             }
           },
@@ -228,12 +221,12 @@ class _OptionsTrackingState extends State<OptionsTracking> {
           "remove": IconButton(
             icon: const Icon(Icons.delete),
             iconSize: 24,
-            onPressed: () => displayDialog("eliminar", premiumUser),
+            onPressed: () => displayDialog("eliminar"),
           ),
           "archive": IconButton(
             icon: const Icon(Icons.archive),
             iconSize: 24,
-            onPressed: () => displayDialog("archivar", premiumUser),
+            onPressed: () => displayDialog("archivar"),
           )
         }
       },
@@ -251,16 +244,16 @@ class _OptionsTrackingState extends State<OptionsTracking> {
           onSelected: (String value) {
             switch (value) {
               case 'Detalles':
-                seeTrackingDetail(premiumUser);
+                seeTrackingDetail();
                 break;
               case 'Más datos':
-                seeMoreTrackingData(premiumUser);
+                seeMoreTrackingData();
                 break;
               case 'Seleccionar':
                 toggleSelectionMode();
                 break;
               case 'Eliminar':
-                displayDialog("eliminar", premiumUser);
+                displayDialog("eliminar");
                 break;
             }
           },
@@ -277,7 +270,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
           "remove": IconButton(
             icon: const Icon(Icons.delete),
             iconSize: 24,
-            onPressed: () => displayDialog("eliminar", premiumUser),
+            onPressed: () => displayDialog("eliminar"),
           ),
         }
       }

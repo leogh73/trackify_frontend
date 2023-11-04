@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/ad_native.dart';
-import '../providers/preferences.dart';
 import '../providers/status.dart';
 import '../services/_services.dart';
 
@@ -66,8 +65,6 @@ class Event extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     bool lastItem = false;
     if (listLength - 1 == index) lastItem = true;
     final isPortrait =
@@ -79,11 +76,11 @@ class Event extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
-          if (index == 0 && !premiumUser)
+          if (index == 0)
             Padding(
                 padding: EdgeInsets.only(top: 3, bottom: 3),
                 child: AdNative("medium")),
-          if (index == 0 && !premiumUser)
+          if (index == 0)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
             // padding: isPortrait && widget.modoSeleccion
@@ -211,13 +208,11 @@ class Event extends StatelessWidget {
                 ),
               )
               .toList(),
-          if (!premiumUser)
-            Divider(color: Theme.of(context).primaryColor, thickness: 1),
-          if (!premiumUser)
-            Padding(
-              padding: EdgeInsets.only(top: 3, bottom: 3),
-              child: AdNative("medium"),
-            ),
+          Divider(color: Theme.of(context).primaryColor, thickness: 1),
+          Padding(
+            padding: EdgeInsets.only(top: 3, bottom: 3),
+            child: AdNative("medium"),
+          ),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

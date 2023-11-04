@@ -68,8 +68,6 @@ class _GoogleDriveState extends State<GoogleDrive> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool driveStatus = Provider.of<UserPreferences>(context).gdStatus;
     final String driveEmail = Provider.of<Status>(context).googleEmail;
     final bool errorCheckDrive =
@@ -110,10 +108,9 @@ class _GoogleDriveState extends State<GoogleDrive> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(bottom: 8)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(bottom: 8)),
               if (isPortrait && !driveStatus)
                 Container(
                   padding: const EdgeInsets.only(right: 20, left: 25),
@@ -174,10 +171,9 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       () => googleAccount("login", context),
                       null,
                     ),
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 20, bottom: 8)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 20, bottom: 8)),
             ],
           ),
         ),

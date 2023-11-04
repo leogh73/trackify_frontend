@@ -146,8 +146,6 @@ class _MeLiCheckState extends State<MeLiCheck> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     return FutureBuilder(
       future: checkInput,
       builder: (context, snapshot) {
@@ -158,22 +156,20 @@ class _MeLiCheckState extends State<MeLiCheck> {
                     child: Column(
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (!premiumUser)
-                          Padding(
-                            child: AdNative("medium"),
-                            padding: EdgeInsets.only(top: 10, bottom: 30),
-                          ),
+                        Padding(
+                          child: AdNative("medium"),
+                          padding: EdgeInsets.only(top: 10, bottom: 30),
+                        ),
                         const Icon(Icons.local_shipping_outlined, size: 80),
                         const SizedBox(width: 30, height: 30),
                         Text(
                           "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
                           style: const TextStyle(fontSize: 24),
                         ),
-                        if (!premiumUser)
-                          Padding(
-                            child: AdNative("medium"),
-                            padding: EdgeInsets.only(top: 30, bottom: 10),
-                          )
+                        Padding(
+                          child: AdNative("medium"),
+                          padding: EdgeInsets.only(top: 30, bottom: 10),
+                        )
                       ],
                     ),
                   ),
@@ -188,7 +184,7 @@ class _MeLiCheckState extends State<MeLiCheck> {
                           itemCount: itemsList.length,
                           itemBuilder: (context, index) {
                             return Column(children: [
-                              if (index == 0 && !premiumUser)
+                              if (index == 0)
                                 Padding(
                                     child: AdNative("small"),
                                     padding: EdgeInsets.only(bottom: 8)),

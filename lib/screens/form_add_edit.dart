@@ -6,7 +6,6 @@ import '../widgets/ad_interstitial.dart';
 
 import '../providers/classes.dart';
 import '../providers/status.dart';
-import '../providers/preferences.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
 
@@ -37,10 +36,8 @@ class FormAddEdit extends StatefulWidget {
   _FormAddEditState createState() => _FormAddEditState();
 }
 
-final _formKey = GlobalKey<FormState>();
-
 class _FormAddEditState extends State<FormAddEdit> {
-  AdInterstitial interstitialAd = AdInterstitial();
+  final AdInterstitial interstitialAd = AdInterstitial();
   ServiceItemModel? loadedService;
   late List<ServiceItemModel> services;
   late dynamic providerFunctions;
@@ -75,6 +72,8 @@ class _FormAddEditState extends State<FormAddEdit> {
     interstitialAd.createInterstitialAd();
   }
 
+  final formKey = GlobalKey<FormState>();
+
   final title = TextEditingController();
   final code = TextEditingController();
 
@@ -85,7 +84,7 @@ class _FormAddEditState extends State<FormAddEdit> {
     code.dispose();
   }
 
-  void _pagePopMessage(context, edit, premiumUser) {
+  void pagePopMessage(context, edit) {
     Navigator.pop(context);
     if (edit) {
       GlobalToast.displayToast(context, "Seguimiento editado");
@@ -93,11 +92,11 @@ class _FormAddEditState extends State<FormAddEdit> {
     if (widget.mercadoLibre && widget.rename == false) {
       Navigator.pop(context);
     }
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+    interstitialAd.showInterstitialAd();
   }
 
-  void _addTracking(context, service, premiumUser) {
-    if (_formKey.currentState?.validate() == false || service == null) {
+  void addTracking(context, service) {
+    if (formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
       final newTracking = Tracking(
@@ -108,12 +107,12 @@ class _FormAddEditState extends State<FormAddEdit> {
       );
       Provider.of<ActiveTrackings>(context, listen: false)
           .addTracking(newTracking);
-      _pagePopMessage(context, widget.rename, premiumUser);
+      pagePopMessage(context, widget.rename);
     }
   }
 
-  void _editTracking(context, service, listView, premiumUser) {
-    if (_formKey.currentState?.validate() == false || service == null) {
+  void editTracking(context, service, listView) {
+    if (formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
       int? idSB = widget.tracking?.idSB;
@@ -127,14 +126,12 @@ class _FormAddEditState extends State<FormAddEdit> {
         lastEvent: "Sample",
       );
       providerFunctions.editTracking(editedTracking);
-      _pagePopMessage(context, widget.rename, premiumUser);
+      pagePopMessage(context, widget.rename);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     String listView = "main";
     final String? service =
         loadedService?.chosen ?? Provider.of<Status>(context).chosenService;
@@ -149,16 +146,15 @@ class _FormAddEditState extends State<FormAddEdit> {
                 widget.rename ? const Icon(Icons.save) : const Icon(Icons.add),
             iconSize: 26,
             onPressed: widget.rename
-                ? () => _editTracking(context, service, listView, premiumUser)
-                : () => _addTracking(
-                    context, widget.tracking?.service, premiumUser),
+                ? () => editTracking(context, service, listView)
+                : () => addTracking(context, widget.tracking?.service),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            if (!premiumUser) AdNative("medium"),
+            AdNative("medium"),
             Padding(
               padding: const EdgeInsets.only(
                 left: 20,
@@ -166,7 +162,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                 top: 10,
               ),
               child: Form(
-                key: _formKey,
+                key: formKey,
                 child: Column(
                   children: [
                     Row(
@@ -184,11 +180,6 @@ class _FormAddEditState extends State<FormAddEdit> {
                         ),
                       ],
                     ),
-                    if (!premiumUser)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: AdNative("small"),
-                      ),
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: TextFormField(
@@ -222,11 +213,6 @@ class _FormAddEditState extends State<FormAddEdit> {
                         textInputAction: TextInputAction.next,
                       ),
                     ),
-                    if (!premiumUser)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: AdNative("small"),
-                      ),
                     Padding(
                       padding: const EdgeInsets.only(top: 15, left: 7),
                       child: Container(
@@ -242,9 +228,8 @@ class _FormAddEditState extends State<FormAddEdit> {
                                   style: TextStyle(fontSize: 17),
                                 ),
                                 onPressed: () {
-                                  if (!premiumUser)
-                                    interstitialAd.showInterstitialAd();
                                   Navigator.pop(context);
+                                  interstitialAd.showInterstitialAd();
                                 },
                               ),
                             ),
@@ -258,10 +243,9 @@ class _FormAddEditState extends State<FormAddEdit> {
                                   style: const TextStyle(fontSize: 17),
                                 ),
                                 onPressed: widget.rename
-                                    ? () => _editTracking(
-                                        context, service, listView, premiumUser)
-                                    : () => _addTracking(
-                                        context, service, premiumUser),
+                                    ? () =>
+                                        editTracking(context, service, listView)
+                                    : () => addTracking(context, service),
                               ),
                             ),
                           ],
@@ -272,13 +256,14 @@ class _FormAddEditState extends State<FormAddEdit> {
                 ),
               ),
             ),
-            if (!premiumUser)
-              Padding(
-                  child: AdNative("medium"), padding: EdgeInsets.only(top: 20)),
+            Padding(
+              child: AdNative("medium"),
+              padding: EdgeInsets.only(top: 20),
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

@@ -94,6 +94,10 @@ class DialogError {
     );
   }
 
+  static void statusMessage(BuildContext context, String message) {
+    ShowDialog.statusMessage(context, message);
+  }
+
   static void startError(BuildContext context, String type) {
     String message = '';
     if (type == "User not initialized") {

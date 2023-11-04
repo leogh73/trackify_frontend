@@ -55,7 +55,6 @@ dev_dependencies:
   timezone: ^0.8.0
   device_info_plus: ^9.0.2
   flutter_native_splash: ^2.2.4
-  in_app_purchase: ^3.1.8
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

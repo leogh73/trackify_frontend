@@ -20,17 +20,21 @@ class MercadoLibre extends StatelessWidget {
     );
   }
 
-  Center mercadoLibreScreen(BuildContext context, String text1, String text2,
-      String button, VoidCallback function, bool premiumUser) {
+  Center mercadoLibreScreen(
+    BuildContext context,
+    String text1,
+    String text2,
+    String button,
+    VoidCallback function,
+  ) {
     return Center(
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            if (!premiumUser)
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 8, bottom: 8)),
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 8, bottom: 8)),
             Container(
               height: 170,
               child: Column(
@@ -45,10 +49,9 @@ class MercadoLibre extends StatelessWidget {
                 ],
               ),
             ),
-            if (!premiumUser)
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 8, bottom: 8)),
+            Padding(
+                child: AdNative("medium"),
+                padding: EdgeInsets.only(top: 8, bottom: 8)),
           ],
         ),
       ),
@@ -57,8 +60,6 @@ class MercadoLibre extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool errorMeLiCheck =
         Provider.of<UserPreferences>(context).errorMeLiCheck;
@@ -121,9 +122,7 @@ class MercadoLibre extends StatelessWidget {
                     'Error de consulta a MercadoLibre',
                     'REINTENTAR',
                     () => Provider.of<UserPreferences>(context, listen: false)
-                        .toggleMeLiErrorStatus(false),
-                    premiumUser,
-                  )
+                        .toggleMeLiErrorStatus(false))
                 : const TabBarView(
                     children: [
                       MeLiCheck("buyer"),
@@ -141,9 +140,8 @@ class MercadoLibre extends StatelessWidget {
                     builder: (context) => MercadoLibreSite("login"),
                   ),
                 ),
-                premiumUser,
               ),
-        bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+        bottomNavigationBar: const AdBanner(),
       ),
     );
   }
@@ -230,8 +228,6 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
     return Scaffold(
       appBar: AppBar(
@@ -241,7 +237,7 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
         titleSpacing: 1.0,
       ),
       body: WebViewWidget(controller: _controller),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

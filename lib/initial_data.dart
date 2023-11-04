@@ -65,7 +65,8 @@ class Init {
       searchHistory: [],
       meLiStatus: false,
       googleDriveStatus: false,
-      premiumStatus: false,
+      statusMessage: '',
+      showAgainStatusMessage: true,
     );
     String? firebaseToken = await firebaseMessagingNotifications();
     if (firebaseToken == "BLACKLISTED") return startPreferences;
@@ -82,6 +83,8 @@ class Init {
     List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
       userPreferences = [await loadNewUserData()];
+    } else{
+      
     }
     List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
     List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();
@@ -92,7 +95,9 @@ class Init {
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
     bool driveStatus = userPreferences[0].googleDriveStatus;
-    bool premiumStatus = userPreferences[0].premiumStatus;
+    String statusMessage = userPreferences[0].statusMessage;
+    bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
+
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
     List<ItemTracking> startActiveTrackings =
@@ -108,7 +113,8 @@ class Init {
       startThemeDarkMode,
       meliStatus,
       driveStatus,
-      premiumStatus,
+      statusMessage,
+      showAgainStatusMessage,
       searchHistory,
       startActiveTrackings,
       startArchivedTrackings,
@@ -123,7 +129,8 @@ class StartData {
   bool darkMode;
   bool mercadoLibre;
   bool googleDrive;
-  bool premiumStatus;
+  String statusMessage;
+  bool showAgainStatusMessage;
   List<String> searchHistory;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
@@ -134,7 +141,8 @@ class StartData {
     this.darkMode,
     this.mercadoLibre,
     this.googleDrive,
-    this.premiumStatus,
+    this.statusMessage,
+    this.showAgainStatusMessage,
     this.searchHistory,
     this.activeTrackings,
     this.archivedTrackings,

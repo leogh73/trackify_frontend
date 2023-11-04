@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/classes.dart';
-import '../providers/preferences.dart';
 import '../providers/status.dart';
 import '../providers/tracking_functions.dart';
 
@@ -21,9 +20,9 @@ class TrackingDetail extends StatefulWidget {
   State<TrackingDetail> createState() => _TrackingDetailState();
 }
 
-AdInterstitial interstitialAd = AdInterstitial();
-
 class _TrackingDetailState extends State<TrackingDetail> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
   @override
   void initState() {
     super.initState();
@@ -32,8 +31,6 @@ class _TrackingDetailState extends State<TrackingDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     bool checking = Provider.of<Status>(context).checkingStatus;
     bool endList = Provider.of<Status>(context).endOfEvents;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -151,12 +148,12 @@ class _TrackingDetailState extends State<TrackingDetail> {
             : FloatingActionButton(
                 heroTag: 'events',
                 onPressed: () => {
-                  if (!premiumUser) interstitialAd.showInterstitialAd(),
+                  interstitialAd.showInterstitialAd(),
                   TrackingFunctions.searchUpdates(context, widget.tracking),
                 },
                 child: const Icon(Icons.update, size: 29),
               ),
-        bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+        bottomNavigationBar: const AdBanner(),
       ),
     );
   }

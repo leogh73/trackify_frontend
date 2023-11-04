@@ -12,12 +12,11 @@ class ViewRow {
     VoidCallback onTap,
     VoidCallback onLongPress,
     double screenWidth,
-    String text,
+    String title,
     Widget button,
     bool expand,
     bool selectionMode,
     bool isPortrait,
-    bool premiumUser,
     bool fullHD,
     Widget optionsButton,
   ) {
@@ -95,7 +94,7 @@ class ViewRow {
                                               : screenWidth - 220,
                           alignment: Alignment.center,
                           child: Text(
-                            text,
+                            title,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -377,11 +376,10 @@ class ViewRow {
             ),
           ),
         ),
-        if (!premiumUser)
-          Padding(
-            child: AdNative("small"),
-            padding: EdgeInsets.only(bottom: 8),
-          ),
+        Padding(
+          child: AdNative("small"),
+          padding: EdgeInsets.only(bottom: 8),
+        ),
       ],
     );
   }

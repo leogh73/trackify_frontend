@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/showStatusMessage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../providers/status.dart';
-import '../providers/preferences.dart';
 
 class ShowDialog {
   static bool fullHD(BuildContext context) {
@@ -17,6 +17,7 @@ class ShowDialog {
 
   static void show(
     bool error,
+    bool statusMessage,
     bool premiumSubscription,
     BuildContext context,
     List<Widget> contentWidgets,
@@ -63,6 +64,7 @@ class ShowDialog {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ...contentWidgets,
+                if (statusMessage) ShowAgainStatusMessage(),
                 if (error)
                   Container(
                     height: 55,
@@ -101,6 +103,7 @@ class ShowDialog {
     show(
       false,
       false,
+      false,
       context,
       [
         Container(
@@ -133,6 +136,7 @@ class ShowDialog {
     show(
       false,
       false,
+      false,
       context,
       [widget],
       [
@@ -146,25 +150,59 @@ class ShowDialog {
   }
 
   static void error(BuildContext context, String message) {
-    show(true, false, context, [
-      Container(
-          padding: const EdgeInsets.only(top: 5),
-          child: Icon(Icons.error_outline, size: 55)),
-      Container(
-        padding: const EdgeInsets.all(15),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fullHD(context) ? 16 : 15,
+    show(
+      true,
+      false,
+      false,
+      context,
+      [
+        Container(
+            padding: const EdgeInsets.only(top: 5),
+            child: Icon(Icons.error_outline, size: 55)),
+        Container(
+          padding: const EdgeInsets.all(15),
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: fullHD(context) ? 16 : 15,
+            ),
           ),
+        )
+      ],
+      [],
+    );
+  }
+
+  static void statusMessage(BuildContext context, String message) {
+    show(
+      true,
+      true,
+      false,
+      context,
+      [
+        Container(
+          padding: const EdgeInsets.only(top: 5),
+          child: Icon(Icons.error_outline, size: 55),
         ),
-      )
-    ], []);
+        Container(
+          padding: const EdgeInsets.all(15),
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+        )
+      ],
+      [],
+    );
   }
 
   static void sending(BuildContext context) {
     show(
+      false,
       false,
       false,
       context,
@@ -207,7 +245,7 @@ class ShowDialog {
     }
   }
 
-  static void aboutThisApp(BuildContext context, bool premiumUser) {
+  static void aboutThisApp(BuildContext context) {
     final bool fHD = fullHD(context);
 
     List<Widget> textsData = [
@@ -220,7 +258,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión ${premiumUser ? 'Premium ' : ''}1.1.0",
+        "Versión 1.1.0",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -284,6 +322,7 @@ class ShowDialog {
     show(
       false,
       false,
+      false,
       context,
       [
         Padding(
@@ -298,8 +337,6 @@ class ShowDialog {
           "width": 110,
           "text": "Cerrar",
           "function": () => {
-                Provider.of<UserPreferences>(context, listen: false)
-                    .togglePremiumStatus(false),
                 Navigator.pop(context),
               },
         }
@@ -353,15 +390,12 @@ class ShowDialog {
       {
         "width": 190,
         "text": "Ya tengo suscripción",
-        "function": () => {
-              Provider.of<UserPreferences>(context, listen: false)
-                  .togglePremiumStatus(true),
-              Navigator.pop(context)
-            }
+        "function": () => {Navigator.pop(context)}
       }
     ];
 
     show(
+      false,
       false,
       true,
       context,
@@ -372,6 +406,7 @@ class ShowDialog {
 
   static void deleteDriveBackup(BuildContext context, String backupId) {
     show(
+      false,
       false,
       false,
       context,
@@ -416,6 +451,7 @@ class ShowDialog {
     VoidCallback restoreFunction,
   ) {
     show(
+      false,
       false,
       false,
       context,

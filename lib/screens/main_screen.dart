@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/screens/search.dart';
-import 'package:trackify/widgets/dialog_toast.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 import 'package:trackify/widgets/options_style.dart';
 import '../widgets/ad_native.dart';
@@ -11,8 +10,9 @@ import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 import '../providers/preferences.dart';
 
+import '../screens/form_add_edit.dart';
+
 import '../widgets/drawer.dart';
-import 'form_add_edit.dart';
 import '../widgets/tracking.list.dart';
 import '../widgets/options_tracking.dart';
 import '../widgets/ad_banner.dart';
@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
         String error =
             Provider.of<Status>(context, listen: false).getStartError;
         if (error.isNotEmpty) {
-          DialogError.startError(context, error);
+          return DialogError.startError(context, error);
         }
       },
     );
@@ -60,10 +60,9 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    String error = Provider.of<Status>(context).getStartError;
-    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    final String error = Provider.of<Status>(context).getStartError;
+    final String userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
     final bool selectionMode =
         Provider.of<ActiveTrackings>(context).selectionModeStatus;
     final bool endOfList = Provider.of<Status>(context).endOfList;
@@ -133,19 +132,11 @@ class _MainScreenState extends State<MainScreen> {
                 style: TextStyle(fontSize: 19),
               ),
               actions: <Widget>[
-                if (!premiumUser)
-                  IconButton(
-                    icon: const Icon(Icons.workspace_premium),
-                    iconSize: 22,
-                    onPressed: () => ShowDialog.premiumSubscription(context),
-                  ),
                 IconButton(
                   icon: const Icon(Icons.search),
                   iconSize: 20,
                   onPressed: () => {
-                    if (!premiumUser) mainInterstitialAd.showInterstitialAd(),
-                    // Provider.of<Status>(context, listen: false)
-                    //     .loadMainController(null),
+                    mainInterstitialAd.showInterstitialAd(),
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const Search(),
@@ -163,20 +154,18 @@ class _MainScreenState extends State<MainScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (!premiumUser)
-                      Padding(
-                          child: AdNative("medium"),
-                          padding: EdgeInsets.only(top: 8, bottom: 50)),
+                    Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(top: 8, bottom: 50)),
                     Icon(Icons.error, size: 80),
                     SizedBox(width: 30, height: 30),
                     Text(
                       'ERROR',
                       style: TextStyle(fontSize: 24),
                     ),
-                    if (!premiumUser)
-                      Padding(
-                          child: AdNative("medium"),
-                          padding: EdgeInsets.only(top: 50, bottom: 8)),
+                    Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(top: 50, bottom: 8)),
                   ],
                 ),
               )
@@ -189,7 +178,7 @@ class _MainScreenState extends State<MainScreen> {
                   onPressed: () => {},
                   child: AddTracking(32, mainInterstitialAd),
                 ),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
@@ -200,7 +189,7 @@ class AddTracking extends StatelessWidget {
   const AddTracking(this.iconSize, this.interstitialAd, {Key? key})
       : super(key: key);
 
-  void _addTracking(BuildContext context, bool premiumUser) {
+  void addTracking(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -210,17 +199,15 @@ class AddTracking extends StatelessWidget {
         ),
       ),
     );
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+    interstitialAd.showInterstitialAd();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     return IconButton(
       icon: const Icon(Icons.add),
       iconSize: iconSize,
-      onPressed: () => _addTracking(context, premiumUser),
+      onPressed: () => addTracking(context),
     );
   }
 }

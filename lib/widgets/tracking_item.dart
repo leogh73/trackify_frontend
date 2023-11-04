@@ -38,8 +38,8 @@ class _TrackingItemState extends State<TrackingItem> {
     interstitialAd.createInterstitialAd();
   }
 
-  void _seeTrackingDetail(bool premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+  seeTrackingDetail() {
+    interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -49,7 +49,7 @@ class _TrackingItemState extends State<TrackingItem> {
     Provider.of<Status>(context, listen: false).resetEndOfEventsStatus();
   }
 
-  void _toggleSelectionMode(selectionMode) {
+  void toggleSelectionMode(selectionMode) {
     if (!selectionMode) {
       providerFunctions.addSelected(widget.tracking);
     }
@@ -57,18 +57,18 @@ class _TrackingItemState extends State<TrackingItem> {
     providerFunctions.toggleSelectionMode();
   }
 
-  void _trackingClick() {
+  void trackingClick() {
     widget.tracking.selected!
         ? providerFunctions.removeSelected(widget.tracking.idSB)
         : providerFunctions.addSelected(widget.tracking);
     widget.tracking.selected = !widget.tracking.selected!;
   }
 
-  void _clickItem(selectionMode, premiumUser) {
+  void clickItem(selectionMode) {
     if (selectionMode && widget.tracking.checkError != null) {
-      _trackingClick();
+      trackingClick();
     } else if (!selectionMode && !widget.tracking.checkError!) {
-      _seeTrackingDetail(premiumUser);
+      seeTrackingDetail();
     }
   }
 
@@ -78,8 +78,6 @@ class _TrackingItemState extends State<TrackingItem> {
         ? Provider.of<ArchivedTrackings>(context)
         : Provider.of<ActiveTrackings>(context);
     final bool selectionMode = providerData.selectionModeStatus;
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -97,8 +95,8 @@ class _TrackingItemState extends State<TrackingItem> {
             ? trackingWidget[chosenView].widget(
                 context,
                 widget.tracking,
-                () => _clickItem(selectionMode, premiumUser),
-                () => _toggleSelectionMode(selectionMode),
+                () => clickItem(selectionMode),
+                () => toggleSelectionMode(selectionMode),
                 screenWidth,
                 "ERROR",
                 SizedBox(
@@ -115,7 +113,6 @@ class _TrackingItemState extends State<TrackingItem> {
                 expand,
                 selectionMode,
                 isPortrait,
-                premiumUser,
                 fullHD,
                 OptionsTracking(
                   tracking: widget.tracking,
@@ -127,10 +124,10 @@ class _TrackingItemState extends State<TrackingItem> {
             : trackingWidget[chosenView].widget(
                 context,
                 widget.tracking,
-                () => _clickItem(selectionMode, premiumUser),
-                () => _toggleSelectionMode(selectionMode),
+                () => clickItem(selectionMode),
+                () => toggleSelectionMode(selectionMode),
                 screenWidth,
-                widget.tracking.title!,
+                widget.tracking.title,
                 SizedBox(
                   width: 38,
                   child: IconButton(
@@ -145,7 +142,6 @@ class _TrackingItemState extends State<TrackingItem> {
                 expand,
                 selectionMode,
                 isPortrait,
-                premiumUser,
                 fullHD,
                 OptionsTracking(
                   tracking: widget.tracking,

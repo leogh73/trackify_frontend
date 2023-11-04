@@ -1,11 +1,9 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 import '../services/_services.dart';
 import '../widgets/ad_native.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../providers/preferences.dart';
 import '../widgets/ad_banner.dart';
 
 class Claim extends StatefulWidget {
@@ -140,8 +138,6 @@ class _ClaimState extends State<Claim> {
   @override
   Widget build(BuildContext context) {
     final List<ServiceItemModel> services = Services.itemModelList(true);
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool fullHD = MediaQuery.of(context).size.width *
             MediaQuery.of(context).devicePixelRatio >
         1079;
@@ -156,10 +152,9 @@ class _ClaimState extends State<Claim> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(bottom: 20)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(bottom: 20)),
               Text(
                 "Ésta aplicación es para hacer seguimientos, a partir de la información que las empresas de transporte, ponen a disposición del público. No tenemos contacto exclusivo ni relación alguna dichas empresas.",
                 maxLines: 8,
@@ -227,15 +222,13 @@ class _ClaimState extends State<Claim> {
                       Services.select(selectedServiceName!).contactData),
                   padding: EdgeInsets.only(top: 10),
                 ),
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 10)),
+              Padding(
+                  child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

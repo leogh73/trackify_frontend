@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../providers/classes.dart';
-import '../providers/preferences.dart';
 import '../screens/form_add_edit.dart';
 import '../widgets/ad_native.dart';
 
@@ -21,8 +19,6 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -417,8 +413,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
           ),
         ),
       ),
-      if (!premiumUser)
-        Padding(child: AdNative("small"), padding: EdgeInsets.only(bottom: 8)),
+      Padding(child: AdNative("small"), padding: EdgeInsets.only(bottom: 8)),
     ]);
   }
 }

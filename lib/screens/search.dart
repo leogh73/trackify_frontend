@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/preferences.dart';
 import '../providers/status.dart';
 
 import '../widgets/search_list.dart';
@@ -25,8 +24,6 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0.0,
@@ -50,7 +47,7 @@ class _SearchState extends State<Search> {
         ],
       ),
       body: const SearchList(),
-      bottomNavigationBar: premiumUser ? const SizedBox() : const AdBanner(),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }

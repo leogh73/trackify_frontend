@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import 'dialog_toast.dart';
 import '../widgets/ad_native.dart';
-import '../providers/preferences.dart';
 import '../providers/status.dart';
 
 class DriveBackupsList extends StatelessWidget {
@@ -69,8 +68,6 @@ class BackupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -250,10 +247,9 @@ class BackupItem extends StatelessWidget {
                     thickness: 0.7,
                   ),
                 ),
-              if (!premiumUser)
-                Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(bottom: 8)),
+              Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(bottom: 8)),
             ],
           );
   }
