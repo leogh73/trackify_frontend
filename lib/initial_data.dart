@@ -109,9 +109,8 @@ class Init {
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
     bool driveStatus = userPreferences[0].googleDriveStatus;
-    String statusMessage = userPreferences[0].statusMessage ?? '';
-    bool showAgainStatusMessage =
-        userPreferences[0].showAgainStatusMessage ?? true;
+    String statusMessage = userPreferences[0].statusMessage!;
+    bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage!;
 
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
