@@ -258,7 +258,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.1.0",
+        "Versión 1.1.1",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -291,7 +291,7 @@ class ShowDialog {
                 context: context,
                 applicationIcon:
                     Image.asset("assets/icon/icon.png", height: 35, width: 35),
-                applicationVersion: '1.1.0',
+                applicationVersion: '1.1.1',
               ),
             },
       },

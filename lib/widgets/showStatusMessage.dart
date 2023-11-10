@@ -13,7 +13,7 @@ class ShowAgainStatusMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool showMessageAgain =
+    bool? showMessageAgain =
         Provider.of<UserPreferences>(context).showMessageAgain;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
@@ -21,12 +21,12 @@ class ShowAgainStatusMessage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => toggleShowMessage(context, !showMessageAgain),
+        onTap: () => toggleShowMessage(context, !showMessageAgain!),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            showMessageAgain
+            showMessageAgain!
                 ? Icon(Icons.check_box_outline_blank)
                 : Icon(Icons.check_box),
             SizedBox(width: 10),

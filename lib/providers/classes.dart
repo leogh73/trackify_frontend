@@ -128,8 +128,8 @@ class UserData {
   List<String> searchHistory;
   bool meLiStatus;
   bool googleDriveStatus;
-  String statusMessage;
-  bool showAgainStatusMessage;
+  String? statusMessage;
+  bool? showAgainStatusMessage;
 
   UserData({
     required this.id,

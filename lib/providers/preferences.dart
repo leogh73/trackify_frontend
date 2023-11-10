@@ -15,8 +15,8 @@ class UserPreferences with ChangeNotifier {
   late String userView;
   late bool mercadoLibre;
   late bool googleDrive;
-  late String statusMessage;
-  late bool showAgainStatusMessage;
+  late String? statusMessage;
+  late bool? showAgainStatusMessage;
 
   UserPreferences(StartData startData) {
     userId = startData.userId;
@@ -39,12 +39,12 @@ class UserPreferences with ChangeNotifier {
     if (type == "googleDriveStatus") {
       newPreferences = storedPreferences.edit(googleDriveStatus: value);
     }
-    if (type == "statusMessage") {
-      newPreferences = storedPreferences.edit(statusMessage: value);
-    }
-    if (type == "showAgainStatusMessage") {
-      newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
-    }
+    // if (type == "statusMessage") {
+    //   newPreferences = storedPreferences.edit(statusMessage: value);
+    // }
+    // if (type == "showAgainStatusMessage") {
+    //   newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
+    // }
     storedData.updatePreferences(newPreferences);
   }
 
@@ -135,8 +135,8 @@ class UserPreferences with ChangeNotifier {
     notifyListeners();
   }
 
-  String get getStatusMessage => statusMessage;
-  bool get showMessageAgain => showAgainStatusMessage;
+  String? get getStatusMessage => statusMessage;
+  bool? get showMessageAgain => showAgainStatusMessage;
 
   void setStatusMessage(String newMessage) {
     statusMessage = newMessage;
