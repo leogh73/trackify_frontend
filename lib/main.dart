@@ -151,7 +151,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       (state) {
         if (state == AppState.foreground) {
           syncData();
-          interstitialAd?.showInterstitialAd();
         }
       },
     );
