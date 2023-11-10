@@ -39,12 +39,12 @@ class UserPreferences with ChangeNotifier {
     if (type == "googleDriveStatus") {
       newPreferences = storedPreferences.edit(googleDriveStatus: value);
     }
-    // if (type == "statusMessage") {
-    //   newPreferences = storedPreferences.edit(statusMessage: value);
-    // }
-    // if (type == "showAgainStatusMessage") {
-    //   newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
-    // }
+    if (type == "statusMessage") {
+      newPreferences = storedPreferences.edit(statusMessage: value);
+    }
+    if (type == "showAgainStatusMessage") {
+      newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
+    }
     storedData.updatePreferences(newPreferences);
   }
 
