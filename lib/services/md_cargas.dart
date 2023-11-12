@@ -4,10 +4,7 @@ import '../services/_services.dart';
 class MDCargas {
   List<Map<String, dynamic>> eventData(event) {
     return [
-      {
-        "icon": const Icon(Icons.local_shipping, size: 20),
-        "text": event['status']!
-      },
+      {"icon": Icons.local_shipping, "text": event['status']!},
     ];
   }
 

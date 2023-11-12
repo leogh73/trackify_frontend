@@ -92,6 +92,8 @@ final Map<String, dynamic> servicesList = {
   "Trans Dan Express": TransDanExpress(),
   "Urbano": Urbano(),
   "Via Cargo": ViaCargo(),
+  "MDCargas": MDCargas(),
+  "ViaCargo": ViaCargo(),
 };
 
 class Services {

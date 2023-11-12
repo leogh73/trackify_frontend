@@ -83,22 +83,6 @@ class Init {
     List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
       userPreferences = [await loadNewUserData()];
-    } else if (userPreferences[0].statusMessage == null) {
-      userPreferences = [
-        UserData(
-          id: userPreferences[0].id,
-          userId: userPreferences[0].userId,
-          color: userPreferences[0].color,
-          view: userPreferences[0].view,
-          darkMode: userPreferences[0].darkMode,
-          searchHistory: userPreferences[0].searchHistory,
-          meLiStatus: userPreferences[0].meLiStatus,
-          googleDriveStatus: userPreferences[0].googleDriveStatus,
-          statusMessage: '',
-          showAgainStatusMessage: true,
-        )
-      ];
-      storedData.loadStartPreferences(userPreferences[0]);
     }
     List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
     List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();
@@ -109,8 +93,8 @@ class Init {
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
     bool driveStatus = userPreferences[0].googleDriveStatus;
-    String statusMessage = userPreferences[0].statusMessage!;
-    bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage!;
+    String statusMessage = userPreferences[0].statusMessage;
+    bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
 
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
@@ -143,8 +127,8 @@ class StartData {
   bool darkMode;
   bool mercadoLibre;
   bool googleDrive;
-  String? statusMessage;
-  bool? showAgainStatusMessage;
+  String statusMessage;
+  bool showAgainStatusMessage;
   List<String> searchHistory;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;

@@ -4,11 +4,8 @@ import '../services/_services.dart';
 class Urbano {
   List<Map<String, dynamic>> eventData(event) {
     return [
-      {"icon": const Icon(Icons.place, size: 20), "text": event['location']!},
-      {
-        "icon": const Icon(Icons.local_shipping, size: 20),
-        "text": event['status']!
-      },
+      {"icon": Icons.place, "text": event['location']!},
+      {"icon": Icons.local_shipping, "text": event['status']!},
     ];
   }
 

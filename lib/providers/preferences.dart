@@ -23,8 +23,8 @@ class UserPreferences with ChangeNotifier {
     userView = startData.startView;
     mercadoLibre = startData.mercadoLibre;
     googleDrive = startData.googleDrive;
-    statusMessage = startData.statusMessage!;
-    showAgainStatusMessage = startData.showAgainStatusMessage!;
+    statusMessage = startData.statusMessage;
+    showAgainStatusMessage = startData.showAgainStatusMessage;
   }
 
   updateDatabase(String type, dynamic value) async {
@@ -138,15 +138,17 @@ class UserPreferences with ChangeNotifier {
   String get getStatusMessage => statusMessage;
   bool get showMessageAgain => showAgainStatusMessage;
 
-  void setStatusMessage(String newMessage) {
-    statusMessage = newMessage;
-    updateDatabase("statusMessage", newMessage);
-    notifyListeners();
+  void setStatusMessage(String incomingMessage) {
+    statusMessage = incomingMessage;
   }
 
   void setShowMessageAgain(bool newStatus) {
     showAgainStatusMessage = newStatus;
-    updateDatabase("showAgainStatusMessage", newStatus);
     notifyListeners();
+  }
+
+  void storeMessageData(String message, bool status) {
+    updateDatabase("statusMessage", message);
+    updateDatabase("showAgainStatusMessage", status);
   }
 }

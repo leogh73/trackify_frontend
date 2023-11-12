@@ -108,9 +108,9 @@ class TrackingFunctions {
     if (itemData['moreData'] != null) {
       for (Map<String, dynamic> element in itemData['moreData']) {
         int dataIndex = trackingsList[index]
-            .moreData
+            .moreData!
             .indexWhere((d) => d["title"] == element["title"]);
-        trackingsList[index].moreData[dataIndex]['data'] = element["data"];
+        trackingsList[index].moreData![dataIndex]['data'] = element["data"];
       }
     }
     storedData.updateMainTracking(trackingsList[index]);
@@ -185,7 +185,7 @@ class TrackingFunctions {
       'currentDate':
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.1.1'
+      'version': '1.1.2'
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
@@ -197,20 +197,23 @@ class TrackingFunctions {
     } else {
       Provider.of<Status>(context, listen: false).setStartError("");
     }
-    dynamic preferencesProvider =
-        Provider.of<UserPreferences>(context, listen: false);
-    final String statusMessage = preferencesProvider.getStatusMessage;
-    final bool showAgainStatusMessage = preferencesProvider.showMessageAgain;
-    if (statusMessage != responseData['statusMessage'] &&
-        responseData['statusMessage'].isNotEmpty) {
-      preferencesProvider.setStatusMessage(responseData['statusMessage']);
-      preferencesProvider.setShowMessageAgain(true);
-      DialogError.statusMessage(context, responseData['statusMessage']);
-    } else if (responseData['statusMessage'].isEmpty) {
-      preferencesProvider.setStatusMessage(responseData['statusMessage']);
-      preferencesProvider.setShowMessageAgain(false);
-    } else if (statusMessage.isNotEmpty && showAgainStatusMessage) {
-      DialogError.statusMessage(context, statusMessage);
+    final String statusMessage =
+        Provider.of<UserPreferences>(context, listen: false).getStatusMessage;
+    if (statusMessage != responseData['statusMessage']) {
+      Provider.of<UserPreferences>(context, listen: false)
+          .setStatusMessage(responseData['statusMessage']);
+      if (responseData['statusMessage'].isEmpty) {
+        Provider.of<UserPreferences>(context, listen: false)
+            .setShowMessageAgain(false);
+      }
+      if (responseData['statusMessage'].isNotEmpty) {
+        Provider.of<UserPreferences>(context, listen: false)
+            .setShowMessageAgain(true);
+        DialogError.statusMessage(context, responseData['statusMessage']);
+      }
+      Provider.of<UserPreferences>(context, listen: false).storeMessageData(
+          responseData['statusMessage'],
+          responseData['statusMessage'].isEmpty ? false : true);
     }
     if (responseData['driveStatus'] == "Update required" ||
         responseData['driveStatus'] == 'Backup not found') {

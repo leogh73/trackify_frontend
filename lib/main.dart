@@ -138,10 +138,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
-  void syncData() async {
+  void syncData(BuildContext context) async {
     Future.delayed(
       const Duration(seconds: 2),
-      () => TrackingFunctions.syncronizeUserData(navKey.currentContext!),
+      () => TrackingFunctions.syncronizeUserData(context),
     );
   }
 
@@ -150,7 +150,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     AppStateEventNotifier.appStateStream.forEach(
       (state) {
         if (state == AppState.foreground) {
-          syncData();
+          syncData(navKey.currentContext!);
         }
       },
     );
@@ -166,7 +166,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           .setStartError('User not initialized');
     }
     firebaseSettings(context);
-    syncData();
+    syncData(context);
     listenToAppStateChanges();
     interstitialAd?.createInterstitialAd();
   }

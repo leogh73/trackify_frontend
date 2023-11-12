@@ -42,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
     Future.delayed(
       const Duration(seconds: 3),
       () {
-        String error =
+        final String error =
             Provider.of<Status>(context, listen: false).getStartError;
         if (error.isNotEmpty) {
           return DialogError.startError(context, error);

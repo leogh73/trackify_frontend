@@ -68,7 +68,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrackingMore(widget.tracking.moreData),
+        builder: (_) => TrackingMore(widget.tracking.moreData!),
       ),
     );
   }

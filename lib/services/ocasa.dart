@@ -4,10 +4,7 @@ import '../services/_services.dart';
 class OCASA {
   List<Map<String, dynamic>> eventData(event) {
     return [
-      {
-        "icon": const Icon(Icons.local_shipping, size: 20),
-        "text": event['detail']!
-      },
+      {"icon": Icons.local_shipping, "text": event['detail']!},
     ];
   }
 

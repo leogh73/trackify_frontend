@@ -21,7 +21,8 @@ class ItemTracking {
   String code;
   String service;
   List<Map<String, String>> events;
-  List<Map<String, dynamic>> moreData;
+  List<Map<String, dynamic>>? moreData;
+  List<List<String>>? otherData;
   String? lastEvent;
   String? lastCheck;
   String? startCheck;
@@ -37,6 +38,7 @@ class ItemTracking {
     required this.service,
     required this.events,
     required this.moreData,
+    this.otherData,
     this.lastEvent,
     this.lastCheck,
     this.startCheck,
@@ -56,8 +58,13 @@ class ItemTracking {
       events: (map['events'] as List)
           .map((e) => Map<String, String>.from(e))
           .toList(),
-      moreData: (map['moreData'] as List)
-          .map((e) => Map<String, dynamic>.from(e))
+      moreData: map['moreData'] == null
+          ? null
+          : (map['moreData'] as List)
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList(),
+      otherData: (map['otherData'] as List)
+          .map((e) => (e as List).map((e) => e as String).toList())
           .toList(),
       lastCheck: map['lastCheck'],
       startCheck: map['startCheck'],
@@ -77,6 +84,7 @@ class ItemTracking {
       'lastEvent': lastEvent,
       'events': events,
       'moreData': moreData,
+      'otherData': otherData,
       'lastCheck': lastCheck,
       'startCheck': startCheck,
       'checkError': checkError,
@@ -94,6 +102,7 @@ class ItemTracking {
     String? lastEvent,
     List<Map<String, String>>? events,
     List<Map<String, dynamic>>? moreData,
+    List<List<String>>? otherData,
     String? lastCheck,
     String? startCheck,
     bool? search,
@@ -110,6 +119,7 @@ class ItemTracking {
       lastEvent: lastEvent ?? this.lastEvent,
       events: events ?? this.events,
       moreData: moreData ?? this.moreData,
+      otherData: otherData ?? this.otherData,
       lastCheck: lastCheck ?? this.lastCheck,
       startCheck: startCheck ?? this.startCheck,
       checkError: checkError ?? this.checkError,
@@ -128,8 +138,8 @@ class UserData {
   List<String> searchHistory;
   bool meLiStatus;
   bool googleDriveStatus;
-  String? statusMessage;
-  bool? showAgainStatusMessage;
+  String statusMessage;
+  bool showAgainStatusMessage;
 
   UserData({
     required this.id,
@@ -155,8 +165,8 @@ class UserData {
           (map['searchHistory'] as List).map((e) => e as String).toList(),
       meLiStatus: map['meLiStatus'],
       googleDriveStatus: map['googleDriveStatus'],
-      statusMessage: map['statusMessage'],
-      showAgainStatusMessage: map['showAgainStatusMessage'],
+      statusMessage: map['statusMessage'] ?? '',
+      showAgainStatusMessage: map['showAgainStatusMessage'] ?? true,
     );
   }
 

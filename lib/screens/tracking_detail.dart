@@ -74,7 +74,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => TrackingMore(
-                            widget.tracking.moreData,
+                            widget.tracking.moreData!,
                           ),
                         ),
                       );
