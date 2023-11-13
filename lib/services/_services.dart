@@ -99,11 +99,16 @@ final Map<String, dynamic> servicesList = {
 class Services {
   static dynamic select(String service) => servicesList[service];
 
-  static List<ServiceItemModel> itemModelList(bool mercadoLibre) {
+  static List<ServiceItemModel> itemModelList(
+      bool mercadoLibre, bool lastVersion) {
     List<ServiceItemModel> servicesItemModels = servicesList.values
         .map((service) => service.itemModel as ServiceItemModel)
         .toList();
     if (!mercadoLibre) servicesItemModels.removeAt(28);
+    if (lastVersion) {
+      servicesItemModels.removeAt(44);
+      servicesItemModels.removeAt(44);
+    }
     return servicesItemModels;
   }
 

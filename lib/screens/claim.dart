@@ -137,7 +137,7 @@ class _ClaimState extends State<Claim> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ServiceItemModel> services = Services.itemModelList(true);
+    final List<ServiceItemModel> services = Services.itemModelList(true, true);
     final bool fullHD = MediaQuery.of(context).size.width *
             MediaQuery.of(context).devicePixelRatio >
         1079;

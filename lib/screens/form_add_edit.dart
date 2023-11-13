@@ -45,7 +45,7 @@ class _FormAddEditState extends State<FormAddEdit> {
   @override
   void initState() {
     super.initState();
-    services = Services.itemModelList(widget.mercadoLibre);
+    services = Services.itemModelList(widget.mercadoLibre, true);
     if (widget.rename == true) {
       String? widgetTitle = widget.tracking?.title;
       String? widgetCode = widget.tracking?.code;
@@ -297,7 +297,7 @@ class _SelectServiceState extends State<SelectService> {
   @override
   Widget build(BuildContext context) {
     final List<ServiceItemModel> services =
-        Services.itemModelList(widget.mercadoLibre!);
+        Services.itemModelList(widget.mercadoLibre!, true);
     return DropdownButton<ServiceItemModel>(
       borderRadius: BorderRadius.all(Radius.circular(10)),
       elevation: 4,
