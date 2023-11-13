@@ -70,7 +70,7 @@ final Map<String, dynamic> servicesList = {
   "Enviopack": Enviopack(),
   "Epsa": Epsa(),
   'Expreso Lancioni': ExpresoLancioni(),
-  "Expreo Malargüe": ExpresoMalargue(),
+  "Expreso Malargüe": ExpresoMalargue(),
   "FastTrack": FastTrack(),
   "Fono Pack": FonoPack(),
   "Integral Pack": IntegralPack(),
@@ -99,16 +99,13 @@ final Map<String, dynamic> servicesList = {
 class Services {
   static dynamic select(String service) => servicesList[service];
 
-  static List<ServiceItemModel> itemModelList(
-      bool mercadoLibre, bool lastVersion) {
+  static List<ServiceItemModel> itemModelList(bool mercadoLibre) {
     List<ServiceItemModel> servicesItemModels = servicesList.values
         .map((service) => service.itemModel as ServiceItemModel)
         .toList();
     if (!mercadoLibre) servicesItemModels.removeAt(28);
-    if (lastVersion) {
-      servicesItemModels.removeAt(44);
-      servicesItemModels.removeAt(44);
-    }
+    servicesItemModels.removeAt(44);
+    servicesItemModels.removeAt(44);
     return servicesItemModels;
   }
 
