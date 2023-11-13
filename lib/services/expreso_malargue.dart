@@ -29,7 +29,7 @@ class ExpresoMalargue {
 
   final ServiceItemModel itemModel = ServiceItemModel(
     serviceLogo,
-    "Expreso Malargïe",
+    "Expreso Malargüe",
     "0002-000000084478-U",
   );
 }
