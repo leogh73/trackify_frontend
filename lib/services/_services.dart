@@ -132,16 +132,16 @@ class Services {
         "contact": [
           {
             "type": "phone",
-            "title": "Teléfono",
-            "data": "0810-810-7225",
+            "title": "Atención al cliente",
+            "data": "0800-666-2993",
           },
           {
             "type": "email",
             "title": "Correo electrónico",
-            "data": "clientes@integralexpress.com",
+            "data": "atencionalcliente@plusmar.com.ar",
           },
         ],
-        "source": "https://www.integralpack.com.ar/",
+        "source": "https://www.plusmar.com.ar/servicio-de-encomiendas.html",
       },
     };
     return contactList[service]!;

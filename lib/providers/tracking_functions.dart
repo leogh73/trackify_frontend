@@ -59,10 +59,7 @@ class TrackingFunctions {
   }
 
   static void loadNotificationData(
-    bool foreground,
-    RemoteMessage message,
-    BuildContext context,
-  ) {
+      bool foreground, RemoteMessage message, BuildContext context) {
     List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     RemoteNotification notification = message.notification!;
@@ -199,6 +196,8 @@ class TrackingFunctions {
     }
     final String statusMessage =
         Provider.of<UserPreferences>(context, listen: false).getStatusMessage;
+    final bool showAgainStatusMessage =
+        Provider.of<UserPreferences>(context, listen: false).showMessageAgain;
     if (statusMessage != responseData['statusMessage']) {
       Provider.of<UserPreferences>(context, listen: false)
           .setStatusMessage(responseData['statusMessage']);
@@ -207,13 +206,15 @@ class TrackingFunctions {
             .setShowMessageAgain(false);
       }
       if (responseData['statusMessage'].isNotEmpty) {
+        print("HTTP_R_${responseData['statusMessage']}");
         Provider.of<UserPreferences>(context, listen: false)
             .setShowMessageAgain(true);
         DialogError.statusMessage(context, responseData['statusMessage']);
       }
-      Provider.of<UserPreferences>(context, listen: false).storeMessageData(
-          responseData['statusMessage'],
-          responseData['statusMessage'].isEmpty ? false : true);
+      Provider.of<UserPreferences>(context, listen: false)
+          .storeMessageData(responseData['statusMessage']);
+    } else if (showAgainStatusMessage && statusMessage.isNotEmpty) {
+      DialogError.statusMessage(context, statusMessage);
     }
     if (responseData['driveStatus'] == "Update required" ||
         responseData['driveStatus'] == 'Backup not found') {

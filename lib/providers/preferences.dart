@@ -144,11 +144,11 @@ class UserPreferences with ChangeNotifier {
 
   void setShowMessageAgain(bool newStatus) {
     showAgainStatusMessage = newStatus;
+    updateDatabase("showAgainStatusMessage", newStatus);
     notifyListeners();
   }
 
-  void storeMessageData(String message, bool status) {
+  void storeMessageData(String message) {
     updateDatabase("statusMessage", message);
-    updateDatabase("showAgainStatusMessage", status);
   }
 }

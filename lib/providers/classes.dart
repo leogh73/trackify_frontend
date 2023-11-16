@@ -63,9 +63,11 @@ class ItemTracking {
           : (map['moreData'] as List)
               .map((e) => Map<String, dynamic>.from(e))
               .toList(),
-      otherData: (map['otherData'] as List)
-          .map((e) => (e as List).map((e) => e as String).toList())
-          .toList(),
+      otherData: map['otherData'] == null
+          ? null
+          : (map['otherData'] as List)
+              .map((e) => (e as List).map((e) => e as String).toList())
+              .toList(),
       lastCheck: map['lastCheck'],
       startCheck: map['startCheck'],
       checkError: map['checkError'],

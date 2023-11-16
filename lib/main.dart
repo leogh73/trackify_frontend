@@ -138,7 +138,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
-  void syncData(BuildContext context) async {
+  static void syncData(BuildContext context) async {
     Future.delayed(
       const Duration(seconds: 2),
       () => TrackingFunctions.syncronizeUserData(context),
@@ -166,7 +166,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           .setStartError('User not initialized');
     }
     firebaseSettings(context);
-    syncData(context);
     listenToAppStateChanges();
     interstitialAd?.createInterstitialAd();
   }

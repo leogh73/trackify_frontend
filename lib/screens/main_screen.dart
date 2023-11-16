@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:trackify/screens/search.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 import 'package:trackify/widgets/options_style.dart';
+import '../main.dart';
+import '../providers/tracking_functions.dart';
 import '../widgets/ad_native.dart';
 
 import '../providers/classes.dart';
@@ -42,6 +44,7 @@ class _MainScreenState extends State<MainScreen> {
     Future.delayed(
       const Duration(seconds: 3),
       () {
+        TrackingFunctions.syncronizeUserData(context);
         final String error =
             Provider.of<Status>(context, listen: false).getStartError;
         if (error.isNotEmpty) {
