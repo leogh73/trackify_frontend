@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/screens/search.dart';
-import 'package:trackify/widgets/dialog_error.dart';
-import 'package:trackify/widgets/options_style.dart';
-import '../main.dart';
-import '../providers/tracking_functions.dart';
-import '../widgets/ad_native.dart';
 
 import '../providers/classes.dart';
 import '../providers/trackings_active.dart';
 import '../providers/status.dart';
 import '../providers/preferences.dart';
+import '../providers/tracking_functions.dart';
 
 import '../screens/form_add_edit.dart';
+import '../screens/search.dart';
 
-import '../widgets/drawer.dart';
-import '../widgets/tracking.list.dart';
-import '../widgets/options_tracking.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
+import '../widgets/ad_native.dart';
+import '../widgets/dialog_error.dart';
+import '../widgets/drawer.dart';
+import '../widgets/tracking.list.dart';
+import '../widgets/options_style.dart';
+import '../widgets/options_tracking.dart';
 
 class MainScreen extends StatefulWidget {
   final String userId;

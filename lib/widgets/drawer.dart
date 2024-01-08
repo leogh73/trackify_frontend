@@ -80,7 +80,7 @@ class DrawerWidget extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           SizedBox(
-            height: 95,
+            height: 110,
             child: DrawerHeader(
               margin: EdgeInsets.only(bottom: 1),
               padding: EdgeInsets.only(left: 14),
@@ -97,18 +97,19 @@ class DrawerWidget extends StatelessWidget {
                         const BorderRadius.all(Radius.circular(100.0)),
                     // elevation: 10,
                     child: Padding(
-                      padding: const EdgeInsets.all(3),
+                      padding: const EdgeInsets.all(5),
                       child: Image.asset("assets/icon/icon.png",
-                          height: 60, width: 60),
+                          height: 70, width: 70),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 21, right: 13),
+                    padding: const EdgeInsets.only(left: 15, right: 15),
                     child: Text(
                       'TrackeAR',
                       style: TextStyle(
                           color: Theme.of(context).primaryColorDark,
-                          fontSize: 25.0),
+                          fontSize: 25.0,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -141,18 +142,18 @@ class DrawerWidget extends StatelessWidget {
             155,
             meliStatus,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade400),
-                ),
-              ),
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: AdNative("medium"),
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.only(left: 10, right: 10),
+          //   child: Container(
+          //     decoration: BoxDecoration(
+          //       border: Border(
+          //         bottom: BorderSide(color: Colors.grey.shade400),
+          //       ),
+          //     ),
+          //     padding: EdgeInsets.only(top: 8, bottom: 8),
+          //     child: AdNative("medium"),
+          //   ),
+          // ),
           DrawerOption(
             Icons.local_shipping,
             "Activos ($mainAmount)",
@@ -185,18 +186,6 @@ class DrawerWidget extends StatelessWidget {
             false,
             drawerInterstitialAd6,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade400),
-                ),
-              ),
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: AdNative("medium"),
-            ),
-          ),
           DrawerOption(
             Icons.info_outline,
             'Acerca de ésta aplicación',
@@ -204,6 +193,13 @@ class DrawerWidget extends StatelessWidget {
             false,
             true,
             null,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Container(
+              padding: EdgeInsets.only(top: 8, bottom: 8),
+              child: AdNative("medium"),
+            ),
           ),
         ],
       ),

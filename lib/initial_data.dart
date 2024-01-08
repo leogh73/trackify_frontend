@@ -72,10 +72,12 @@ class Init {
     if (firebaseToken == "BLACKLISTED") return startPreferences;
     Response response = await HttpConnection.requestHandler(
         '/api/user/initialize/', {'token': firebaseToken});
+
     if (response.statusCode == 200) {
       startPreferences.userId = json.decode(response.body)['userId'];
       storedData.loadStartPreferences(startPreferences);
     }
+
     return startPreferences;
   }
 

@@ -67,20 +67,20 @@ class _TrackingListState extends State<TrackingList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 8, bottom: 50),
-                  ),
+                  // Padding(
+                  //   child: AdNative("medium"),
+                  //   padding: EdgeInsets.only(top: 8, bottom: 50),
+                  // ),
                   Icon(Icons.local_shipping_outlined, size: 80),
                   SizedBox(width: 30, height: 30),
                   Text(
                     'No hay seguimientos',
                     style: TextStyle(fontSize: 24),
                   ),
-                  Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 50, bottom: 8),
-                  ),
+                  // Padding(
+                  //   child: AdNative("medium"),
+                  //   padding: EdgeInsets.only(top: 50, bottom: 8),
+                  // ),
                 ],
               ),
             ),

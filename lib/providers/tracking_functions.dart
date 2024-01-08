@@ -173,16 +173,15 @@ class TrackingFunctions {
         tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
-    String _userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
+    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
-      'userId': _userId,
+      'userId': userId,
       'token': await FirebaseMessaging.instance.getToken(),
       'lastEvents': json.encode(lastEventsList),
       'currentDate':
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.1.2'
+      'version': '1.1.6'
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
@@ -206,7 +205,6 @@ class TrackingFunctions {
             .setShowMessageAgain(false);
       }
       if (responseData['statusMessage'].isNotEmpty) {
-        print("HTTP_R_${responseData['statusMessage']}");
         Provider.of<UserPreferences>(context, listen: false)
             .setShowMessageAgain(true);
         DialogError.statusMessage(context, responseData['statusMessage']);

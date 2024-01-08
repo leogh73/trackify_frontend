@@ -161,6 +161,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    // print("HTTP_R_$userId");
     if (userId.isEmpty) {
       Provider.of<Status>(context, listen: false)
           .setStartError('User not initialized');
@@ -173,9 +174,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      interstitialAd?.showInterstitialAd();
-    }
+    interstitialAd?.showInterstitialAd();
   }
 
   @override

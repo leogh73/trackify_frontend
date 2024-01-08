@@ -258,7 +258,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.1.5",
+        "Versión 1.1.6",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
