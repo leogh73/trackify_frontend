@@ -32,9 +32,13 @@ class MercadoLibre extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // Padding(
+            //     child: AdNative("medium"),
+            //     padding: EdgeInsets.only(top: 8, bottom: 8)),
             Padding(
-                child: AdNative("medium"),
-                padding: EdgeInsets.only(top: 8, bottom: 8)),
+              child: AdNative("small"),
+              padding: EdgeInsets.only(top: 10, bottom: 100),
+            ),
             Container(
               height: 170,
               child: Column(
@@ -49,9 +53,10 @@ class MercadoLibre extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-                child: AdNative("medium"),
-                padding: EdgeInsets.only(top: 8, bottom: 8)),
+            SizedBox(width: 10, height: 180),
+            // Padding(
+            //     child: AdNative("medium"),
+            //     padding: EdgeInsets.only(top: 8, bottom: 8)),
           ],
         ),
       ),

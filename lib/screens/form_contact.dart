@@ -99,8 +99,9 @@ class _FormContactState extends State<FormContact> {
           child: Column(
             children: [
               Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 8, bottom: 8)),
+                child: AdNative("small"),
+                padding: EdgeInsets.only(top: 10, bottom: 80),
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -200,9 +201,7 @@ class _FormContactState extends State<FormContact> {
                   ),
                 ),
               ),
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 8, bottom: 8)),
+              SizedBox(width: 50, height: 120),
             ],
           ),
         ),

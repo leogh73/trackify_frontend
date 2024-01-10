@@ -65,18 +65,20 @@ class _TrackingListState extends State<TrackingList> {
         ? Center(
             child: SingleChildScrollView(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Padding(
-                  //   child: AdNative("medium"),
-                  //   padding: EdgeInsets.only(top: 8, bottom: 50),
-                  // ),
+                  Padding(
+                    child: AdNative("small"),
+                    padding: EdgeInsets.only(top: 10, bottom: 60),
+                  ),
                   Icon(Icons.local_shipping_outlined, size: 80),
                   SizedBox(width: 30, height: 30),
                   Text(
                     'No hay seguimientos',
                     style: TextStyle(fontSize: 24),
                   ),
+                  SizedBox(width: 10, height: 180),
                   // Padding(
                   //   child: AdNative("medium"),
                   //   padding: EdgeInsets.only(top: 50, bottom: 8),

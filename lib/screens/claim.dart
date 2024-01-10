@@ -152,9 +152,13 @@ class _ClaimState extends State<Claim> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // Padding(
+              //     child: AdNative("medium"),
+              //     padding: EdgeInsets.only(bottom: 20)),
               Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(bottom: 20)),
+                child: AdNative("small"),
+                padding: EdgeInsets.only(bottom: 50),
+              ),
               Text(
                 "Ésta aplicación es para hacer seguimientos, a partir de la información que las empresas de transporte, ponen a disposición del público. No tenemos contacto exclusivo ni relación alguna dichas empresas.",
                 maxLines: 8,
@@ -222,8 +226,9 @@ class _ClaimState extends State<Claim> {
                       Services.select(selectedServiceName!).contactData),
                   padding: EdgeInsets.only(top: 10),
                 ),
-              Padding(
-                  child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
+              // Padding(
+              //     child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
+              SizedBox(width: 50, height: 50),
             ],
           ),
         ),

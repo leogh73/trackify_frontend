@@ -11,6 +11,7 @@ import '../providers/trackings_archived.dart';
 
 import '../services/_services.dart';
 // import '../widgets/ad_native.dart';
+import '../widgets/ad_native.dart';
 import '../widgets/dialog_toast.dart';
 import '../widgets/ad_banner.dart';
 
@@ -151,118 +152,122 @@ class _FormAddEditState extends State<FormAddEdit> {
           ),
         ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // AdNative("medium"),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 10,
-                ),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: SelectService(
-                              preLoadedService: loadedService,
-                              chosen: false,
-                              optionWidth: 200,
-                              mercadoLibre: widget.mercadoLibre,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // AdNative("medium"),
+            Padding(
+              child: AdNative("small"),
+              padding: EdgeInsets.only(top: 10, bottom: 50),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 10,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: SelectService(
+                            preLoadedService: loadedService,
+                            chosen: false,
+                            optionWidth: 200,
+                            mercadoLibre: widget.mercadoLibre,
+                          ),
+                          // SelectService(),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: TextFormField(
+                        readOnly: widget.rename,
+                        focusNode: FocusNode(),
+                        decoration: InputDecoration(
+                          labelText: "Código",
+                          hintText: exampleCode,
+                          contentPadding: EdgeInsets.only(top: 5),
+                        ),
+                        controller: code,
+                        textInputAction: TextInputAction.next,
+                        autofocus: false,
+                        validator: (value) {
+                          if (value == null || value.length < 6) {
+                            return 'Ingrese un código de seguimiento válido';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.only(top: 5),
+                          labelText: "Título (opcional)",
+                          hintText: "Ejemplo: Celular",
+                        ),
+                        controller: title,
+                        textInputAction: TextInputAction.next,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15, left: 7),
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              height: 39,
+                              child: ElevatedButton(
+                                child: const Text(
+                                  'Cancelar',
+                                  style: TextStyle(fontSize: 17),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // interstitialAd.showInterstitialAd();
+                                },
+                              ),
                             ),
-                            // SelectService(),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: TextFormField(
-                          readOnly: widget.rename,
-                          focusNode: FocusNode(),
-                          decoration: InputDecoration(
-                            labelText: "Código",
-                            hintText: exampleCode,
-                            contentPadding: EdgeInsets.only(top: 5),
-                          ),
-                          controller: code,
-                          textInputAction: TextInputAction.next,
-                          autofocus: false,
-                          validator: (value) {
-                            if (value == null || value.length < 6) {
-                              return 'Ingrese un código de seguimiento válido';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.only(top: 5),
-                            labelText: "Título (opcional)",
-                            hintText: "Ejemplo: Celular",
-                          ),
-                          controller: title,
-                          textInputAction: TextInputAction.next,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 7),
-                        child: Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              SizedBox(
-                                width: 120,
-                                height: 39,
-                                child: ElevatedButton(
-                                  child: const Text(
-                                    'Cancelar',
-                                    style: TextStyle(fontSize: 17),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    // interstitialAd.showInterstitialAd();
-                                  },
+                            const SizedBox(width: 10),
+                            SizedBox(
+                              width: 120,
+                              height: 39,
+                              child: ElevatedButton(
+                                child: Text(
+                                  widget.rename ? 'Guardar' : 'Agregar',
+                                  style: const TextStyle(fontSize: 17),
                                 ),
+                                onPressed: widget.rename
+                                    ? () =>
+                                        editTracking(context, service, listView)
+                                    : () => addTracking(context, service),
                               ),
-                              const SizedBox(width: 10),
-                              SizedBox(
-                                width: 120,
-                                height: 39,
-                                child: ElevatedButton(
-                                  child: Text(
-                                    widget.rename ? 'Guardar' : 'Agregar',
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  onPressed: widget.rename
-                                      ? () => editTracking(
-                                          context, service, listView)
-                                      : () => addTracking(context, service),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              // Padding(
-              //   child: AdNative("medium"),
-              //   padding: EdgeInsets.only(top: 20),
-              // ),
-            ],
-          ),
+            ),
+            SizedBox(width: 50, height: 120),
+            // Padding(
+            //   child: AdNative("medium"),
+            //   padding: EdgeInsets.only(top: 20),
+            // ),
+          ],
         ),
       ),
       bottomNavigationBar: const AdBanner(),

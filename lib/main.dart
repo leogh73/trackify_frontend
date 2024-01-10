@@ -22,7 +22,6 @@ import 'screens/main_screen.dart';
 import '../widgets/ad_interstitial.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
   await dotenv.load();
   await MobileAds.instance.initialize();
@@ -111,7 +110,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
+class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
   AdInterstitial? interstitialAd = AdInterstitial();
   late String userId;
@@ -151,6 +150,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       (state) {
         if (state == AppState.foreground) {
           syncData(navKey.currentContext!);
+          interstitialAd?.showInterstitialAd();
         }
       },
     );
@@ -159,7 +159,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     userId = Provider.of<UserPreferences>(context, listen: false).userId;
     // print("HTTP_R_$userId");
     if (userId.isEmpty) {
@@ -169,12 +168,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     firebaseSettings(context);
     listenToAppStateChanges();
     interstitialAd?.createInterstitialAd();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-    interstitialAd?.showInterstitialAd();
   }
 
   @override

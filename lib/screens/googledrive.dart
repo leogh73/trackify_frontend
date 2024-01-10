@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+
+import '../widgets/ad_banner.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/drive_account.dart';
 import '../widgets/drive_content.dart';
@@ -108,9 +110,13 @@ class _GoogleDriveState extends State<GoogleDrive> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Padding(
+              //     child: AdNative("medium"),
+              //     padding: EdgeInsets.only(bottom: 8)),
               Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(bottom: 8)),
+                child: AdNative("small"),
+                padding: EdgeInsets.only(top: 10, bottom: 60),
+              ),
               if (isPortrait && !driveStatus)
                 Container(
                   padding: const EdgeInsets.only(right: 20, left: 25),
@@ -171,13 +177,15 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       () => googleAccount("login", context),
                       null,
                     ),
-              Padding(
-                  child: AdNative("medium"),
-                  padding: EdgeInsets.only(top: 20, bottom: 8)),
+              SizedBox(width: 50, height: 180),
+              // Padding(
+              //     child: AdNative("medium"),
+              //     padding: EdgeInsets.only(top: 20, bottom: 8)),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
