@@ -19,8 +19,6 @@ import '/providers/tracking_functions.dart';
 
 import 'screens/main_screen.dart';
 
-import '../widgets/ad_interstitial.dart';
-
 void main() async {
   tz.initializeTimeZones();
   await dotenv.load();
@@ -112,7 +110,6 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
-  AdInterstitial? interstitialAd = AdInterstitial();
   late String userId;
 
   void firebaseSettings(context) async {
@@ -150,7 +147,6 @@ class _AppState extends State<App> {
       (state) {
         if (state == AppState.foreground) {
           syncData(navKey.currentContext!);
-          interstitialAd?.showInterstitialAd();
         }
       },
     );
@@ -167,7 +163,6 @@ class _AppState extends State<App> {
     }
     firebaseSettings(context);
     listenToAppStateChanges();
-    interstitialAd?.createInterstitialAd();
   }
 
   @override

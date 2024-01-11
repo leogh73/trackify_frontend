@@ -11,7 +11,6 @@ import '../screens/form_add_edit.dart';
 import '../screens/search.dart';
 
 import '../widgets/ad_banner.dart';
-import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/dialog_error.dart';
 import '../widgets/drawer.dart';
@@ -28,15 +27,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  AdInterstitial mainInterstitialAd = AdInterstitial();
-
-  AdInterstitial drawerInterstitialAd1 = AdInterstitial();
-  AdInterstitial drawerInterstitialAd2 = AdInterstitial();
-  AdInterstitial drawerInterstitialAd3 = AdInterstitial();
-  AdInterstitial drawerInterstitialAd4 = AdInterstitial();
-  AdInterstitial drawerInterstitialAd5 = AdInterstitial();
-  AdInterstitial drawerInterstitialAd6 = AdInterstitial();
-
   @override
   void initState() {
     super.initState();
@@ -51,13 +41,6 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
     );
-    mainInterstitialAd.createInterstitialAd();
-    drawerInterstitialAd1.createInterstitialAd();
-    drawerInterstitialAd2.createInterstitialAd();
-    drawerInterstitialAd3.createInterstitialAd();
-    drawerInterstitialAd4.createInterstitialAd();
-    drawerInterstitialAd5.createInterstitialAd();
-    drawerInterstitialAd6.createInterstitialAd();
   }
 
   @override
@@ -80,16 +63,7 @@ class _MainScreenState extends State<MainScreen> {
       archived: false,
     );
     return Scaffold(
-      drawer: error.isEmpty && userId.isNotEmpty
-          ? DrawerWidget(
-              drawerInterstitialAd1,
-              drawerInterstitialAd2,
-              drawerInterstitialAd3,
-              drawerInterstitialAd4,
-              drawerInterstitialAd5,
-              drawerInterstitialAd6,
-            )
-          : null,
+      drawer: error.isEmpty && userId.isNotEmpty ? DrawerWidget() : null,
       appBar: selectionMode
           ? AppBar(
               titleSpacing: 1.0,
@@ -138,7 +112,6 @@ class _MainScreenState extends State<MainScreen> {
                   icon: const Icon(Icons.search),
                   iconSize: 20,
                   onPressed: () => {
-                    mainInterstitialAd.showInterstitialAd(),
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const Search(),
@@ -178,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
               ? null
               : FloatingActionButton(
                   onPressed: () => {},
-                  child: AddTracking(32, mainInterstitialAd),
+                  child: AddTracking(32),
                 ),
       bottomNavigationBar: const AdBanner(),
     );
@@ -187,9 +160,7 @@ class _MainScreenState extends State<MainScreen> {
 
 class AddTracking extends StatelessWidget {
   final double iconSize;
-  final AdInterstitial interstitialAd;
-  const AddTracking(this.iconSize, this.interstitialAd, {Key? key})
-      : super(key: key);
+  const AddTracking(this.iconSize, {Key? key}) : super(key: key);
 
   void addTracking(BuildContext context) {
     Navigator.push(
@@ -201,7 +172,6 @@ class AddTracking extends StatelessWidget {
         ),
       ),
     );
-    // interstitialAd.showInterstitialAd();
   }
 
   @override

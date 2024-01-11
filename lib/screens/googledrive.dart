@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../widgets/ad_banner.dart';
+import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/drive_account.dart';
 import '../widgets/drive_content.dart';
@@ -14,7 +15,8 @@ import '../providers/preferences.dart';
 import '../providers/status.dart';
 
 class GoogleDrive extends StatefulWidget {
-  const GoogleDrive({Key? key}) : super(key: key);
+  final AdInterstitial adInterstitial;
+  GoogleDrive(this.adInterstitial, {Key? key}) : super(key: key);
 
   @override
   State<GoogleDrive> createState() => _GoogleDriveState();
@@ -99,9 +101,12 @@ class _GoogleDriveState extends State<GoogleDrive> {
             icon: driveStatus
                 ? const Icon(Icons.logout)
                 : const Icon(Icons.login),
-            onPressed: driveStatus
-                ? () => googleAccount('logout', context)
-                : () => googleAccount('login', context),
+            onPressed: () {
+              widget.adInterstitial.showInterstitialAd();
+              driveStatus
+                  ? googleAccount('logout', context)
+                  : googleAccount('login', context);
+            },
           ),
         ],
       ),
@@ -174,7 +179,10 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       false,
                       '',
                       'INGRESAR',
-                      () => googleAccount("login", context),
+                      () {
+                        widget.adInterstitial.showInterstitialAd();
+                        googleAccount("login", context);
+                      },
                       null,
                     ),
               SizedBox(width: 50, height: 180),

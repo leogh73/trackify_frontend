@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/ad_native.dart';
-
-import '../screens/form_contact.dart';
-import '../widgets/ad_interstitial.dart';
 
 import 'dialog_toast.dart';
 
@@ -11,29 +7,32 @@ import '../providers/preferences.dart';
 import '../providers/trackings_active.dart';
 import '../providers/trackings_archived.dart';
 
+import '../screens/form_contact.dart';
 import '../screens/main_screen.dart';
 import '../screens/archived.dart';
 import '../screens/mercadolibre.dart';
 import '../screens/googledrive.dart';
 import '../screens/claim.dart';
 
-class DrawerWidget extends StatelessWidget {
-  final AdInterstitial drawerInterstitialAd1;
-  final AdInterstitial drawerInterstitialAd2;
-  final AdInterstitial drawerInterstitialAd3;
-  final AdInterstitial drawerInterstitialAd4;
-  final AdInterstitial drawerInterstitialAd5;
-  final AdInterstitial drawerInterstitialAd6;
+import '../widgets/ad_interstitial.dart';
 
-  const DrawerWidget(
-      this.drawerInterstitialAd1,
-      this.drawerInterstitialAd2,
-      this.drawerInterstitialAd3,
-      this.drawerInterstitialAd4,
-      this.drawerInterstitialAd5,
-      this.drawerInterstitialAd6,
-      {Key? key})
-      : super(key: key);
+class DrawerWidget extends StatefulWidget {
+  const DrawerWidget({Key? key}) : super(key: key);
+
+  @override
+  State<DrawerWidget> createState() => _DrawerWidgetState();
+}
+
+class _DrawerWidgetState extends State<DrawerWidget> {
+  AdInterstitial driveInterstitialAd = AdInterstitial();
+  AdInterstitial meLiInterstitialAd = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    driveInterstitialAd.createInterstitialAd();
+    meLiInterstitialAd.createInterstitialAd();
+  }
 
   Widget optionAPI(
     VoidCallback openPage,
@@ -121,9 +120,9 @@ class DrawerWidget extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const GoogleDrive(),
+                  builder: (_) => GoogleDrive(driveInterstitialAd),
                 ));
-            drawerInterstitialAd1.showInterstitialAd();
+            // drawerInterstitialAd1.showInterstitialAd();
           }, Image.asset('assets/other/googledrive.png'), 40, 180,
               googleStatus),
           optionAPI(
@@ -132,35 +131,22 @@ class DrawerWidget extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => MercadoLibre(),
+                  builder: (_) => MercadoLibre(meLiInterstitialAd),
                 ),
               );
-              drawerInterstitialAd2.showInterstitialAd();
+              // drawerInterstitialAd2.showInterstitialAd();
             },
             Image.asset('assets/other/mercadolibre.png'),
             38,
             155,
             meliStatus,
           ),
-          // Padding(
-          //   padding: EdgeInsets.only(left: 10, right: 10),
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //       border: Border(
-          //         bottom: BorderSide(color: Colors.grey.shade400),
-          //       ),
-          //     ),
-          //     padding: EdgeInsets.only(top: 8, bottom: 8),
-          //     child: AdNative("medium"),
-          //   ),
-          // ),
           DrawerOption(
             Icons.local_shipping,
             "Activos ($mainAmount)",
             MainScreen(userId),
             true,
             false,
-            drawerInterstitialAd3,
           ),
           DrawerOption(
             Icons.archive,
@@ -168,7 +154,6 @@ class DrawerWidget extends StatelessWidget {
             const Archived(),
             false,
             false,
-            drawerInterstitialAd4,
           ),
           DrawerOption(
             Icons.error,
@@ -176,7 +161,6 @@ class DrawerWidget extends StatelessWidget {
             Claim(),
             false,
             false,
-            drawerInterstitialAd5,
           ),
           DrawerOption(
             Icons.mail_outline,
@@ -184,7 +168,6 @@ class DrawerWidget extends StatelessWidget {
             FormContact(),
             false,
             false,
-            drawerInterstitialAd6,
           ),
           DrawerOption(
             Icons.info_outline,
@@ -192,14 +175,6 @@ class DrawerWidget extends StatelessWidget {
             () => ShowDialog.aboutThisApp(context),
             false,
             true,
-            null,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: AdNative("medium"),
-            ),
           ),
         ],
       ),
@@ -213,10 +188,9 @@ class DrawerOption extends StatelessWidget {
   final dynamic destination;
   final bool main;
   final bool about;
-  final AdInterstitial? interstitialAd;
 
-  const DrawerOption(this.icon, this.text, this.destination, this.main,
-      this.about, this.interstitialAd,
+  const DrawerOption(
+      this.icon, this.text, this.destination, this.main, this.about,
       {Key? key})
       : super(key: key);
 
@@ -226,7 +200,6 @@ class DrawerOption extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InkWell(
         onTap: () {
-          interstitialAd?.showInterstitialAd();
           if (main) Navigator.pop(context);
           if (!main && !about) {
             Navigator.pop(context);

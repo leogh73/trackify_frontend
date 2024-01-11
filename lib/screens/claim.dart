@@ -4,6 +4,7 @@ import '../services/_services.dart';
 import '../widgets/ad_native.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_banner.dart';
 
 class Claim extends StatefulWidget {
@@ -16,6 +17,14 @@ class Claim extends StatefulWidget {
 class _ClaimState extends State<Claim> {
   ServiceItemModel? selectedService;
   String? selectedServiceName;
+
+  AdInterstitial interstitialAd = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    interstitialAd.createInterstitialAd();
+  }
 
   void buttonHandler(String type, String data) async {
     String prefix = '';
@@ -202,6 +211,7 @@ class _ClaimState extends State<Claim> {
                   value: selectedService,
                   underline: Container(),
                   onChanged: (ServiceItemModel? service) {
+                    interstitialAd.showInterstitialAd();
                     setState(() {
                       selectedService = service!;
                       selectedServiceName = service.chosen;
