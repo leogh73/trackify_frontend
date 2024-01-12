@@ -104,6 +104,7 @@ class _TrackingItemState extends State<TrackingItem> {
                   child: IconButton(
                     icon: const Icon(Icons.sync),
                     onPressed: () {
+                      interstitialAd.showInterstitialAd();
                       setState(() {
                         widget.tracking.checkError = null;
                       });
