@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:trackify/widgets/tracking_item.dart';
 import '../widgets/ad_native.dart';
 
-import '../providers/preferences.dart';
-import '../providers/classes.dart';
-import '../providers/status.dart';
+import '../data/preferences.dart';
+import '../data/classes.dart';
+import '../data/status.dart';
 
 import 'ad_interstitial.dart';
 

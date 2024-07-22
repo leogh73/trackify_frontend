@@ -1,30 +1,14 @@
 import 'package:flutter/material.dart';
-
-import '../services/_services.dart';
-import '../widgets/ad_native.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 
-import '../widgets/ad_interstitial.dart';
+import '../widgets/ad_native.dart';
 import '../widgets/ad_banner.dart';
+import '../data/services.dart';
 
-class Claim extends StatefulWidget {
-  const Claim({Key? key}) : super(key: key);
-
-  @override
-  State<Claim> createState() => _ClaimState();
-}
-
-class _ClaimState extends State<Claim> {
-  ServiceItemModel? selectedService;
-  String? selectedServiceName;
-
-  AdInterstitial interstitialAd = AdInterstitial();
-
-  @override
-  void initState() {
-    super.initState();
-    interstitialAd.createInterstitialAd();
-  }
+class Claim extends StatelessWidget {
+  final String serviceName;
+  const Claim(this.serviceName, {Key? key}) : super(key: key);
 
   void buttonHandler(String type, String data) async {
     String prefix = '';
@@ -38,7 +22,8 @@ class _ClaimState extends State<Claim> {
     }
   }
 
-  List<List<Widget>> buttonList(List<Map<String, dynamic>> buttonsData) {
+  List<List<Widget>> buttonList(
+      BuildContext context, List<dynamic> buttonsData) {
     Widget generateButton(Map<String, dynamic> bData) {
       const Map<String, IconData> icons = {
         "phone": Icons.phone,
@@ -97,7 +82,8 @@ class _ClaimState extends State<Claim> {
     return [list1, list2];
   }
 
-  Widget claimComponent(Map<String, dynamic> serviceData) {
+  Widget claimComponent(
+      BuildContext context, Map<String, dynamic> serviceData) {
     return Padding(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       child: Container(
@@ -112,15 +98,10 @@ class _ClaimState extends State<Claim> {
             const EdgeInsets.only(top: 20, left: 10, bottom: 10, right: 10),
         child: Column(
           children: [
-            Row(
-              children: buttonList(serviceData['contact'])[0],
-              mainAxisAlignment: MainAxisAlignment.center,
-            ),
-            if (buttonList(serviceData['contact'])[1].isNotEmpty)
-              Row(
-                children: buttonList(serviceData['contact'])[1],
-                mainAxisAlignment: MainAxisAlignment.center,
-              ),
+            ...buttonList(context, serviceData['list']).map((e) => Row(
+                  children: e,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                )),
             Padding(
               padding: EdgeInsets.all(10),
               child: Text(
@@ -146,14 +127,15 @@ class _ClaimState extends State<Claim> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ServiceItemModel> services = Services.itemModelList(true);
+    final Map<String, dynamic> servicesData =
+        Provider.of<Services>(context, listen: false).servicesData;
     final bool fullHD = MediaQuery.of(context).size.width *
             MediaQuery.of(context).devicePixelRatio >
         1079;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: const Text('Reclamo'),
+        title: const Text('Reclamar'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -161,25 +143,12 @@ class _ClaimState extends State<Claim> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Padding(
-              //     child: AdNative("medium"),
-              //     padding: EdgeInsets.only(bottom: 20)),
               Padding(
                 child: AdNative("small"),
-                padding: EdgeInsets.only(bottom: 50),
+                padding: EdgeInsets.only(bottom: 20),
               ),
               Text(
-                "Ésta aplicación es para hacer seguimientos, a partir de la información que las empresas de transporte, ponen a disposición del público. No tenemos contacto exclusivo ni relación alguna dichas empresas.",
-                maxLines: 8,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red[400],
-                  fontSize: fullHD ? 17 : 16,
-                ),
-              ),
-              Text(
-                "Si tienes algún problema con un envío (no se actualiza, no llega a destino, etc.), selecciona a continuación la empresa y ponte en contacto con la misma.",
+                "Si tiene algún problema con un envío (no hay datos, no se actualiza, no llega a destino, etc.), le proveemos medios para ponerse en contacto con la empresa correspondiente:",
                 maxLines: 5,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -187,57 +156,12 @@ class _ClaimState extends State<Claim> {
                 ),
               ),
               Padding(
+                child: claimComponent(
+                    context, servicesData[serviceName]["contact"]),
                 padding: EdgeInsets.only(top: 10),
-                child: DropdownButton<ServiceItemModel>(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  elevation: 4,
-                  iconSize: 0,
-                  hint: Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: SizedBox(
-                      width: 150,
-                      height: 80,
-                      child: ElevatedButton(
-                        child: const Text(
-                          'Seleccionar servicio',
-                          style: TextStyle(fontSize: 17),
-                          textAlign: TextAlign.center,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ),
-                  iconEnabledColor: Theme.of(context).primaryColor,
-                  value: selectedService,
-                  underline: Container(),
-                  onChanged: (ServiceItemModel? service) {
-                    interstitialAd.showInterstitialAd();
-                    setState(() {
-                      selectedService = service!;
-                      selectedServiceName = service.chosen;
-                    });
-                  },
-                  items: services.map<DropdownMenuItem<ServiceItemModel>>(
-                      (ServiceItemModel service) {
-                    return DropdownMenuItem<ServiceItemModel>(
-                      value: service,
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 1, bottom: 1),
-                        width: 200,
-                        child: service.logo,
-                      ),
-                    );
-                  }).toList(),
-                ),
               ),
-              if (selectedService != null)
-                Padding(
-                  child: claimComponent(
-                      Services.select(selectedServiceName!).contactData),
-                  padding: EdgeInsets.only(top: 10),
-                ),
-              // Padding(
-              //     child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
+              Padding(
+                  child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
               SizedBox(width: 50, height: 50),
             ],
           ),

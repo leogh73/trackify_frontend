@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/classes.dart';
-import '../providers/trackings_archived.dart';
+import '../data/classes.dart';
+import '../data/trackings_archived.dart';
 
 import '../widgets/options_tracking.dart';
-import '../widgets/tracking.list.dart';
+import '../widgets/tracking_list.dart';
 import '../widgets/ad_banner.dart';
 
 class Archived extends StatelessWidget {

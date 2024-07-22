@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/status.dart';
+import '../data/status.dart';
 
 import '../widgets/search_list.dart';
 import '../widgets/ad_banner.dart';

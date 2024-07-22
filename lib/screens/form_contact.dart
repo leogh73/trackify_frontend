@@ -4,12 +4,12 @@ import 'package:http/http.dart';
 import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../database.dart';
-import '../providers/classes.dart';
-import '../providers/http_connection.dart';
+import '../data/classes.dart';
+import '../data/http_connection.dart';
 import '../widgets/ad_native.dart';
 
-import '../providers/preferences.dart';
-import '../providers/theme.dart';
+import '../data/preferences.dart';
+import '../data/theme.dart';
 
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
@@ -54,7 +54,7 @@ class _FormContactState extends State<FormContact> {
     if (formKey.currentState?.validate() == false) {
       DialogError.formError(context);
     } else {
-      ShowDialog.sending(context);
+      ShowDialog.waiting(context, "Enviando...");
       String requestEmail = 'Sin datos';
       if (email.text.isNotEmpty) requestEmail = email.text;
       String userId =
@@ -66,19 +66,12 @@ class _FormContactState extends State<FormContact> {
       };
       Response response =
           await HttpConnection.requestHandler('/api/user/contact/', body);
-      if (response.statusCode == 200) {
-        setState(() {
-          index = 1;
-        });
-      } else if (response.statusCode == 400) {
-        setState(() {
-          index = 2;
-        });
-      } else {
-        setState(() {
-          index = 3;
-        });
-      }
+      setState(() {
+        index = 3;
+        if (response.statusCode == 200) index = 1;
+        if (response.statusCode == 403) index = 2;
+        if (response.statusCode == 400) index = 3;
+      });
       Navigator.pop(context);
       interstitialAd.showInterstitialAd();
     }
@@ -239,14 +232,8 @@ class _FormContactState extends State<FormContact> {
               style: TextStyle(fontSize: 17),
             ),
             onPressed: () {
-              if (success) {
-                Navigator.pop(context);
-                interstitialAd.showInterstitialAd();
-              } else {
-                setState(() {
-                  index = 0;
-                });
-              }
+              Navigator.pop(context);
+              interstitialAd.showInterstitialAd();
             },
           ),
         ),
@@ -267,9 +254,13 @@ class _FormContactState extends State<FormContact> {
           true),
       2: sendResult(
           '',
-          'Ocurrió un error al enviar los datos. El correo electrónico ingresado no es válido. Verifique y vuelva a intentarlo.',
+          'Ocurrió un error al enviar los datos. El correo electrónico ingresado no es válido . Verifique y vuelva a intentarlo.',
           false),
       3: sendResult(
+          '',
+          'El formulario de contacto no es para hacer reclamos. Utilice la opción "Reclamar" en el envío, para comunicarse con la empresa correspondiente. Ellos son los responsables de su encomienda.',
+          false),
+      4: sendResult(
           '',
           'Ocurrió un error al enviar los datos. Reintente más tarde. Disculpe las molestias ocasionadas.',
           false)

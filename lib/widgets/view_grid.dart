@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-
-import '../providers/classes.dart';
-
+import '../data/classes.dart';
 import '../widgets/ad_native.dart';
-
-import '../services/_services.dart';
 
 class ViewGrid {
   Widget widget(
     BuildContext context,
+    Image serviceLogo,
     ItemTracking tracking,
     VoidCallback onTap,
     VoidCallback onLongPress,
@@ -391,7 +388,7 @@ class ViewGrid {
                                     maxHeight: screenHeight * 0.095,
                                     maxWidth: screenWidth * 0.2,
                                   ),
-                            child: Services.select(tracking.service).logo,
+                            child: serviceLogo,
                           ),
                         ],
                       ),

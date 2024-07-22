@@ -8,14 +8,15 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'data/services.dart';
 import 'initial_data.dart';
 
-import 'providers/preferences.dart';
-import 'providers/theme.dart';
-import 'providers/status.dart';
-import 'providers/trackings_active.dart';
-import 'providers/trackings_archived.dart';
-import '/providers/tracking_functions.dart';
+import 'data/preferences.dart';
+import 'data/theme.dart';
+import 'data/status.dart';
+import 'data/trackings_active.dart';
+import 'data/trackings_archived.dart';
+import 'data/tracking_functions.dart';
 
 import 'screens/main_screen.dart';
 
@@ -58,6 +59,9 @@ class TrackeAR extends StatelessWidget {
                 ChangeNotifierProvider(
                   create: (context) =>
                       UserPreferences(snapshot.data as StartData),
+                ),
+                ChangeNotifierProvider(
+                  create: (context) => Services(snapshot.data as StartData),
                 ),
                 ChangeNotifierProvider(
                   create: (context) => UserTheme(snapshot.data as StartData),
@@ -114,6 +118,7 @@ class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
   AdInterstitial? interstitialAd = AdInterstitial();
   late String userId;
+  late Map<String, dynamic> servicesData;
 
   void firebaseSettings(context) async {
     FirebaseMessaging.instance
@@ -159,12 +164,6 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    userId = Provider.of<UserPreferences>(context, listen: false).userId;
-    // print("HTTP_R_$userId");
-    if (userId.isEmpty) {
-      Provider.of<Status>(context, listen: false)
-          .setStartError('User not initialized');
-    }
     firebaseSettings(context);
     listenToAppStateChanges();
   }
@@ -202,7 +201,7 @@ class _AppState extends State<App> {
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
-      home: MainScreen(userId),
+      home: MainScreen(),
     );
   }
 }

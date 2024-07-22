@@ -4,7 +4,7 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-import '../providers/preferences.dart';
+import '../data/preferences.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';

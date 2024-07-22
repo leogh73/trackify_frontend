@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/view_card.dart';
-import 'package:trackify/widgets/view_grid.dart';
-import 'package:trackify/widgets/view_row.dart';
 
-import '../providers/classes.dart';
-import '../providers/preferences.dart';
-import '../providers/trackings_active.dart';
-import '../providers/trackings_archived.dart';
-import '../providers/status.dart';
+import '../data/classes.dart';
+import '../data/preferences.dart';
+import '../data/trackings_active.dart';
+import '../data/trackings_archived.dart';
+import '../data/status.dart';
+import '../data/services.dart';
 
 import '../screens/tracking_detail.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/check_tracking.dart';
-import 'options_tracking.dart';
+import '../widgets/options_tracking.dart';
+import '../widgets/view_card.dart';
+import '../widgets/view_grid.dart';
+import '../widgets/view_row.dart';
 
 class TrackingItem extends StatefulWidget {
   final ItemTracking tracking;
@@ -89,11 +90,15 @@ class _TrackingItemState extends State<TrackingItem> {
       "card": ViewCard(),
       "grid": ViewGrid(),
     };
+    final serviceLogo = Image.network(
+        Provider.of<Services>(context, listen: false)
+            .servicesData[widget.tracking.service]['logoUrl']);
     return widget.tracking.checkError == null
         ? CheckTracking(widget.tracking)
         : widget.tracking.checkError == true
             ? trackingWidget[chosenView].widget(
                 context,
+                serviceLogo,
                 widget.tracking,
                 () => clickItem(selectionMode),
                 () => toggleSelectionMode(selectionMode),
@@ -124,6 +129,7 @@ class _TrackingItemState extends State<TrackingItem> {
               )
             : trackingWidget[chosenView].widget(
                 context,
+                serviceLogo,
                 widget.tracking,
                 () => clickItem(selectionMode),
                 () => toggleSelectionMode(selectionMode),

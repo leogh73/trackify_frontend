@@ -7,8 +7,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-import 'providers/http_connection.dart';
-import 'providers/classes.dart';
+import 'data/http_connection.dart';
+import 'data/classes.dart';
+import 'data/services.dart';
 import 'database.dart';
 
 class Init {
@@ -67,17 +68,18 @@ class Init {
       googleDriveStatus: false,
       statusMessage: '',
       showAgainStatusMessage: true,
+      servicesData: {},
     );
     String? firebaseToken = await firebaseMessagingNotifications();
     if (firebaseToken == "BLACKLISTED") return startPreferences;
     Response response = await HttpConnection.requestHandler(
         '/api/user/initialize/', {'token': firebaseToken});
-
     if (response.statusCode == 200) {
       startPreferences.userId = json.decode(response.body)['userId'];
+      startPreferences.servicesData =
+          json.decode(response.body)['servicesData'];
       storedData.loadStartPreferences(startPreferences);
     }
-
     return startPreferences;
   }
 
@@ -97,6 +99,9 @@ class Init {
     bool driveStatus = userPreferences[0].googleDriveStatus;
     String statusMessage = userPreferences[0].statusMessage;
     bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
+    Map<String, dynamic> servicesData = userPreferences[0].servicesData.isEmpty
+        ? await ServicesData.fetch()
+        : userPreferences[0].servicesData;
 
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
@@ -115,6 +120,7 @@ class Init {
       driveStatus,
       statusMessage,
       showAgainStatusMessage,
+      servicesData,
       searchHistory,
       startActiveTrackings,
       startArchivedTrackings,
@@ -131,6 +137,7 @@ class StartData {
   bool googleDrive;
   String statusMessage;
   bool showAgainStatusMessage;
+  Map<String, dynamic> servicesData;
   List<String> searchHistory;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
@@ -143,6 +150,7 @@ class StartData {
     this.googleDrive,
     this.statusMessage,
     this.showAgainStatusMessage,
+    this.servicesData,
     this.searchHistory,
     this.activeTrackings,
     this.archivedTrackings,

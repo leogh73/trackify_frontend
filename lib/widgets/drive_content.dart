@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/drive_backups_list.dart';
-import '../providers/status.dart';
+import '../data/status.dart';
 
 Text screenText(String text, bool fullHD) {
   return Text(

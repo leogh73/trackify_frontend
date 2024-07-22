@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/tracking.list.dart';
+import 'package:trackify/widgets/tracking_list.dart';
 
-import '../providers/classes.dart';
-import '../providers/status.dart';
+import '../data/classes.dart';
+import '../data/status.dart';
 
 class SearchList extends StatelessWidget {
   const SearchList({Key? key}) : super(key: key);

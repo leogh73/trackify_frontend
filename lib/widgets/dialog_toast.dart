@@ -5,7 +5,8 @@ import 'package:trackify/widgets/showStatusMessage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
-import '../providers/status.dart';
+import '../data/status.dart';
+import '../screens/claim.dart';
 
 class ShowDialog {
   static bool fullHD(BuildContext context) {
@@ -19,6 +20,7 @@ class ShowDialog {
     bool error,
     bool statusMessage,
     bool premiumSubscription,
+    String serviceError,
     BuildContext context,
     List<Widget> contentWidgets,
     List<Map<String, dynamic>> buttonsWidgets,
@@ -65,6 +67,27 @@ class ShowDialog {
               children: [
                 ...contentWidgets,
                 if (statusMessage) ShowAgainStatusMessage(),
+                if (serviceError.isNotEmpty)
+                  Container(
+                    height: 55,
+                    width: 110,
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: ElevatedButton(
+                      child: Text(
+                        "Reclamar",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: fullHD(dialogContext) ? 16 : 15,
+                        ),
+                      ),
+                      onPressed: () => Navigator.push(
+                        dialogContext,
+                        MaterialPageRoute(
+                          builder: (_) => Claim(serviceError),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (error)
                   Container(
                     height: 55,
@@ -104,6 +127,7 @@ class ShowDialog {
       false,
       false,
       false,
+      '',
       context,
       [
         Container(
@@ -137,6 +161,7 @@ class ShowDialog {
       false,
       false,
       false,
+      '',
       context,
       [widget],
       [
@@ -149,11 +174,12 @@ class ShowDialog {
     );
   }
 
-  static void error(BuildContext context, String message) {
+  static void error(BuildContext context, String message, String service) {
     show(
       true,
       false,
       false,
+      service,
       context,
       [
         Container(
@@ -179,6 +205,7 @@ class ShowDialog {
       true,
       true,
       false,
+      '',
       context,
       [
         Container(
@@ -200,11 +227,12 @@ class ShowDialog {
     );
   }
 
-  static void sending(BuildContext context) {
+  static void waiting(BuildContext context, String message) {
     show(
       false,
       false,
       false,
+      '',
       context,
       [
         Container(
@@ -216,7 +244,36 @@ class ShowDialog {
           ),
         ),
         Text(
-          'Enviando...',
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontSize: fullHD(context) ? 16 : 15,
+          ),
+        ),
+      ],
+      [],
+    );
+  }
+
+  static void loading(BuildContext context) {
+    show(
+      false,
+      false,
+      false,
+      '',
+      context,
+      [
+        Container(
+          padding: const EdgeInsets.only(top: 10, bottom: 25),
+          child: const SizedBox(
+            height: 40,
+            width: 40,
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        Text(
+          'Cargando servicios...',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).primaryColor,
@@ -258,7 +315,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.1.6",
+        "Versión 1.1.7",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -291,7 +348,7 @@ class ShowDialog {
                 context: context,
                 applicationIcon:
                     Image.asset("assets/icon/icon.png", height: 35, width: 35),
-                applicationVersion: '1.1.5',
+                applicationVersion: '1.1.7',
               ),
             },
       },
@@ -323,6 +380,7 @@ class ShowDialog {
       false,
       false,
       false,
+      '',
       context,
       [
         Padding(
@@ -398,6 +456,7 @@ class ShowDialog {
       false,
       false,
       true,
+      '',
       context,
       contentWidgets,
       buttonsData,
@@ -409,6 +468,7 @@ class ShowDialog {
       false,
       false,
       false,
+      '',
       context,
       [
         Container(
@@ -454,6 +514,7 @@ class ShowDialog {
       false,
       false,
       false,
+      '',
       context,
       [...content],
       [

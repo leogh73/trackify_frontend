@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/classes.dart';
-import '../providers/status.dart';
-import '../providers/tracking_functions.dart';
+import '../data/classes.dart';
+import '../data/status.dart';
+import '../data/tracking_functions.dart';
 
 import '../screens/tracking_more.dart';
 

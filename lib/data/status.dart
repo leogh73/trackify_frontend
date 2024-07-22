@@ -4,12 +4,12 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 import 'package:http/http.dart';
 
+import 'services.dart';
 import 'http_connection.dart';
-import '../providers/preferences.dart';
 
+import '../data/preferences.dart';
 import '../database.dart';
 import '../initial_data.dart';
-import '../services/_services.dart';
 
 import 'classes.dart';
 import 'trackings_archived.dart';
@@ -18,11 +18,12 @@ import 'trackings_active.dart';
 class Status with ChangeNotifier {
   StoredData storedData = StoredData();
 
-  String startError = '';
-  String get getStartError => startError;
+  Map<String, dynamic> startError = {};
+  Map<String, dynamic> get getStartError => startError;
 
-  void setStartError(String newError) {
+  void setStartError(Map<String, dynamic> newError) {
     startError = newError;
+    notifyListeners();
   }
 
   late List<String> recentSearch;

@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:timezone/standalone.dart' as tz;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/data/services.dart';
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'http_connection.dart';
-import '../widgets/dialog_error.dart';
-import '../providers/preferences.dart';
-
-import '../database.dart';
-import '../providers/trackings_active.dart';
 import '../screens/tracking_detail.dart';
+import '../data/preferences.dart';
+import '../data/trackings_active.dart';
+import '../widgets/dialog_error.dart';
 import '../widgets/dialog_toast.dart';
 
+import '../database.dart';
 import 'classes.dart';
 import 'status.dart';
 
@@ -174,6 +175,8 @@ class TrackingFunctions {
     bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
     String userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    Map<String, dynamic> servicesData =
+        Provider.of<Services>(context, listen: false).servicesData;
     Object body = {
       'userId': userId,
       'token': await FirebaseMessaging.instance.getToken(),
@@ -181,17 +184,28 @@ class TrackingFunctions {
       'currentDate':
           "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.1.6'
+      'servicesCount': servicesData.keys.length.toString(),
+      "servicesVersions":
+          servicesData.values.map((e) => e['__v']).toList().join(""),
+      'version': '1.1.7'
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
     if (response.statusCode != 200) return;
     Map<String, dynamic> responseData = json.decode(response.body);
     if (responseData['syncError'] != null) {
+      if (responseData['syncError']["message"] == "reinstall") {
+        await StoredData().dropDatabase();
+        return Phoenix.rebirth(context);
+      }
       return Provider.of<Status>(context, listen: false)
           .setStartError(responseData['syncError']);
     } else {
-      Provider.of<Status>(context, listen: false).setStartError("");
+      Provider.of<Status>(context, listen: false).setStartError({});
+    }
+    if (responseData["updatedServices"].isNotEmpty) {
+      await ServicesData.store(responseData["updatedServices"]);
+      return Phoenix.rebirth(context);
     }
     final String statusMessage =
         Provider.of<UserPreferences>(context, listen: false).getStatusMessage;

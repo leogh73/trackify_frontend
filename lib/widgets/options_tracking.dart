@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/screens/claim.dart';
 import 'package:trackify/screens/tracking_more.dart';
+import 'package:trackify/data/services.dart';
 
-import '../providers/classes.dart';
-import '../providers/status.dart';
-import '../providers/trackings_active.dart';
-import '../providers/trackings_archived.dart';
+import '../data/classes.dart';
+import '../data/status.dart';
+import '../data/trackings_active.dart';
+import '../data/trackings_archived.dart';
 
 import '../screens/form_add_edit.dart';
-import '../services/_services.dart';
 
 import '../widgets/ad_interstitial.dart';
 import 'dialog_toast.dart';
@@ -88,8 +89,9 @@ class _OptionsTrackingState extends State<OptionsTracking> {
         ),
       ),
     );
-    ServiceItemModel serviceEdit =
-        Services.select(widget.tracking.service).itemModel;
+    ServiceItemModel serviceEdit = Provider.of<Services>(context, listen: false)
+        .itemModelList(true)
+        .firstWhere((element) => element.chosen == widget.tracking.service);
     Provider.of<Status>(context, listen: false)
         .loadService(serviceEdit, context);
   }
@@ -135,6 +137,16 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     provider.removeSelection(context);
     provider.toggleSelectionMode();
     screenPopToast("Selección archivada");
+  }
+
+  void seeServiceContact() {
+    interstitialAd.showInterstitialAd();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Claim(widget.tracking.service),
+      ),
+    );
   }
 
   void displayDialog(String action) {
@@ -203,6 +215,9 @@ class _OptionsTrackingState extends State<OptionsTracking> {
               case 'Eliminar':
                 displayDialog("eliminar");
                 break;
+              case 'Reclamar':
+                seeServiceContact();
+                break;
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -215,6 +230,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
             if (!widget.tracking.checkError!)
               optionMenu("Archivar", Icons.archive),
             optionMenu('Eliminar', Icons.delete),
+            optionMenu('Reclamar', Icons.warning),
           ],
         ),
         "buttons": {
@@ -254,6 +270,9 @@ class _OptionsTrackingState extends State<OptionsTracking> {
                 break;
               case 'Eliminar':
                 displayDialog("eliminar");
+                break;
+              case 'Reclamar':
+                seeServiceContact();
                 break;
             }
           },

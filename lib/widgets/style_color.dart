@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/theme.dart';
+import '../data/theme.dart';
 
 class StyleColor extends StatefulWidget {
   const StyleColor({Key? key}) : super(key: key);

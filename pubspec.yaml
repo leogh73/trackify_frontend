@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.6+47
+version: 1.1.7+48
 
 environment:
   sdk: '>=2.17.0 <3.0.0'
@@ -94,52 +94,6 @@ flutter:
     - assets/listView/card.png
     - assets/listView/grid.png
     - assets/other/googledrive.png
-    - assets/other/mercadolibre.png
-
-    - assets/services/andesmar_cargas.png
-    - assets/services/andreani.png
-    - assets/services/arg_cargo.png
-    - assets/services/balut_express.png
-    - assets/services/buspack.png
-    - assets/services/cata_cargo.png
-    - assets/services/central_de_cargas_terrestres.png
-    - assets/services/clicoh.png
-    - assets/services/clicpaq.png
-    - assets/services/condor_entrella.png
-    - assets/services/cooperativa_sportman.png
-    - assets/services/correo_argentino.png
-    - assets/services/credifin_logistica.png
-    - assets/services/crucero_express.png
-    - assets/services/cruz_del_sur.png
-    - assets/services/dhl.png
-    - assets/services/ecapack.png
-    - assets/services/el_practico_pack.png
-    - assets/services/el_turista_pack.png
-    - assets/services/encotrans_express.png
-    - assets/services/enviopack.png
-    - assets/services/epsa.png
-    - assets/services/expreso_lancioni.png
-    - assets/services/expreso_malargue.png
-    - assets/services/fasttrack.png
-    - assets/services/fono_pack.png
-    - assets/services/integral_pack.png
-    - assets/services/jetmar.png
-    - assets/services/md_cargas.png
-    - assets/services/nandupack.png
-    - assets/services/oca.png
-    - assets/services/ocasa.png
-    - assets/services/pickit.png
-    - assets/services/plusmar.png
-    - assets/services/pulqui_pack.png
-    - assets/services/rabbione.png
-    - assets/services/renaper.png
-    - assets/services/rodriguez_hermanos_transportes.png
-    - assets/services/ruta_cargo.png
-    - assets/services/sendbox.png
-    - assets/services/south_post.png
-    - assets/services/trans_dan_express.png
-    - assets/services/urbano.png
-    - assets/services/via_cargo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

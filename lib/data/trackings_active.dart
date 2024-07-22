@@ -3,12 +3,12 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
-import '../providers/classes.dart';
 import '../database.dart';
+import '../data/classes.dart';
+import '../data/preferences.dart';
 import '../initial_data.dart';
 
 import 'http_connection.dart';
-import '../providers/preferences.dart';
 
 class ActiveTrackings extends ChangeNotifier {
   StoredData storedData = StoredData();

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-
-import '../providers/classes.dart';
-
-import '../services/_services.dart';
+import '../data/classes.dart';
 import '../widgets/ad_native.dart';
 
 class ViewRow {
   Widget widget(
     BuildContext context,
+    Image serviceLogo,
     ItemTracking tracking,
     VoidCallback onTap,
     VoidCallback onLongPress,
@@ -68,7 +66,7 @@ class ViewRow {
                           width: isPortrait ? 82 : 110,
                           padding: const EdgeInsets.only(right: 8, left: 4),
                           height: 35,
-                          child: Services.select(tracking.service).logo,
+                          child: serviceLogo,
                         ),
                         Container(
                           padding: const EdgeInsets.only(left: 6, right: 8),

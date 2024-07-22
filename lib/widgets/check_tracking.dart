@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/providers/http_connection.dart';
-import 'package:trackify/widgets/dialog_error.dart';
 import 'package:http/http.dart';
-import 'package:trackify/widgets/tracking_item.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-import '../providers/classes.dart';
-import '../providers/trackings_active.dart';
-import '../providers/preferences.dart';
+import '../data/classes.dart';
+import '../data/http_connection.dart';
+import '../data/trackings_active.dart';
+import '../data/preferences.dart';
 
-import 'dialog_toast.dart';
+import '../widgets/dialog_error.dart';
+import '../widgets/tracking_item.dart';
+import '../widgets/dialog_toast.dart';
 
 class TrackingData {
   static Future fetch(BuildContext context, ItemTracking tracking) async {
@@ -22,7 +23,6 @@ class TrackingData {
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/$userId/add', body);
-    // Response response = await HttpConnection.requestHandler('/api/dev/2', body);
     Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
@@ -30,6 +30,11 @@ class TrackingData {
           .loadStartData(context, tracking, responseData);
       GlobalToast.displayToast(context, "Seguimiento agregado");
       tracking.checkError = false;
+      await HttpConnection.requestHandler('/api/user/removeDuplicates', {
+        'token': await FirebaseMessaging.instance.getToken(),
+        'code': tracking.code.trim(),
+        'trackingId': responseData['trackingId'],
+      });
       return;
     }
     if (responseData['error'] == "No data") {

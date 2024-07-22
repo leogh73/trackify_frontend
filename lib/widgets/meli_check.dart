@@ -4,11 +4,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 
-import '../providers/http_connection.dart';
+import '../data/http_connection.dart';
 import '../widgets/ad_native.dart';
 import 'dialog_error.dart';
 
-import '../providers/preferences.dart';
+import '../data/preferences.dart';
 
 import 'meli_item.dart';
 

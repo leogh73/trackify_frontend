@@ -7,10 +7,10 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../database.dart';
-import '../providers/http_connection.dart';
-import '../providers/tracking_functions.dart';
-import '../providers/status.dart';
-import '../providers/preferences.dart';
+import '../data/http_connection.dart';
+import '../data/tracking_functions.dart';
+import '../data/status.dart';
+import '../data/preferences.dart';
 
 import 'dialog_error.dart';
 import '../widgets/drive_content.dart';

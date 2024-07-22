@@ -14,17 +14,12 @@ class HttpConnection {
       response = await Client()
           .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
           .timeout(const Duration(seconds: 9));
-      // response = await Client()
-      //     .post(Uri.parse("${dotenv.env['API_URL']}$route"), body: body)
-      //     .timeout(const Duration(seconds: 9));
     } catch (e) {
-      print("HTTP_R_$e");
       try {
         response = await Client()
             .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
             .timeout(const Duration(seconds: 9));
       } catch (e) {
-        print("HTTP_R_$e");
         response = Response(
           e is TimeoutException
               ? '{"error":"Server timeout"}'
@@ -33,7 +28,6 @@ class HttpConnection {
         );
       }
     }
-    print("HTTP_R_${response.body}");
     return response;
   }
 
@@ -57,6 +51,9 @@ class HttpConnection {
     try {
       await Client()
           .get(Uri.parse("${dotenv.env['API_URL_1']}/api/cronjobs/awake"))
+          .timeout(const Duration(seconds: 5));
+      await Client()
+          .get(Uri.parse("${dotenv.env['API_URL_2']}/api/cronjobs/awake"))
           .timeout(const Duration(seconds: 5));
       print("HTTP_R_APIs awaken successfully");
     } catch (e) {

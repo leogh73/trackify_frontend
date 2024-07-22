@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/services.dart';
 import 'dialog_toast.dart';
 
-import '../providers/preferences.dart';
-import '../providers/trackings_active.dart';
-import '../providers/trackings_archived.dart';
+import '../data/preferences.dart';
+import '../data/trackings_active.dart';
+import '../data/trackings_archived.dart';
 
 import '../screens/form_contact.dart';
 import '../screens/main_screen.dart';
 import '../screens/archived.dart';
 import '../screens/mercadolibre.dart';
 import '../screens/googledrive.dart';
-import '../screens/claim.dart';
 
 import '../widgets/ad_interstitial.dart';
 
@@ -72,7 +72,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     final bool googleStatus = Provider.of<UserPreferences>(context).gdStatus;
     final int mainAmount =
         Provider.of<ActiveTrackings>(context).trackings.length;
-    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     final int archivedAmount =
         Provider.of<ArchivedTrackings>(context).trackings.length;
     return Drawer(
@@ -136,7 +135,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               );
               // drawerInterstitialAd2.showInterstitialAd();
             },
-            Image.asset('assets/other/mercadolibre.png'),
+            Image.network(Provider.of<Services>(context, listen: false)
+                .servicesData["Mercado Libre"]['logoUrl']),
             38,
             155,
             meliStatus,
@@ -144,7 +144,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           DrawerOption(
             Icons.local_shipping,
             "Activos ($mainAmount)",
-            MainScreen(userId),
+            MainScreen(),
             true,
             false,
           ),
@@ -152,13 +152,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             Icons.archive,
             "Archivados ($archivedAmount)",
             const Archived(),
-            false,
-            false,
-          ),
-          DrawerOption(
-            Icons.error,
-            "Reclamo",
-            Claim(),
             false,
             false,
           ),

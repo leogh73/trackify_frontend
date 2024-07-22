@@ -9,8 +9,8 @@ import 'package:timezone/standalone.dart' as tz;
 import 'package:http/http.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-import '../providers/classes.dart';
-import 'providers/http_connection.dart';
+import 'data/classes.dart';
+import 'data/http_connection.dart';
 
 class AppDatabase {
   static Future<Database> get database async {
@@ -114,6 +114,12 @@ class StoredData {
       "deviceModel": androidInfo.model,
     };
     return backupData;
+  }
+
+  Future<void> dropDatabase() async {
+    await _userPreferences.drop(await _db);
+    await _activeTrackings.drop(await _db);
+    await _archivedTrackings.drop(await _db);
   }
 
   Future<void> reCreate() async {

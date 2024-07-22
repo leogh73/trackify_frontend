@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../providers/classes.dart';
-import '../services/_services.dart';
+import '../data/classes.dart';
 import '../widgets/ad_native.dart';
 
 class ViewCard {
   Widget widget(
     BuildContext context,
+    Image serviceLogo,
     ItemTracking tracking,
     VoidCallback onTap,
     VoidCallback onLongPress,
@@ -230,8 +230,7 @@ class ViewCard {
                                     // alignment: Alignment.bottomCenter,
                                     padding: EdgeInsets.zero,
                                     height: 35,
-                                    child:
-                                        Services.select(tracking.service).logo,
+                                    child: serviceLogo,
                                   ),
                                   button,
                                 ],

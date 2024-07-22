@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/ad_native.dart';
-import '../providers/status.dart';
-import '../services/_services.dart';
+import '../data/services.dart';
+import '../data/status.dart';
 
 class EventsList extends StatefulWidget {
   final List<Map<dynamic, String>> events;
@@ -46,7 +46,8 @@ class _EventsListState extends State<EventsList> {
             widget.events[index],
             index,
             widget.events.length,
-            Services.select(widget.service).eventData(widget.events[index]),
+            Provider.of<Services>(context, listen: false)
+                .eventData(widget.service, widget.events[index]),
           );
         },
       ),

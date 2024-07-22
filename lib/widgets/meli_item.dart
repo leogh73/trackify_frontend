@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../providers/classes.dart';
+import '../data/classes.dart';
 import '../screens/form_add_edit.dart';
 import '../widgets/ad_native.dart';
 

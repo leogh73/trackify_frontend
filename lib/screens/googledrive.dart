@@ -11,8 +11,8 @@ import '../widgets/ad_native.dart';
 import '../widgets/drive_account.dart';
 import '../widgets/drive_content.dart';
 
-import '../providers/preferences.dart';
-import '../providers/status.dart';
+import '../data/preferences.dart';
+import '../data/status.dart';
 
 class GoogleDrive extends StatefulWidget {
   final AdInterstitial adInterstitial;

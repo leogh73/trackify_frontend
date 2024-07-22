@@ -4,16 +4,15 @@ import 'package:trackify/widgets/dialog_error.dart';
 
 import '../widgets/ad_interstitial.dart';
 
-import '../providers/classes.dart';
-import '../providers/status.dart';
-import '../providers/trackings_active.dart';
-import '../providers/trackings_archived.dart';
+import '../data/classes.dart';
+import '../data/status.dart';
+import '../data/trackings_active.dart';
+import '../data/trackings_archived.dart';
 
-import '../services/_services.dart';
-// import '../widgets/ad_native.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/dialog_toast.dart';
 import '../widgets/ad_banner.dart';
+import '../data/services.dart';
 
 class FormAddEdit extends StatefulWidget {
   final bool rename;
@@ -39,14 +38,15 @@ class FormAddEdit extends StatefulWidget {
 
 class _FormAddEditState extends State<FormAddEdit> {
   final AdInterstitial interstitialAd = AdInterstitial();
-  ServiceItemModel? loadedService;
-  late List<ServiceItemModel> services;
   late dynamic providerFunctions;
+  late List<ServiceItemModel> services;
+  ServiceItemModel? loadedService;
 
   @override
   void initState() {
     super.initState();
-    services = Services.itemModelList(widget.mercadoLibre);
+    services = Provider.of<Services>(context, listen: false)
+        .itemModelList(widget.mercadoLibre);
     if (widget.rename == true) {
       String? widgetTitle = widget.tracking?.title;
       String? widgetCode = widget.tracking?.code;
@@ -60,7 +60,8 @@ class _FormAddEditState extends State<FormAddEdit> {
       code.text =
           widget.code!.startsWith("MEL", 0) ? widget.shippingId! : widget.code!;
       if (widget.code!.startsWith("MEL", 0)) {
-        loadedService = services[28];
+        loadedService =
+            services.singleWhere((s) => s.chosen == "Mercado Libre");
       } else {
         Provider.of<Status>(context, listen: false).clearStartService();
       }
@@ -181,6 +182,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                             chosen: false,
                             optionWidth: 200,
                             mercadoLibre: widget.mercadoLibre,
+                            servicesData: services,
                           ),
                           // SelectService(),
                         ),
@@ -279,12 +281,14 @@ class SelectService extends StatefulWidget {
   final double? optionWidth;
   final bool? chosen;
   final bool? mercadoLibre;
+  final List<ServiceItemModel>? servicesData;
   const SelectService({
     Key? key,
     this.preLoadedService,
     this.optionWidth,
     this.chosen,
     this.mercadoLibre,
+    this.servicesData,
   }) : super(key: key);
 
   @override
@@ -302,8 +306,6 @@ class _SelectServiceState extends State<SelectService> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ServiceItemModel> services =
-        Services.itemModelList(widget.mercadoLibre!);
     return DropdownButton<ServiceItemModel>(
       borderRadius: BorderRadius.all(Radius.circular(10)),
       elevation: 4,
@@ -337,8 +339,8 @@ class _SelectServiceState extends State<SelectService> {
                     .loadService(service!, context);
               }
             },
-      items: services
-          .map<DropdownMenuItem<ServiceItemModel>>((ServiceItemModel service) {
+      items: widget.servicesData
+          ?.map<DropdownMenuItem<ServiceItemModel>>((ServiceItemModel service) {
         return DropdownMenuItem<ServiceItemModel>(
           value: service,
           child: Container(
