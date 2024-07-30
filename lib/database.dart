@@ -140,7 +140,7 @@ class StoredData {
         await HttpConnection.requestHandler('/api/googledrive/restore/', body);
     Map<String, dynamic> backupData =
         HttpConnection.responseHandler(response, context);
-    if (backupData['errorDisplayed'] == true) return;
+    if (backupData['serverError'] != null) return;
     await reCreate();
     UserData backupPreferences = UserData.fromMap(
         backupData['preferences']['id'],

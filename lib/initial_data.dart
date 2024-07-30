@@ -9,7 +9,6 @@ import 'package:http/http.dart';
 
 import 'data/http_connection.dart';
 import 'data/classes.dart';
-import 'data/services.dart';
 import 'database.dart';
 
 class Init {
@@ -99,9 +98,7 @@ class Init {
     bool driveStatus = userPreferences[0].googleDriveStatus;
     String statusMessage = userPreferences[0].statusMessage;
     bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
-    Map<String, dynamic> servicesData = userPreferences[0].servicesData.isEmpty
-        ? await ServicesData.fetch()
-        : userPreferences[0].servicesData;
+    Map<String, dynamic> servicesData = userPreferences[0].servicesData ?? {};
 
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 

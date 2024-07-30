@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'dart:async';
+
 import 'classes.dart';
-import 'http_connection.dart';
 
 import '../database.dart';
 import '../initial_data.dart';
-
-import 'dart:convert';
-import 'dart:async';
 
 class Services with ChangeNotifier {
   StoredData storedData = StoredData();
@@ -53,21 +50,12 @@ class Services with ChangeNotifier {
 }
 
 class ServicesData {
-  static Future<Map<String, dynamic>> fetch() async {
-    Response response =
-        await HttpConnection.requestHandler('/api/user/servicesData/', {});
-    return response.statusCode == 200
-        ? await store(json.decode(response.body)['servicesData'])
-        : {};
-  }
-
-  static Future<Map<String, dynamic>> store(Map<String, String> data) async {
+  static Future<void> store(Map<String, dynamic> data) async {
     StoredData storedData = StoredData();
     UserData _storedPreferences = [...await storedData.loadUserData()][0];
     late UserData _newPreferences;
     _newPreferences = _storedPreferences.edit(servicesData: data);
     storedData.updatePreferences(_newPreferences);
-    return data;
   }
 }
 

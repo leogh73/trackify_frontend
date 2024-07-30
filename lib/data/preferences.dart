@@ -71,7 +71,7 @@ class UserPreferences with ChangeNotifier {
       toggleMeLiStatus(false);
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.meLiLoginError(context);
     }
   }
@@ -106,7 +106,7 @@ class UserPreferences with ChangeNotifier {
     } else {
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.googleLoginError(context);
     }
   }

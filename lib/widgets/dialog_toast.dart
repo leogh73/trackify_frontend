@@ -80,12 +80,15 @@ class ShowDialog {
                           fontSize: fullHD(dialogContext) ? 16 : 15,
                         ),
                       ),
-                      onPressed: () => Navigator.push(
-                        dialogContext,
-                        MaterialPageRoute(
-                          builder: (_) => Claim(serviceError),
-                        ),
-                      ),
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                        Navigator.push(
+                          dialogContext,
+                          MaterialPageRoute(
+                            builder: (_) => Claim(serviceError),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 if (error)

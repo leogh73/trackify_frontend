@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -65,11 +64,8 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTracking(
-    List<ItemTracking> trackingList,
-    BuildContext context,
-    bool startError,
-  ) async {
+  void removeTracking(List<ItemTracking> trackingList, BuildContext context,
+      bool startError) async {
     List<String> trackingIds = [];
     for (var tracking in trackingList) {
       _trackings.remove(tracking);
@@ -83,9 +79,7 @@ class ActiveTrackings extends ChangeNotifier {
     String _userId =
         Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {'trackingIds': json.encode(trackingIds)};
-    Response response =
-        await HttpConnection.requestHandler('/api/user/$_userId/remove/', body);
-    HttpConnection.responseHandler(response, context);
+    await HttpConnection.requestHandler('/api/user/$_userId/remove/', body);
   }
 
   void editTracking(ItemTracking tracking) {

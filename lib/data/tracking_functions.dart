@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:timezone/standalone.dart' as tz;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -153,6 +152,7 @@ class TrackingFunctions {
   }
 
   static void syncronizeUserData(BuildContext context) async {
+    await HttpConnection.awakeAPIs();
     List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     List<Object> lastEventsList = [];
@@ -169,9 +169,6 @@ class TrackingFunctions {
         }
       }
     }
-    // if (lastEventsList.isEmpty) return;
-    tz.TZDateTime now =
-        tz.TZDateTime.now(tz.getLocation("America/Argentina/Buenos_Aires"));
     bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
     String userId = Provider.of<UserPreferences>(context, listen: false).userId;
@@ -181,27 +178,19 @@ class TrackingFunctions {
       'userId': userId,
       'token': await FirebaseMessaging.instance.getToken(),
       'lastEvents': json.encode(lastEventsList),
-      'currentDate':
-          "${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}",
-      'driveLoggedIn': driveStatus.toString(),
       'servicesCount': servicesData.keys.length.toString(),
       "servicesVersions":
           servicesData.values.map((e) => e['__v']).toList().join(""),
+      'driveLoggedIn': driveStatus.toString(),
       'version': '1.1.7'
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
-    if (response.statusCode != 200) return;
+    if (response.statusCode == 500) return;
     Map<String, dynamic> responseData = json.decode(response.body);
-    if (responseData['syncError'] != null) {
-      if (responseData['syncError']["message"] == "reinstall") {
-        await StoredData().dropDatabase();
-        return Phoenix.rebirth(context);
-      }
-      return Provider.of<Status>(context, listen: false)
-          .setStartError(responseData['syncError']);
-    } else {
-      Provider.of<Status>(context, listen: false).setStartError({});
+    if (responseData['error'] == "user not found") {
+      await StoredData().dropDatabase();
+      return Phoenix.rebirth(context);
     }
     if (responseData["updatedServices"].isNotEmpty) {
       await ServicesData.store(responseData["updatedServices"]);
@@ -221,12 +210,12 @@ class TrackingFunctions {
       if (responseData['statusMessage'].isNotEmpty) {
         Provider.of<UserPreferences>(context, listen: false)
             .setShowMessageAgain(true);
-        DialogError.statusMessage(context, responseData['statusMessage']);
+        ShowDialog.statusMessage(context, responseData['statusMessage']);
       }
       Provider.of<UserPreferences>(context, listen: false)
           .storeMessageData(responseData['statusMessage']);
     } else if (showAgainStatusMessage && statusMessage.isNotEmpty) {
-      DialogError.statusMessage(context, statusMessage);
+      ShowDialog.statusMessage(context, statusMessage);
     }
     if (responseData['driveStatus'] == "Update required" ||
         responseData['driveStatus'] == 'Backup not found') {

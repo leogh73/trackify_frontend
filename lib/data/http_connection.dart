@@ -22,8 +22,8 @@ class HttpConnection {
       } catch (e) {
         response = Response(
           e is TimeoutException
-              ? '{"error":"Server timeout"}'
-              : '{"error":"${e.toString()}"}',
+              ? '{"serverError":"Timeout"}'
+              : '{"serverError":"${e.toString()}"}',
           500,
         );
       }
@@ -31,18 +31,14 @@ class HttpConnection {
     return response;
   }
 
-  static dynamic responseHandler(Response response, BuildContext context) {
-    dynamic responseData = json.decode(response.body);
+  static Map<String, dynamic> responseHandler(
+      Response response, BuildContext context) {
+    Map<String, dynamic> responseData = json.decode(response.body);
     if (response.statusCode == 200) return responseData;
-    responseData['errorDisplayed'] = false;
-    dynamic errorData = responseData['error'];
-    if (errorData is String) {
-      if (errorData == "Server timeout") {
-        DialogError.serverTimeout(context);
-      } else if (errorData != "No data") {
-        DialogError.serverError(context);
-      }
-      responseData['errorDisplayed'] = true;
+    if (responseData['serverError'] != null) {
+      responseData['serverError'] == "Timeout"
+          ? DialogError.serverTimeout(context)
+          : DialogError.serverError(context);
     }
     return responseData;
   }

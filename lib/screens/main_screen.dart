@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../data/classes.dart';
 import '../data/trackings_active.dart';
@@ -38,8 +37,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> errorData =
-        Provider.of<Status>(context).getStartError;
     final String userId = Provider.of<UserPreferences>(context).userId;
     final bool selectionMode =
         Provider.of<ActiveTrackings>(context).selectionModeStatus;
@@ -55,11 +52,7 @@ class _MainScreenState extends State<MainScreen> {
       moreData: [],
       archived: false,
     );
-    final Map<String, VoidCallback> onPressed = {
-      'restart': () => Phoenix.rebirth(context),
-      'play store': () => ShowDialog.launchPlayStore(),
-    };
-    return userId.isEmpty || errorData.isNotEmpty
+    return userId.isEmpty
         ? Scaffold(
             appBar: AppBar(title: Text("ERROR")),
             body: SingleChildScrollView(
@@ -80,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
                   SizedBox(height: 20),
                   Padding(
                     child: Text(
-                      errorData["message"]!,
+                      'Ocurrió un error de conexión, debido al cual, la aplicación se instaló incorrectamente y no la podrá utilizar. Verifique su conexión a internet. Reinicie para reintentar.',
                       style: TextStyle(fontSize: 18),
                       textAlign: TextAlign.center,
                     ),
@@ -91,10 +84,10 @@ class _MainScreenState extends State<MainScreen> {
                     height: 45,
                     child: ElevatedButton(
                       child: Text(
-                        errorData["buttonText"]!,
+                        'REINTENTAR',
                         style: const TextStyle(fontSize: 18),
                       ),
-                      onPressed: onPressed[errorData["function"]],
+                      onPressed: () => Phoenix.rebirth(context),
                     ),
                   ),
                   Padding(

@@ -18,14 +18,6 @@ import 'trackings_active.dart';
 class Status with ChangeNotifier {
   StoredData storedData = StoredData();
 
-  Map<String, dynamic> startError = {};
-  Map<String, dynamic> get getStartError => startError;
-
-  void setStartError(Map<String, dynamic> newError) {
-    startError = newError;
-    notifyListeners();
-  }
-
   late List<String> recentSearch;
 
   Status(StartData startData) {
@@ -260,7 +252,7 @@ class Status with ChangeNotifier {
           .toggleGDErrorStatus(true);
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.googleDriveError(context);
     }
     toggleGoogleProcess(false);

@@ -106,8 +106,4 @@ class DialogError {
       "",
     );
   }
-
-  static void statusMessage(BuildContext context, String message) {
-    ShowDialog.statusMessage(context, message);
-  }
 }

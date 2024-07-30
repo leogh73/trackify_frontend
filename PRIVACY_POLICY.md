@@ -1,56 +1,77 @@
-## Política de privacidad
+**Privacy Policy**
 
-### Introducción
+This privacy policy applies to the TrackeAR app (hereby referred to as "Application") for mobile devices that was created by leogh73 (hereby referred to as "Service Provider") as an Ad Supported service. This service is intended for use "AS IS".
 
-Nuestra política de privacidad lo ayudará a comprender qué información recopila TrackeAR, cómo la usa y qué opciones tiene.
-El desarrollador creó la aplicación TrackeAR como una aplicación gratuita. Este SERVICIO es proporcionado por el desarrollador sin costo y está diseñado para usarse tal cual.
-Si elige utilizar nuestro Servicio, acepta la recopilación y el uso de información en relación con esta política. La información personal que recopilamos se utiliza para proporcionar y mejorar el Servicio. No usaremos ni compartiremos su información con nadie excepto como se describe en esta Política de privacidad.
-Los términos utilizados en esta Política de privacidad tienen los mismos significados que en nuestros Términos y condiciones, a los que se puede acceder en nuestra aplicación, a menos que se defina lo contrario en esta Política de privacidad.
+**Information Collection and Use**
 
-### Recopilación y uso de información
+The Application collects information when you download and use it. This information may include information such as
 
-Para una mejor experiencia al usar nuestro Servicio, es posible que le solicitemos que nos brinde cierta información de identificación personal, que incluye, entre otros, el nombre de los usuarios y la dirección de correo electrónico. La información que solicitamos será retenida por nosotros y utilizada como se describe en esta política de privacidad.
-La aplicación utiliza servicios de terceros que pueden recopilar información utilizada para identificarlo.
+- Your device's Internet Protocol address (e.g. IP address)
+- The pages of the Application that you visit, the time and date of your visit, the time spent on those pages
+- The time spent on the Application
+- The operating system you use on your mobile device
 
-### Cookies
+The Application does not gather precise information about the location of your mobile device.
 
-Las cookies son archivos con una pequeña cantidad de datos que se utiliza comúnmente como un identificador único anónimo. Estos se envían a su navegador desde el sitio web que visita y se almacenan en la memoria interna de sus dispositivos.
+The Application collects your device's location, which helps the Service Provider determine your approximate geographical location and make use of in below ways:
 
-Este Servicio no utiliza estas “cookies” de forma explícita. Sin embargo, la aplicación puede usar código y bibliotecas de terceros que usan "cookies" para recopilar información y mejorar sus servicios. Tiene la opción de aceptar o rechazar estas cookies y saber cuándo se envía una cookie a su dispositivo. Si elige rechazar nuestras cookies, es posible que no pueda utilizar algunas partes de este Servicio.
+- Geolocation Services: The Service Provider utilizes location data to provide features such as personalized content, relevant recommendations, and location-based services.
+- Analytics and Improvements: Aggregated and anonymized location data helps the Service Provider to analyze user behavior, identify trends, and improve the overall performance and functionality of the Application.
+- Third-Party Services: Periodically, the Service Provider may transmit anonymized location data to external services. These services assist them in enhancing the Application and optimizing their offerings.
 
-### Información sobre la ubicación
+The Service Provider may use the information you provided to contact you from time to time to provide you with important information, required notices and marketing promotions.
 
-Algunos de los servicios o bibliotecas de terceros pueden utilizar información de ubicación transmitida desde los teléfonos móviles de los usuarios. La aplicación, no solicita ni recopila información relativa a la ubicación
+For a better experience, while using the Application, the Service Provider may require you to provide us with certain personally identifiable information, including but not limited to Email. The information that the Service Provider request will be retained by them and used as described in this privacy policy.
 
-### Información del dispositivo
+**Third Party Access**
 
-Es posible que empleemos a empresas e individuos de terceros debido a las siguientes razones:
+Only aggregated, anonymized data is periodically transmitted to external services to aid the Service Provider in improving the Application and their service. The Service Provider may share your information with third parties in the ways that are described in this privacy statement.
 
-### Proveedores de servicio
+Please note that the Application utilizes third-party services that have their own Privacy Policy about handling data. Below are the links to the Privacy Policy of the third-party service providers used by the Application:
 
-Es posible que empleemos a empresas e individuos de terceros debido a las siguientes razones:
+- [Google Play Services](https://www.google.com/policies/privacy/)
+- [AdMob](https://support.google.com/admob/answer/6128543?hl=en)
+- [Google Analytics for Firebase](https://firebase.google.com/support/privacy)
+- [Firebase Crashlytics](https://firebase.google.com/support/privacy/)
 
-- Para facilitar nuestro Servicio;
-- Para proporcionar el Servicio en nuestro nombre;
-- Para realizar servicios relacionados con el Servicio; o
-- Para ayudarnos a analizar cómo se utiliza nuestro Servicio.
+The Service Provider may disclose User Provided and Automatically Collected Information:
 
-Queremos informar a los usuarios de este Servicio que estos terceros tienen acceso a su Información personal. El motivo es realizar las tareas que se les asignan en nuestro nombre. Sin embargo, están obligados a no divulgar ni utilizar la información para ningún otro fin.
+- as required by law, such as to comply with a subpoena, or similar legal process;
+- when they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;
+- with their trusted services providers who work on their behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
 
-### Seguridad
+**Opt-Out Rights**
 
-Valoramos su confianza al proporcionarnos su información personal, por lo que nos esforzamos por utilizar medios comercialmente aceptables para protegerla. Pero recuerde que ningún método de transmisión por Internet, o método de almacenamiento electrónico es 100% seguro y confiable, y no podemos garantizar su seguridad absoluta.
+You can stop all collection of information by the Application easily by uninstalling it. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network.
 
-### Privacidad de los niños
+**Data Retention Policy**
 
-Estos Servicios no están dirigidos a personas menores de 13 años. No recopilamos a sabiendas información personal identificable de niños menores de 13 años. En caso de que descubramos que un niño menor de 13 años nos ha proporcionado información personal, la eliminamos de inmediato de nuestros servidores. Si usted es padre o tutor y sabe que su hijo nos ha proporcionado información personal, comuníquese con nosotros para que podamos tomar las medidas necesarias.
+The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Application, please contact them at trackear.seguimientos@gmail.com and they will respond in a reasonable time.
 
-### Cambios a esta Política de privacidad
+**Children**
 
-Es posible que actualicemos nuestra Política de privacidad de vez en cuando. Por lo tanto, se le recomienda revisar esta página periódicamente para ver si hay cambios. Le notificaremos cualquier cambio publicando la nueva Política de privacidad en esta página. Estos cambios entran en vigencia inmediatamente después de que se publiquen en esta página.
+The Service Provider does not use the Application to knowingly solicit data from or market to children under the age of 13.
 
-### Contáctenos
+The Application does not address anyone under the age of 13\. The Service Provider does not knowingly collect personally identifiable information from children under 13 years of age. In the case the Service Provider discover that a child under 13 has provided personal information, the Service Provider will immediately delete this from their servers. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact the Service Provider (trackear.seguimientos@gmail.com) so that they will be able to take the necessary actions.
 
-Si tiene alguna pregunta o sugerencia sobre nuestra Política de Privacidad, no dude en ponerse en contacto con nosotros.
-Información de contacto:  
-Email: trackear.seguimientos@gmail.com
+**Security**
+
+The Service Provider is concerned about safeguarding the confidentiality of your information. The Service Provider provides physical, electronic, and procedural safeguards to protect information the Service Provider processes and maintains.
+
+**Changes**
+
+This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to the Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
+
+This privacy policy is effective as of 2024-07-29
+
+**Your Consent**
+
+By using the Application, you are consenting to the processing of your information as set forth in this Privacy Policy now and as amended by us.
+
+**Contact Us**
+
+If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at trackear.seguimientos@gmail.com.
+
+---
+
+This privacy policy page was generated by [App Privacy Policy Generator](https://app-privacy-policy-generator.nisrulz.com/)

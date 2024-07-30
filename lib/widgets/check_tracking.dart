@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../data/classes.dart';
 import '../data/http_connection.dart';
@@ -14,7 +13,6 @@ import '../widgets/dialog_toast.dart';
 
 class TrackingData {
   static Future fetch(BuildContext context, ItemTracking tracking) async {
-    await HttpConnection.awakeAPIs();
     String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'title': tracking.title,
@@ -28,29 +26,23 @@ class TrackingData {
     if (response.statusCode == 200) {
       Provider.of<ActiveTrackings>(context, listen: false)
           .loadStartData(context, tracking, responseData);
-      GlobalToast.displayToast(context, "Seguimiento agregado");
       tracking.checkError = false;
-      await HttpConnection.requestHandler('/api/user/removeDuplicates', {
-        'token': await FirebaseMessaging.instance.getToken(),
-        'code': tracking.code.trim(),
-        'trackingId': responseData['trackingId'],
-      });
-      return;
-    }
-    if (responseData['error'] == "No data") {
-      Provider.of<ActiveTrackings>(context, listen: false)
-          .removeTracking([tracking], context, true);
-      DialogError.trackingNoData(context, tracking.service);
-      return;
-    }
-    if (responseData['error'] is String == false) {
-      if (responseData['error']['body'] == "Service timeout") {
-        DialogError.serviceTimeout(context, tracking.service);
-      } else {
-        DialogError.startTrackingError(context);
+      GlobalToast.displayToast(context, "Seguimiento agregado");
+    } else {
+      if (responseData["serverError"] == null) {
+        if (responseData['error'] == "No data") {
+          Provider.of<ActiveTrackings>(context, listen: false)
+              .removeTracking([tracking], context, true);
+          DialogError.trackingNoData(context, tracking.service);
+          return;
+        } else {
+          responseData['error']['body'] == "Service timeout"
+              ? DialogError.serviceTimeout(context, tracking.service)
+              : DialogError.startTrackingError(context);
+        }
       }
+      tracking.checkError = true;
     }
-    tracking.checkError = true;
     return tracking;
   }
 }

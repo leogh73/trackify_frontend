@@ -52,7 +52,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
           .toggleGDErrorStatus(true);
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.googleDriveError(context);
     }
   }

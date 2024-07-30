@@ -130,7 +130,7 @@ class UserData {
   bool googleDriveStatus;
   String statusMessage;
   bool showAgainStatusMessage;
-  Map<String, dynamic> servicesData;
+  Map<String, dynamic>? servicesData;
 
   UserData({
     required this.id,

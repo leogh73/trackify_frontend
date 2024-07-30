@@ -84,7 +84,7 @@ class _MeLiCheckState extends State<MeLiCheck> {
         loadMore = false;
       });
     } else {
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.meLiCheckError(context);
     }
   }
@@ -112,7 +112,7 @@ class _MeLiCheckState extends State<MeLiCheck> {
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleMeLiErrorStatus(true);
-      if (responseData['errorDisplayed'] == false)
+      if (responseData['serverError'] == null)
         DialogError.meLiCheckError(context);
     }
   }
