@@ -7,18 +7,17 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:trackify/screens/main_screen.dart';
 
 import 'data/services.dart';
 import 'initial_data.dart';
 
-import 'data/preferences.dart';
+import 'data/../data/preferences.dart';
 import 'data/theme.dart';
 import 'data/status.dart';
 import 'data/trackings_active.dart';
 import 'data/trackings_archived.dart';
 import 'data/tracking_functions.dart';
-
-import 'screens/main_screen.dart';
 
 import '../widgets/ad_interstitial.dart';
 
@@ -117,7 +116,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
   AdInterstitial? interstitialAd = AdInterstitial();
-  late String userId;
+  bool isPremium = false;
   late Map<String, dynamic> servicesData;
 
   void firebaseSettings(context) async {
@@ -155,7 +154,7 @@ class _AppState extends State<App> {
       (state) {
         if (state == AppState.foreground) {
           syncData(navKey.currentContext!);
-          interstitialAd?.showInterstitialAd();
+          if (!isPremium) interstitialAd?.showInterstitialAd();
         }
       },
     );
@@ -168,8 +167,17 @@ class _AppState extends State<App> {
     listenToAppStateChanges();
   }
 
+  void togglePremiumStatus() {
+    setState(() {
+      isPremium = !isPremium;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
+    if (premiumUser != isPremium) togglePremiumStatus();
     final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     final bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(

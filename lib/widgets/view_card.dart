@@ -16,6 +16,7 @@ class ViewCard {
     bool expand,
     bool selectionMode,
     bool isPortrait,
+    bool premiumUser,
     bool fullHD,
     Widget optionsButton,
   ) {
@@ -356,10 +357,11 @@ class ViewCard {
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 10),
-          child: AdNative("medium"),
-        ),
+        if (!premiumUser)
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: AdNative("medium"),
+          ),
       ],
     );
   }

@@ -5,6 +5,7 @@ import 'package:trackify/screens/tracking_more.dart';
 import 'package:trackify/data/services.dart';
 
 import '../data/classes.dart';
+import '../data/../data/preferences.dart';
 import '../data/status.dart';
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
@@ -36,11 +37,13 @@ class OptionsTracking extends StatefulWidget {
 
 class _OptionsTrackingState extends State<OptionsTracking> {
   late dynamic provider;
+  bool premiumUser = false;
   AdInterstitial interstitialAd = AdInterstitial();
 
   @override
   void initState() {
     super.initState();
+
     provider = widget.tracking.archived!
         ? Provider.of<ArchivedTrackings>(context, listen: false)
         : Provider.of<ActiveTrackings>(context, listen: false);
@@ -51,11 +54,11 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     Navigator.pop(context);
     Provider.of<Status>(context, listen: false).restartListEnd();
     GlobalToast.displayToast(context, message);
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
   }
 
   void seeTrackingDetail() {
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -65,7 +68,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
   }
 
   void seeMoreTrackingData() {
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -75,7 +78,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
   }
 
   void renameTracking() {
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -140,7 +143,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
   }
 
   void seeServiceContact() {
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -180,8 +183,19 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     );
   }
 
+  void togglePremium() {
+    setState(() {
+      premiumUser = !premiumUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool premiumStatus =
+        Provider.of<UserPreferences>(context).premiumStatus;
+    if (premiumUser != premiumStatus) {
+      togglePremium();
+    }
     final String trackingType = widget.tracking.archived! ? "archived" : "main";
     final Map<String, dynamic> optionsList = {
       "main": {
@@ -210,10 +224,14 @@ class _OptionsTrackingState extends State<OptionsTracking> {
                 toggleSelectionMode();
                 break;
               case 'Archivar':
-                displayDialog("archivar");
+                displayDialog(
+                  "archivar",
+                );
                 break;
               case 'Eliminar':
-                displayDialog("eliminar");
+                displayDialog(
+                  "eliminar",
+                );
                 break;
               case 'Reclamar':
                 seeServiceContact();
@@ -269,7 +287,9 @@ class _OptionsTrackingState extends State<OptionsTracking> {
                 toggleSelectionMode();
                 break;
               case 'Eliminar':
-                displayDialog("eliminar");
+                displayDialog(
+                  "eliminar",
+                );
                 break;
               case 'Reclamar':
                 seeServiceContact();

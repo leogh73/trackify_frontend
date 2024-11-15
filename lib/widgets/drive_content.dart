@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import '../widgets/drive_backups_list.dart';
 import '../data/status.dart';
+import 'ad_native.dart';
 
 Text screenText(String text, bool fullHD) {
   return Text(
@@ -29,6 +31,8 @@ class DriveContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final List<dynamic> backupsData =
         Provider.of<Status>(context).googleUserData;
     bool isPortrait =
@@ -141,13 +145,18 @@ class DriveContent extends StatelessWidget {
                           ),
                       ],
                     ),
-                    // Padding(
-                    //     child: AdNative("medium"),
-                    //     padding: EdgeInsets.only(bottom: 8)),
+                    Padding(
+                      child: premiumUser ? null : AdNative("medium"),
+                      padding: EdgeInsets.only(bottom: 8),
+                    ),
                   ],
                 ),
         ),
-        // Padding(child: AdNative("medium"), padding: EdgeInsets.only(bottom: 8)),
+        if (!premiumUser)
+          Padding(
+            child: AdNative("medium"),
+            padding: EdgeInsets.only(bottom: 8),
+          ),
       ],
     );
   }

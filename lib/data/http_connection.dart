@@ -12,22 +12,23 @@ class HttpConnection {
     Response response;
     try {
       response = await Client()
-          .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
+          .post(Uri.parse("${dotenv.env['API_URL']}$route"), body: body)
           .timeout(const Duration(seconds: 9));
+      // } catch (e) {
+      //   try {
+      //     response = await Client()
+      //         .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
+      //         .timeout(const Duration(seconds: 9));
     } catch (e) {
-      try {
-        response = await Client()
-            .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
-            .timeout(const Duration(seconds: 9));
-      } catch (e) {
-        response = Response(
-          e is TimeoutException
-              ? '{"serverError":"Timeout"}'
-              : '{"serverError":"${e.toString()}"}',
-          500,
-        );
-      }
+      response = Response(
+        e is TimeoutException
+            ? '{"serverError":"Timeout"}'
+            : '{"serverError":"${e.toString()}"}',
+        500,
+      );
+      //   }
     }
+    print("PRINT_${response.body}");
     return response;
   }
 

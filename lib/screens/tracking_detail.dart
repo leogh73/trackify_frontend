@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/classes.dart';
+import '../data/../data/preferences.dart';
 import '../data/status.dart';
 import '../data/tracking_functions.dart';
 
@@ -31,6 +32,8 @@ class _TrackingDetailState extends State<TrackingDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     bool checking = Provider.of<Status>(context).checkingStatus;
     bool endList = Provider.of<Status>(context).endOfEvents;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -38,7 +41,6 @@ class _TrackingDetailState extends State<TrackingDetail> {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     String screenList = widget.tracking.archived! ? "archived" : "main";
     List<Map<String, String>> events = widget.tracking.events;
-
     return WillPopScope(
       onWillPop: () => Future.value(!checking),
       child: Scaffold(
@@ -148,12 +150,12 @@ class _TrackingDetailState extends State<TrackingDetail> {
             : FloatingActionButton(
                 heroTag: 'events',
                 onPressed: () => {
-                  interstitialAd.showInterstitialAd(),
+                  if (!premiumUser) interstitialAd.showInterstitialAd(),
                   TrackingFunctions.searchUpdates(context, widget.tracking),
                 },
                 child: const Icon(Icons.update, size: 29),
               ),
-        bottomNavigationBar: const AdBanner(),
+        bottomNavigationBar: premiumUser ? null : const AdBanner(),
       ),
     );
   }

@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 import 'services.dart';
 import 'http_connection.dart';
 
-import '../data/preferences.dart';
+import 'preferences.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
@@ -227,7 +227,7 @@ class Status with ChangeNotifier {
 
   void deleteBackup(BuildContext context, String id) async {
     toggleGoogleProcess(true);
-    String userId = [...await StoredData().loadUserData()][0].userId;
+    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
     Object body = {
       'userId': userId,
       'backupId': id,

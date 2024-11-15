@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/screens/mercado_pago.dart';
 
 import '../data/classes.dart';
 import '../data/trackings_active.dart';
 import '../data/status.dart';
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 import '../data/tracking_functions.dart';
 
 import '../screens/form_add_edit.dart';
 import '../screens/search.dart';
 
 import '../widgets/ad_banner.dart';
+import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/drawer.dart';
 import '../widgets/tracking_list.dart';
@@ -26,9 +28,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  AdInterstitial mePaInterstitialAd = AdInterstitial();
+
   @override
   void initState() {
     super.initState();
+    mePaInterstitialAd.createInterstitialAd();
     Future.delayed(
       const Duration(seconds: 3),
       () => TrackingFunctions.syncronizeUserData(context),
@@ -37,6 +42,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final String userId = Provider.of<UserPreferences>(context).userId;
     final bool selectionMode =
         Provider.of<ActiveTrackings>(context).selectionModeStatus;
@@ -60,10 +67,11 @@ class _MainScreenState extends State<MainScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 8, bottom: 30),
-                  ),
+                  if (!premiumUser)
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 8, bottom: 30),
+                    ),
                   Icon(Icons.error, size: 80),
                   SizedBox(height: 20),
                   Text(
@@ -90,10 +98,11 @@ class _MainScreenState extends State<MainScreen> {
                       onPressed: () => Phoenix.rebirth(context),
                     ),
                   ),
-                  Padding(
-                    child: AdNative("medium"),
-                    padding: EdgeInsets.only(top: 30, bottom: 8),
-                  ),
+                  if (!premiumUser)
+                    Padding(
+                      child: AdNative("medium"),
+                      padding: EdgeInsets.only(top: 30, bottom: 8),
+                    ),
                 ],
               ),
             ),
@@ -144,6 +153,15 @@ class _MainScreenState extends State<MainScreen> {
                       style: TextStyle(fontSize: 19),
                     ),
                     actions: <Widget>[
+                      if (!premiumUser)
+                        IconButton(
+                          icon: const Icon(Icons.workspace_premium),
+                          iconSize: 22,
+                          onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      MercadoPago(mePaInterstitialAd))),
+                        ),
                       IconButton(
                         icon: const Icon(Icons.search),
                         iconSize: 20,
@@ -165,7 +183,7 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () => {},
                     child: AddTracking(32),
                   ),
-            bottomNavigationBar: const AdBanner(),
+            bottomNavigationBar: premiumUser ? null : const AdBanner(),
           );
   }
 }

@@ -17,6 +17,7 @@ class UserPreferences with ChangeNotifier {
   late bool googleDrive;
   late String statusMessage;
   late bool showAgainStatusMessage;
+  late Map<String, dynamic> mercadoPago;
 
   UserPreferences(StartData startData) {
     userId = startData.userId;
@@ -25,6 +26,7 @@ class UserPreferences with ChangeNotifier {
     googleDrive = startData.googleDrive;
     statusMessage = startData.statusMessage;
     showAgainStatusMessage = startData.showAgainStatusMessage;
+    mercadoPago = startData.mercadoPago;
   }
 
   updateDatabase(String type, dynamic value) async {
@@ -74,6 +76,7 @@ class UserPreferences with ChangeNotifier {
       if (responseData['serverError'] == null)
         DialogError.meLiLoginError(context);
     }
+    Navigator.of(context).pop();
   }
 
   bool get meLiStatus => mercadoLibre;
@@ -150,5 +153,21 @@ class UserPreferences with ChangeNotifier {
 
   void storeMessageData(String message) {
     updateDatabase("statusMessage", message);
+  }
+
+  Map<String, dynamic> get paymentData => mercadoPago;
+
+  void setPaymentData(Map<String, dynamic> paymentData) {
+    mercadoPago = paymentData;
+    notifyListeners();
+  }
+
+  bool get premiumStatus => mercadoPago['isValid'];
+
+  bool errorPaymentCheck = false;
+  bool get errorPremiumChecking => errorPaymentCheck;
+  void toggleErrorPaymentCheck(bool newStatus) {
+    errorPaymentCheck = newStatus;
+    notifyListeners();
   }
 }

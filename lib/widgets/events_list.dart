@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import '../widgets/ad_native.dart';
 import '../data/services.dart';
 import '../data/status.dart';
@@ -31,6 +32,12 @@ class _EventsListState extends State<EventsList> {
     super.initState();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -66,6 +73,8 @@ class Event extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     bool lastItem = false;
     if (listLength - 1 == index) lastItem = true;
     final isPortrait =
@@ -77,18 +86,15 @@ class Event extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
-          if (index == 0)
+          if (index == 0 && !premiumUser)
             Padding(
-                padding: EdgeInsets.only(top: 3, bottom: 3),
-                child: AdNative("medium")),
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium"),
+            ),
           if (index == 0)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
-            // padding: isPortrait && widget.modoSeleccion
-            //     ? EdgeInsets.only(right: 4)
-            //     : null,
             height: isPortrait ? 40 : 42,
-            // alignment: Alignment.bottomCenter,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -108,7 +114,6 @@ class Event extends StatelessWidget {
                         child: Column(
                           children: [
                             Row(
-                              // mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 const Padding(
                                   padding: EdgeInsets.only(right: 10),
@@ -209,11 +214,13 @@ class Event extends StatelessWidget {
                 ),
               )
               .toList(),
-          Divider(color: Theme.of(context).primaryColor, thickness: 1),
-          Padding(
-            padding: EdgeInsets.only(top: 3, bottom: 3),
-            child: AdNative("medium"),
-          ),
+          if (!premiumUser)
+            Divider(color: Theme.of(context).primaryColor, thickness: 1),
+          if (!premiumUser)
+            Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium"),
+            ),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

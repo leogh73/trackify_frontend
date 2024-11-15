@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import 'dialog_toast.dart';
 import '../widgets/ad_native.dart';
 import '../data/status.dart';
@@ -57,7 +58,8 @@ class DriveBackupsList extends StatelessWidget {
               itemBuilder: (context, index) =>
                   BackupItem(backupsData[index], index),
               // shrinkWrap: _verificando,
-            ));
+            ),
+          );
   }
 }
 
@@ -68,6 +70,8 @@ class BackupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -247,9 +251,11 @@ class BackupItem extends StatelessWidget {
                     thickness: 0.7,
                   ),
                 ),
-              Padding(
+              if (!premiumUser)
+                Padding(
                   child: AdNative("medium"),
-                  padding: EdgeInsets.only(bottom: 8)),
+                  padding: EdgeInsets.only(bottom: 8),
+                ),
             ],
           );
   }

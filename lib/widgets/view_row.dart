@@ -15,6 +15,7 @@ class ViewRow {
     bool expand,
     bool selectionMode,
     bool isPortrait,
+    bool premiumUser,
     bool fullHD,
     Widget optionsButton,
   ) {
@@ -374,10 +375,11 @@ class ViewRow {
             ),
           ),
         ),
-        Padding(
-          child: AdNative("small"),
-          padding: EdgeInsets.only(bottom: 8),
-        ),
+        if (!premiumUser)
+          Padding(
+            child: AdNative("small"),
+            padding: EdgeInsets.only(bottom: 8),
+          ),
       ],
     );
   }

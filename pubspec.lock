@@ -120,6 +120,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.0.0"
+  device_uuid:
+    dependency: "direct dev"
+    description:
+      name: device_uuid
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   fake_async:
     dependency: transitive
     description:

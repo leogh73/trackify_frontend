@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/widgets/dialog_error.dart';
 
+import '../data/../data/preferences.dart';
 import '../widgets/ad_interstitial.dart';
 
 import '../data/classes.dart';
@@ -81,12 +82,12 @@ class _FormAddEditState extends State<FormAddEdit> {
 
   @override
   void dispose() {
-    super.dispose();
     title.dispose();
     code.dispose();
+    super.dispose();
   }
 
-  void pagePopMessage(context, edit) {
+  void pagePopMessage(context, edit, premiumUser) {
     Navigator.pop(context);
     if (edit) {
       GlobalToast.displayToast(context, "Seguimiento editado");
@@ -94,10 +95,10 @@ class _FormAddEditState extends State<FormAddEdit> {
     if (widget.mercadoLibre && widget.rename == false) {
       Navigator.pop(context);
     }
-    interstitialAd.showInterstitialAd();
+    if (!premiumUser) interstitialAd.showInterstitialAd();
   }
 
-  void addTracking(context, service) {
+  void addTracking(context, service, premiumUser) {
     if (formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
@@ -109,11 +110,11 @@ class _FormAddEditState extends State<FormAddEdit> {
       );
       Provider.of<ActiveTrackings>(context, listen: false)
           .addTracking(newTracking);
-      pagePopMessage(context, widget.rename);
+      pagePopMessage(context, widget.rename, premiumUser);
     }
   }
 
-  void editTracking(context, service, listView) {
+  void editTracking(context, service, listView, premiumUser) {
     if (formKey.currentState?.validate() == false || service == null) {
       DialogError.formError(context);
     } else {
@@ -128,13 +129,14 @@ class _FormAddEditState extends State<FormAddEdit> {
         lastEvent: "Sample",
       );
       providerFunctions.editTracking(editedTracking);
-      pagePopMessage(context, widget.rename);
+      pagePopMessage(context, widget.rename, premiumUser);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    String listView = "main";
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final String? service =
         loadedService?.chosen ?? Provider.of<Status>(context).chosenService;
     final String exampleCode = Provider.of<Status>(context).chosenServiceCode;
@@ -148,19 +150,20 @@ class _FormAddEditState extends State<FormAddEdit> {
                 widget.rename ? const Icon(Icons.save) : const Icon(Icons.add),
             iconSize: 26,
             onPressed: widget.rename
-                ? () => editTracking(context, service, listView)
-                : () => addTracking(context, widget.tracking?.service),
+                ? () => editTracking(context, service, 'main', premiumUser)
+                : () =>
+                    addTracking(context, widget.tracking?.service, premiumUser),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // AdNative("medium"),
             Padding(
-              child: AdNative("small"),
-              padding: EdgeInsets.only(top: 10, bottom: 50),
+              child: premiumUser ? null : AdNative("small"),
+              padding: EdgeInsets.only(top: 10, bottom: 30),
             ),
             Padding(
               padding: const EdgeInsets.only(
@@ -222,7 +225,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 15, left: 7),
+                      padding: const EdgeInsets.only(top: 20, left: 7),
                       child: Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -237,7 +240,8 @@ class _FormAddEditState extends State<FormAddEdit> {
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  interstitialAd.showInterstitialAd();
+                                  if (!premiumUser)
+                                    interstitialAd.showInterstitialAd();
                                 },
                               ),
                             ),
@@ -251,8 +255,10 @@ class _FormAddEditState extends State<FormAddEdit> {
                                   style: const TextStyle(fontSize: 17),
                                 ),
                                 onPressed: () => widget.rename
-                                    ? editTracking(context, service, listView)
-                                    : addTracking(context, service),
+                                    ? editTracking(
+                                        context, service, 'main', premiumUser)
+                                    : addTracking(
+                                        context, service, premiumUser),
                               ),
                             ),
                           ],
@@ -264,14 +270,10 @@ class _FormAddEditState extends State<FormAddEdit> {
               ),
             ),
             SizedBox(width: 50, height: 120),
-            // Padding(
-            //   child: AdNative("medium"),
-            //   padding: EdgeInsets.only(top: 20),
-            // ),
           ],
         ),
       ),
-      bottomNavigationBar: const AdBanner(),
+      bottomNavigationBar: premiumUser ? null : const AdBanner(),
     );
   }
 }

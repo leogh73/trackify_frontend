@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_native.dart';
 
@@ -9,6 +11,8 @@ class TrackingMore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -22,20 +26,22 @@ class TrackingMore extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Padding(
-                      child: AdNative("medium"),
-                      padding: EdgeInsets.only(top: 10, bottom: 60),
-                    ),
+                    if (!premiumUser)
+                      Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(top: 10, bottom: 60),
+                      ),
                     Center(
                       child: Text(
                         'No hay más datos',
                         style: TextStyle(fontSize: 24),
                       ),
                     ),
-                    Padding(
-                      child: AdNative("medium"),
-                      padding: EdgeInsets.only(top: 60, bottom: 10),
-                    )
+                    if (!premiumUser)
+                      Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(top: 60, bottom: 10),
+                      )
                   ],
                 ),
               ),
@@ -45,10 +51,11 @@ class TrackingMore extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Column(
                   children: [
-                    Padding(
-                      child: AdNative("medium"),
-                      padding: EdgeInsets.only(bottom: 8),
-                    ),
+                    if (!premiumUser)
+                      Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(bottom: 8),
+                      ),
                     ...moreDataList
                         .map(
                           (moreData) => Column(
@@ -106,10 +113,11 @@ class TrackingMore extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                child: AdNative("medium"),
-                                padding: EdgeInsets.only(bottom: 8),
-                              ),
+                              if (!premiumUser)
+                                Padding(
+                                  child: AdNative("medium"),
+                                  padding: EdgeInsets.only(bottom: 8),
+                                ),
                             ],
                           ),
                         )
@@ -118,7 +126,7 @@ class TrackingMore extends StatelessWidget {
                 ),
               ),
             ),
-      bottomNavigationBar: const AdBanner(),
+      bottomNavigationBar: premiumUser ? null : const AdBanner(),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/classes.dart';
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
 import '../data/status.dart';
@@ -39,8 +39,8 @@ class _TrackingItemState extends State<TrackingItem> {
     interstitialAd.createInterstitialAd();
   }
 
-  seeTrackingDetail() {
-    interstitialAd.showInterstitialAd();
+  seeTrackingDetail(premiumUser) {
+    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -65,16 +65,18 @@ class _TrackingItemState extends State<TrackingItem> {
     widget.tracking.selected = !widget.tracking.selected!;
   }
 
-  void clickItem(selectionMode) {
+  void clickItem(selectionMode, premiumUser) {
     if (selectionMode && widget.tracking.checkError != null) {
       trackingClick();
     } else if (!selectionMode && !widget.tracking.checkError!) {
-      seeTrackingDetail();
+      seeTrackingDetail(premiumUser);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final dynamic providerData = widget.tracking.archived!
         ? Provider.of<ArchivedTrackings>(context)
         : Provider.of<ActiveTrackings>(context);
@@ -100,7 +102,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 context,
                 serviceLogo,
                 widget.tracking,
-                () => clickItem(selectionMode),
+                () => clickItem(selectionMode, premiumUser),
                 () => toggleSelectionMode(selectionMode),
                 screenWidth,
                 "ERROR",
@@ -109,7 +111,7 @@ class _TrackingItemState extends State<TrackingItem> {
                   child: IconButton(
                     icon: const Icon(Icons.sync),
                     onPressed: () {
-                      interstitialAd.showInterstitialAd();
+                      if (!premiumUser) interstitialAd.showInterstitialAd();
                       setState(() {
                         widget.tracking.checkError = null;
                       });
@@ -119,6 +121,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 expand,
                 selectionMode,
                 isPortrait,
+                premiumUser,
                 fullHD,
                 OptionsTracking(
                   tracking: widget.tracking,
@@ -131,7 +134,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 context,
                 serviceLogo,
                 widget.tracking,
-                () => clickItem(selectionMode),
+                () => clickItem(selectionMode, premiumUser),
                 () => toggleSelectionMode(selectionMode),
                 screenWidth,
                 widget.tracking.title,
@@ -149,6 +152,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 expand,
                 selectionMode,
                 isPortrait,
+                premiumUser,
                 fullHD,
                 OptionsTracking(
                   tracking: widget.tracking,

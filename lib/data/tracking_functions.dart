@@ -153,9 +153,9 @@ class TrackingFunctions {
 
   static void syncronizeUserData(BuildContext context) async {
     await HttpConnection.awakeAPIs();
-    List<ItemTracking> trackingsList =
+    final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    List<Object> lastEventsList = [];
+    final List<Object> lastEventsList = [];
     if (trackingsList.isNotEmpty) {
       for (ItemTracking tracking in trackingsList) {
         bool completedTracking =
@@ -169,25 +169,37 @@ class TrackingFunctions {
         }
       }
     }
-    bool driveStatus =
+    final bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
-    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
-    Map<String, dynamic> servicesData =
+    final String userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
+    final Map<String, dynamic> servicesData =
         Provider.of<Services>(context, listen: false).servicesData;
-    Object body = {
+    final Map<String, dynamic> paymentData =
+        Provider.of<UserPreferences>(context, listen: false).paymentData;
+    final Object body = {
       'userId': userId,
       'token': await FirebaseMessaging.instance.getToken(),
       'lastEvents': json.encode(lastEventsList),
+      'payment': json.encode({
+        'status': paymentData['status'] ?? '',
+        'isValid': paymentData['isValid'] ?? '',
+        'daysRemaining': paymentData['daysRemaining'] ?? "",
+      }),
       'servicesCount': servicesData.keys.length.toString(),
       "servicesVersions":
           servicesData.values.map((e) => e['__v']).toList().join(""),
       'driveLoggedIn': driveStatus.toString(),
-      'version': '1.1.7'
+      'version': '1.2.0'
     };
-    Response response =
+    final Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
-    if (response.statusCode == 500) return;
-    Map<String, dynamic> responseData = json.decode(response.body);
+    if (response.statusCode == 500) {
+      DialogError.serverError(context);
+      return;
+    }
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    if (responseData.isEmpty) return;
     if (responseData['error'] == "user not found") {
       await StoredData().dropDatabase();
       return Phoenix.rebirth(context);
@@ -196,30 +208,34 @@ class TrackingFunctions {
       await ServicesData.store(responseData["updatedServices"]);
       return Phoenix.rebirth(context);
     }
+    if (responseData['mercadoPago'] != null) {
+      Provider.of<UserPreferences>(context, listen: false)
+          .setPaymentData(responseData['mercadoPago']);
+    }
     final String statusMessage =
         Provider.of<UserPreferences>(context, listen: false).getStatusMessage;
     final bool showAgainStatusMessage =
         Provider.of<UserPreferences>(context, listen: false).showMessageAgain;
-    if (statusMessage != responseData['statusMessage']) {
+    if (responseData['statusMessage'].isEmpty) {
+      Provider.of<UserPreferences>(context, listen: false).setStatusMessage('');
+      Provider.of<UserPreferences>(context, listen: false)
+          .setShowMessageAgain(false);
+    } else if (statusMessage != responseData['statusMessage']) {
       Provider.of<UserPreferences>(context, listen: false)
           .setStatusMessage(responseData['statusMessage']);
-      if (responseData['statusMessage'].isEmpty) {
-        Provider.of<UserPreferences>(context, listen: false)
-            .setShowMessageAgain(false);
-      }
-      if (responseData['statusMessage'].isNotEmpty) {
-        Provider.of<UserPreferences>(context, listen: false)
-            .setShowMessageAgain(true);
-        ShowDialog.statusMessage(context, responseData['statusMessage']);
-      }
+      Provider.of<UserPreferences>(context, listen: false)
+          .setShowMessageAgain(true);
+      ShowDialog.statusMessage(context, responseData['statusMessage']);
       Provider.of<UserPreferences>(context, listen: false)
           .storeMessageData(responseData['statusMessage']);
     } else if (showAgainStatusMessage && statusMessage.isNotEmpty) {
       ShowDialog.statusMessage(context, statusMessage);
     }
-    if (responseData['driveStatus'] == "Update required" ||
-        responseData['driveStatus'] == 'Backup not found') {
-      await updateCreateDriveBackup(true, context);
+    if (responseData['driveStatus'] != null) {
+      if (responseData['driveStatus'] == "Update required" ||
+          responseData['driveStatus'] == 'Backup not found') {
+        await updateCreateDriveBackup(true, context);
+      }
     }
     if (responseData['data'].isEmpty) return;
     List<String> updatedItems = [];

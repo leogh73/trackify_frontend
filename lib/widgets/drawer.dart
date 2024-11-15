@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/screens/claim.dart';
+import 'package:trackify/screens/mercado_pago.dart';
 
 import '../data/services.dart';
+import 'ad_native.dart';
 import 'dialog_toast.dart';
 
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
 
 import '../screens/form_contact.dart';
 import '../screens/main_screen.dart';
 import '../screens/archived.dart';
-import '../screens/mercadolibre.dart';
-import '../screens/googledrive.dart';
+import '../screens/mercado_libre.dart';
+import '../screens/google_drive.dart';
 
 import '../widgets/ad_interstitial.dart';
 
@@ -26,12 +29,14 @@ class DrawerWidget extends StatefulWidget {
 class _DrawerWidgetState extends State<DrawerWidget> {
   AdInterstitial driveInterstitialAd = AdInterstitial();
   AdInterstitial meLiInterstitialAd = AdInterstitial();
+  AdInterstitial mePaInterstitialAd = AdInterstitial();
 
   @override
   void initState() {
     super.initState();
     driveInterstitialAd.createInterstitialAd();
     meLiInterstitialAd.createInterstitialAd();
+    mePaInterstitialAd.createInterstitialAd();
   }
 
   Widget optionAPI(
@@ -68,6 +73,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final bool meliStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool googleStatus = Provider.of<UserPreferences>(context).gdStatus;
     final int mainAmount =
@@ -110,6 +117,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
+                  if (premiumUser) Icon(Icons.workspace_premium, size: 50)
                 ],
               ),
             ),
@@ -121,7 +129,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 MaterialPageRoute(
                   builder: (_) => GoogleDrive(driveInterstitialAd),
                 ));
-            // drawerInterstitialAd1.showInterstitialAd();
           }, Image.asset('assets/other/googledrive.png'), 40, 180,
               googleStatus),
           optionAPI(
@@ -133,7 +140,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   builder: (_) => MercadoLibre(meLiInterstitialAd),
                 ),
               );
-              // drawerInterstitialAd2.showInterstitialAd();
             },
             Image.network(Provider.of<Services>(context, listen: false)
                 .servicesData["Mercado Libre"]['logoUrl']),
@@ -156,16 +162,84 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             false,
           ),
           DrawerOption(
+            Icons.error,
+            "Reclamo",
+            Claim(''),
+            false,
+            false,
+          ),
+          DrawerOption(
             Icons.mail_outline,
             'Contacto',
             FormContact(),
             false,
             false,
           ),
+          premiumUser
+              ? DrawerOption(
+                  Icons.workspace_premium,
+                  'Premium',
+                  MercadoPago(mePaInterstitialAd),
+                  false,
+                  false,
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: SizedBox(
+                    height: 80,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    MercadoPago(mePaInterstitialAd)));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(Icons.workspace_premium, size: 26),
+                              const Padding(
+                                padding: EdgeInsets.all(7.0),
+                              ),
+                              Container(
+                                width: 180,
+                                child: Text(
+                                  "¿Demasiados anuncios? Prueba la versión Premium",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 16),
+                                  maxLines: 3,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Icon(Icons.arrow_right),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+          if (!premiumUser)
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade400),
+                    bottom: BorderSide(color: Colors.grey.shade400),
+                  ),
+                ),
+                padding: EdgeInsets.only(top: 8, bottom: 8),
+                child: AdNative("medium"),
+              ),
+            ),
           DrawerOption(
             Icons.info_outline,
             'Acerca de ésta aplicación',
-            () => ShowDialog.aboutThisApp(context),
+            () => ShowDialog.aboutThisApp(context, premiumUser),
             false,
             true,
           ),
@@ -216,7 +290,6 @@ class DrawerOption extends StatelessWidget {
                   Text(
                     text,
                     style: const TextStyle(fontSize: 17),
-                    maxLines: 3,
                   ),
                 ],
               ),

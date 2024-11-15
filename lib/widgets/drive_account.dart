@@ -10,7 +10,7 @@ import '../database.dart';
 import '../data/http_connection.dart';
 import '../data/tracking_functions.dart';
 import '../data/status.dart';
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 
 import 'dialog_error.dart';
 import '../widgets/drive_content.dart';
@@ -61,14 +61,15 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(true);
     Response response =
         await TrackingFunctions.updateCreateDriveBackup(false, context);
-    Map<String, dynamic> data = json.decode(response.body);
+    Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
       final List<dynamic> backupsData =
           Provider.of<Status>(context, listen: false).googleUserData;
       if (backupsData.isEmpty) {
-        backupsData.insert(0, data);
+        backupsData.insert(0, responseData);
       } else {
-        backupsData[0] = data;
+        backupsData[0] = responseData;
       }
       if (backupsData.length == 1) {
         backupsData.insert(1, {'date': null, 'currentDevice': false});
@@ -78,13 +79,9 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
-      if (response.body == "Server timeout") {
-        return DialogError.serverTimeout(context);
+      if (responseData['serverError'] == null) {
+        DialogError.googleDriveError(context);
       }
-      if (response.body.startsWith("error")) {
-        return DialogError.serverError(context);
-      }
-      DialogError.googleDriveError(context);
     }
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(false);
   }
@@ -157,7 +154,6 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       future: checkDrive,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          // print(backupData);
           return onGoogleProcess
               ? Center(
                   child: Column(

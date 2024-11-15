@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../data/classes.dart';
 import '../data/http_connection.dart';
 import '../data/trackings_active.dart';
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 
 import '../widgets/dialog_error.dart';
 import '../widgets/tracking_item.dart';
@@ -13,11 +14,16 @@ import '../widgets/dialog_toast.dart';
 
 class TrackingData {
   static Future fetch(BuildContext context, ItemTracking tracking) async {
-    String userId = Provider.of<UserPreferences>(context, listen: false).userId;
+    final String userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
+    final bool premiumStatus =
+        Provider.of<UserPreferences>(context).premiumStatus;
     Object body = {
       'title': tracking.title,
       'service': tracking.service,
       'code': tracking.code.trim(),
+      'token': await FirebaseMessaging.instance.getToken(),
+      'premiumStatus': premiumStatus.toString(),
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/$userId/add', body);

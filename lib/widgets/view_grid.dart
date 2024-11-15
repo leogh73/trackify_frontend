@@ -15,6 +15,7 @@ class ViewGrid {
     bool expand,
     bool selectionMode,
     bool isPortrait,
+    bool premiumUser,
     bool fullHD,
     Widget optionsButton,
   ) {
@@ -399,7 +400,7 @@ class ViewGrid {
             ),
           ),
         ),
-        AdNative("medium"),
+        if (!premiumUser) AdNative("medium"),
       ],
     );
   }

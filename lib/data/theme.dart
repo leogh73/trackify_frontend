@@ -31,7 +31,7 @@ class UserTheme with ChangeNotifier {
 
   void loadNewColor(MaterialColor newStartColor) {
     _startColor = newStartColor;
-    String colorToStore = ColorItem.store(newStartColor);
+    String colorToStore = setColor[newStartColor]!;
     updateDatabase("color", colorToStore);
     notifyListeners();
   }
@@ -43,4 +43,42 @@ class UserTheme with ChangeNotifier {
     updateDatabase("darkMode", _darkMode);
     notifyListeners();
   }
+
+  static Map<String, MaterialColor> getColor = {
+    "teal": Colors.teal,
+    "indigo": Colors.indigo,
+    "green": Colors.green,
+    "pink": Colors.pink,
+    "blue": Colors.blue,
+    "red": Colors.red,
+    "purple": Colors.purple,
+    "deepOrange": Colors.deepOrange,
+    "deepPurple": Colors.deepPurple,
+    "blueGrey": Colors.blueGrey,
+    "amber": Colors.amber,
+    "lime": Colors.lime,
+    "cyan": Colors.cyan,
+    "yellow": Colors.yellow,
+    "grey": Colors.grey,
+    "lightBlue": Colors.lightBlue,
+  };
+
+  static Map<MaterialColor, String> setColor = {
+    Colors.teal: "teal",
+    Colors.indigo: "indigo",
+    Colors.green: 'green',
+    Colors.pink: 'pink',
+    Colors.blue: 'blue',
+    Colors.red: 'red',
+    Colors.purple: 'purple',
+    Colors.deepOrange: 'deepOrange',
+    Colors.deepPurple: 'deepPurple',
+    Colors.blueGrey: 'blueGrey',
+    Colors.amber: 'amber',
+    Colors.lime: 'lime',
+    Colors.cyan: 'cyan',
+    Colors.yellow: 'yellow',
+    Colors.grey: 'grey',
+    Colors.lightBlue: 'lightBlue',
+  };
 }

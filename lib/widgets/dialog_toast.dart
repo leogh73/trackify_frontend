@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/showStatusMessage.dart';
+import 'package:trackify/screens/form_contact.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../data/status.dart';
 import '../screens/claim.dart';
+import '../widgets/showStatusMessage.dart';
 
 class ShowDialog {
   static bool fullHD(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final double screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return fullHD;
@@ -177,12 +178,12 @@ class ShowDialog {
     );
   }
 
-  static void error(BuildContext context, String message, String service) {
+  static void error(BuildContext context, String message, String? service) {
     show(
       true,
       false,
       false,
-      service,
+      service!,
       context,
       [
         Container(
@@ -305,7 +306,7 @@ class ShowDialog {
     }
   }
 
-  static void aboutThisApp(BuildContext context) {
+  static void aboutThisApp(BuildContext context, bool premiumUser) {
     final bool fHD = fullHD(context);
 
     List<Widget> textsData = [
@@ -318,7 +319,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.1.7",
+        "Versión 1.2.0 ${premiumUser ? 'Premium ' : ''}",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -405,11 +406,11 @@ class ShowDialog {
     );
   }
 
-  static void premiumSubscription(BuildContext context) {
+  static void premiumPaymentNotFound(BuildContext context) {
     final fHD = fullHD(context);
     final List<Widget> widgetsData = [
       Text(
-        "Suscripción Premium",
+        "Pago no encontrado",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontWeight: FontWeight.bold,
@@ -417,7 +418,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Por sólo 2 dólares al mes, puedes utilizar TrackeAR sin ningún tipo de publicidad. Si ya tienes suscripción, sigue los pasos para actualizar la aplicación.",
+        "No se encontraron pagos asociados a éste dispositivo. Si cree que se trata de un error, póngase en contacto con nosotros.",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -445,13 +446,19 @@ class ShowDialog {
     List<Map<String, dynamic>> buttonsData = [
       {
         "width": 190,
-        "text": "Comprar suscripción",
-        "function": () => Navigator.pop(context)
+        "text": "Contacto",
+        "function": () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => FormContact()));
+          Navigator.pop(context);
+        }
       },
       {
         "width": 190,
-        "text": "Ya tengo suscripción",
-        "function": () => {Navigator.pop(context)}
+        "text": "Cerrar",
+        "function": () {
+          Navigator.pop(context);
+        },
       }
     ];
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 
 class ShowAgainStatusMessage extends StatelessWidget {
   const ShowAgainStatusMessage({super.key});

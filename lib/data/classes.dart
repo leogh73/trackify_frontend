@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Tracking {
   final int id;
   String title;
@@ -206,45 +204,5 @@ class UserData {
           showAgainStatusMessage ?? this.showAgainStatusMessage,
       servicesData: servicesData ?? this.servicesData,
     );
-  }
-}
-
-class ColorItem {
-  static load(String color) {
-    if (color == "teal") return Colors.teal;
-    if (color == "indigo") return Colors.indigo;
-    if (color == "green") return Colors.green;
-    if (color == "pink") return Colors.pink;
-    if (color == "blue") return Colors.blue;
-    if (color == "red") return Colors.red;
-    if (color == "purple") return Colors.purple;
-    if (color == "deepOrange") return Colors.deepOrange;
-    if (color == "deepPurple") return Colors.deepPurple;
-    if (color == "blueGrey") return Colors.blueGrey;
-    if (color == "amber") return Colors.amber;
-    if (color == "lime") return Colors.lime;
-    if (color == "cyan") return Colors.cyan;
-    if (color == "yellow") return Colors.yellow;
-    if (color == "grey") return Colors.grey;
-    if (color == "lightBlue") return Colors.lightBlue;
-  }
-
-  static store(MaterialColor color) {
-    if (color == Colors.teal) return "teal";
-    if (color == Colors.indigo) return "indigo";
-    if (color == Colors.green) return 'green';
-    if (color == Colors.pink) return 'pink';
-    if (color == Colors.blue) return 'blue';
-    if (color == Colors.red) return 'red';
-    if (color == Colors.purple) return 'purple';
-    if (color == Colors.deepOrange) return 'deepOrange';
-    if (color == Colors.deepPurple) return 'deepPurple';
-    if (color == Colors.blueGrey) return 'blueGrey';
-    if (color == Colors.amber) return 'amber';
-    if (color == Colors.lime) return 'lime';
-    if (color == Colors.cyan) return 'cyan';
-    if (color == Colors.yellow) return 'yellow';
-    if (color == Colors.grey) return 'grey';
-    if (color == Colors.lightBlue) return 'lightBlue';
   }
 }

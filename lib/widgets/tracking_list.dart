@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trackify/widgets/tracking_item.dart';
 import '../widgets/ad_native.dart';
 
-import '../data/preferences.dart';
+import '../data/../data/preferences.dart';
 import '../data/classes.dart';
 import '../data/status.dart';
 
@@ -46,12 +46,14 @@ class _TrackingListState extends State<TrackingList> {
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final String chosenView = Provider.of<UserPreferences>(context).startList;
     final PageStorageKey<String> listKey = PageStorageKey<String>(chosenView);
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -65,11 +67,11 @@ class _TrackingListState extends State<TrackingList> {
         ? Center(
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    child: AdNative("small"),
+                    child: premiumUser ? null : AdNative("small"),
                     padding: EdgeInsets.only(top: 10, bottom: 60),
                   ),
                   Icon(Icons.local_shipping_outlined, size: 80),
@@ -78,11 +80,7 @@ class _TrackingListState extends State<TrackingList> {
                     'No hay seguimientos',
                     style: TextStyle(fontSize: 24),
                   ),
-                  SizedBox(width: 10, height: 180),
-                  // Padding(
-                  //   child: AdNative("medium"),
-                  //   padding: EdgeInsets.only(top: 50, bottom: 8),
-                  // ),
+                  SizedBox(width: 10, height: 160),
                 ],
               ),
             ),
@@ -111,11 +109,12 @@ class _TrackingListState extends State<TrackingList> {
                 itemCount: widget.trackingsData.length,
                 itemBuilder: (context, index) => Column(
                   children: [
-                    if (index == 0)
-                      Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 10),
-                        child: AdNative("small"),
-                      ),
+                    if (index == 0 && !premiumUser)
+                      if (!premiumUser)
+                        Padding(
+                          padding: EdgeInsets.only(top: 10, bottom: 10),
+                          child: AdNative("small"),
+                        ),
                     TrackingItem(widget.trackingsData[index])
                   ],
                 ),

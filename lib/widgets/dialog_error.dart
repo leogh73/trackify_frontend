@@ -106,4 +106,36 @@ class DialogError {
       "",
     );
   }
+
+  static void getUuidCheck(BuildContext context) {
+    ShowDialog.error(
+      context,
+      "No se pudo obtener identificación para éste dispositivo. Si efectuó un pago, pero reinstaló la aplicación, no se puede actualizar su estado. Use el formulario para contactarnos y proveernos información sobre su pago. Disculpe las molestias.",
+      "",
+    );
+  }
+
+  static void getUuidWarning(BuildContext context) {
+    ShowDialog.error(
+      context,
+      "No se pudo obtener identificación para éste dispositivo. Si efectuó un pago, pero luego reinstala la aplicación, no podrá actualizar su estado. En ese caso, deberá contactarnos y proveernos información sobre su pago.",
+      "",
+    );
+  }
+
+  static void paymentNotFound(BuildContext context) {
+    ShowDialog.error(
+      context,
+      "No se encontraron pagos vinculados a éste dispositivo. Si efectuó un pago, pero reinstaló la aplicación, póngase en contacto con nosotros y proveanos información sobre su pago. Disculpe las molestias.",
+      "",
+    );
+  }
+
+  static void paymentError(BuildContext context) {
+    ShowDialog.error(
+      context,
+      "Ocurrió un error al realizar la operación. Reintente más tarde.",
+      "",
+    );
+  }
 }

@@ -9,6 +9,7 @@ import 'package:http/http.dart';
 
 import 'data/http_connection.dart';
 import 'data/classes.dart';
+import 'data/theme.dart';
 import 'database.dart';
 
 class Init {
@@ -82,16 +83,25 @@ class Init {
     return startPreferences;
   }
 
+  static Future<Map<String, dynamic>> startUserCheck(String userId) async {
+    Response response = await HttpConnection.requestHandler(
+        '/api/user/initialize/', {'userId': userId});
+    Map<String, dynamic> mercadoPagoData =
+        json.decode(response.body)['mercadoPagoData'] ?? {'isValid': false};
+    return mercadoPagoData;
+  }
+
   static Future<StartData> loadStartData() async {
     List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
       userPreferences = [await loadNewUserData()];
     }
+
     List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
     List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();
 
     String userId = userPreferences[0].userId;
-    MaterialColor startColor = ColorItem.load(userPreferences[0].color);
+    MaterialColor startColor = UserTheme.getColor[userPreferences[0].color]!;
     String startView = userPreferences[0].view;
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
@@ -99,6 +109,9 @@ class Init {
     String statusMessage = userPreferences[0].statusMessage;
     bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
     Map<String, dynamic> servicesData = userPreferences[0].servicesData ?? {};
+    Map<String, dynamic> mercadoPago = userPreferences.isEmpty
+        ? {'isValid': false}
+        : await startUserCheck(userId);
 
     List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
@@ -118,6 +131,7 @@ class Init {
       statusMessage,
       showAgainStatusMessage,
       servicesData,
+      mercadoPago,
       searchHistory,
       startActiveTrackings,
       startArchivedTrackings,
@@ -135,6 +149,7 @@ class StartData {
   String statusMessage;
   bool showAgainStatusMessage;
   Map<String, dynamic> servicesData;
+  Map<String, dynamic> mercadoPago;
   List<String> searchHistory;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
@@ -148,6 +163,7 @@ class StartData {
     this.statusMessage,
     this.showAgainStatusMessage,
     this.servicesData,
+    this.mercadoPago,
     this.searchHistory,
     this.activeTrackings,
     this.archivedTrackings,

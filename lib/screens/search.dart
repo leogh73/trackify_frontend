@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import '../data/status.dart';
 
 import '../widgets/search_list.dart';
@@ -14,16 +15,18 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  final controller = TextEditingController();
+  final _controller = TextEditingController();
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
-    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0.0,
@@ -34,12 +37,12 @@ class _SearchState extends State<Search> {
             Provider.of<Status>(context, listen: false).toggleResultList(false);
           },
         ),
-        title: SearchField(controller),
+        title: SearchField(_controller),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              controller.clear();
+              _controller.clear();
               Provider.of<Status>(context, listen: false)
                   .toggleResultList(false);
             },
@@ -47,14 +50,14 @@ class _SearchState extends State<Search> {
         ],
       ),
       body: const SearchList(),
-      bottomNavigationBar: const AdBanner(),
+      bottomNavigationBar: premiumUser ? null : const AdBanner(),
     );
   }
 }
 
 class SearchField extends StatelessWidget {
-  final TextEditingController controller;
-  const SearchField(this.controller, {Key? key}) : super(key: key);
+  final TextEditingController _controller;
+  const SearchField(this._controller, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +65,7 @@ class SearchField extends StatelessWidget {
       decoration: const InputDecoration(
         hintText: 'Buscar...',
       ),
-      controller: controller,
+      controller: _controller,
       textInputAction: TextInputAction.search,
       style: const TextStyle(color: Colors.white),
       autofocus: true,
@@ -74,18 +77,18 @@ class SearchField extends StatelessWidget {
         return null;
       },
       onChanged: (_) {
-        if (controller.text.isEmpty) {
+        if (_controller.text.isEmpty) {
           Provider.of<Status>(context, listen: false).toggleResultList(false);
         } else {
           Provider.of<Status>(context, listen: false).toggleResultList(true);
           Provider.of<Status>(context, listen: false)
-              .search(context, controller.text);
+              .search(context, _controller.text);
         }
       },
       onFieldSubmitted: (_) {
-        if (controller.text.isNotEmpty)
+        if (_controller.text.isNotEmpty)
           Provider.of<Status>(context, listen: false)
-              .addSearch(controller.text);
+              .addSearch(_controller.text);
       },
     );
   }

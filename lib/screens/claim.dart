@@ -2,13 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 
+import '../data/../data/preferences.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/ad_banner.dart';
 import '../data/services.dart';
 
-class Claim extends StatelessWidget {
+class Claim extends StatefulWidget {
   final String serviceName;
   const Claim(this.serviceName, {Key? key}) : super(key: key);
+
+  @override
+  State<Claim> createState() => _ClaimState();
+}
+
+class _ClaimState extends State<Claim> {
+  ServiceItemModel? selectedService;
+  String? selectedServiceName;
+  late List<ServiceItemModel> services;
+
+  @override
+  void initState() {
+    super.initState();
+    services =
+        Provider.of<Services>(context, listen: false).itemModelList(true);
+    if (widget.serviceName.isNotEmpty) {
+      selectedServiceName = widget.serviceName;
+      selectedService = services
+          .firstWhere((element) => element.chosen == widget.serviceName);
+    }
+  }
 
   void buttonHandler(String type, String data) async {
     String prefix = '';
@@ -98,14 +120,15 @@ class Claim extends StatelessWidget {
             const EdgeInsets.only(top: 20, left: 10, bottom: 10, right: 10),
         child: Column(
           children: [
-            ...buttonList(context, serviceData['list']).map((e) => Row(
-                  children: e,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                )),
+            ...buttonList(context, serviceData['contact']['list'])
+                .map((e) => Row(
+                      children: e,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                    )),
             Padding(
               padding: EdgeInsets.all(10),
               child: Text(
-                "Fuente: ${serviceData["source"]}",
+                "Fuente: ${serviceData["contact"]["source"]}",
                 maxLines: 5,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
@@ -127,6 +150,8 @@ class Claim extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
     final Map<String, dynamic> servicesData =
         Provider.of<Services>(context, listen: false).servicesData;
     final bool fullHD = MediaQuery.of(context).size.width *
@@ -138,36 +163,96 @@ class Claim extends StatelessWidget {
         title: const Text('Reclamar'),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Padding(
-                child: AdNative("small"),
-                padding: EdgeInsets.only(bottom: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Padding(
+              child: premiumUser ? null : AdNative("small"),
+              padding: EdgeInsets.only(top: 10, bottom: 30),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+              child: Column(
+                children: [
+                  Text(
+                    "Los seguimientos se realizan con la información que las empresas de transporte, ponen a disposición del público. Los creadores de ésta aplicación, no tenemos contacto exclusivo, ni relación alguna con dichas empresas.",
+                    maxLines: 8,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red[400],
+                      fontSize: fullHD ? 17 : 16,
+                    ),
+                  ),
+                  Text(
+                    "Si tiene algún problema con un envío (no hay datos, no se actualiza, no llega a destino, etc.), le proveemos medios para ponerse en contacto con la empresa correspondiente:",
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: fullHD ? 17 : 16,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: DropdownButton<ServiceItemModel>(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      elevation: 4,
+                      iconSize: 0,
+                      hint: Padding(
+                        padding: const EdgeInsets.only(left: 25),
+                        child: SizedBox(
+                          width: 150,
+                          height: 80,
+                          child: ElevatedButton(
+                            child: const Text(
+                              'Seleccionar servicio',
+                              style: TextStyle(fontSize: 17),
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ),
+                      iconEnabledColor: Theme.of(context).primaryColor,
+                      value: selectedService,
+                      underline: Container(),
+                      onChanged: (ServiceItemModel? service) {
+                        setState(() {
+                          selectedService = service!;
+                          selectedServiceName = service.chosen;
+                        });
+                      },
+                      items: services.map<DropdownMenuItem<ServiceItemModel>>(
+                          (ServiceItemModel service) {
+                        return DropdownMenuItem<ServiceItemModel>(
+                          value: service,
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 1, bottom: 1),
+                            width: 200,
+                            child: service.logo,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  if (selectedService != null)
+                    Padding(
+                      child: claimComponent(
+                          context, servicesData[selectedServiceName]),
+                      padding: EdgeInsets.only(top: 10),
+                    ),
+                  Padding(
+                    child: premiumUser ? null : AdNative("medium"),
+                    padding: EdgeInsets.only(top: 20),
+                  ),
+                  SizedBox(width: 50, height: 50),
+                ],
               ),
-              Text(
-                "Si tiene algún problema con un envío (no hay datos, no se actualiza, no llega a destino, etc.), le proveemos medios para ponerse en contacto con la empresa correspondiente:",
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: fullHD ? 17 : 16,
-                ),
-              ),
-              Padding(
-                child: claimComponent(
-                    context, servicesData[serviceName]["contact"]),
-                padding: EdgeInsets.only(top: 10),
-              ),
-              Padding(
-                  child: AdNative("medium"), padding: EdgeInsets.only(top: 10)),
-              SizedBox(width: 50, height: 50),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      bottomNavigationBar: const AdBanner(),
+      bottomNavigationBar: premiumUser ? null : const AdBanner(),
     );
   }
 }
