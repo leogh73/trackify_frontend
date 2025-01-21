@@ -88,13 +88,21 @@ class _TrackingListState extends State<TrackingList> {
         : chosenView == "grid"
             ? GridView.count(
                 key: listKey,
-                childAspectRatio: isPortrait
-                    ? portraitfullHD
-                        ? 2 / 4.449
-                        : 2 / 4.622
-                    : landscapeFullHD
-                        ? 2 / 4.025
-                        : 2 / 4.288,
+                childAspectRatio: premiumUser
+                    ? isPortrait
+                        ? portraitfullHD
+                            ? 2 / 2.370
+                            : 2 / 2.512
+                        : landscapeFullHD
+                            ? 2 / 1.655
+                            : 2 / 2.308
+                    : isPortrait
+                        ? portraitfullHD
+                            ? 2 / 4.210
+                            : 2 / 4.522
+                        : landscapeFullHD
+                            ? 2 / 2.925
+                            : 2 / 4.175,
                 padding: const EdgeInsets.all(4),
                 crossAxisCount: isPortrait ? 2 : 3,
                 children: List.generate(

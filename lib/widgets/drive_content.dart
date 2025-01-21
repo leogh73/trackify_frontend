@@ -89,6 +89,11 @@ class DriveContent extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (!premiumUser)
+                      Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(bottom: 8),
+                      ),
                   ],
                 )
               : Row(
@@ -145,18 +150,14 @@ class DriveContent extends StatelessWidget {
                           ),
                       ],
                     ),
-                    Padding(
-                      child: premiumUser ? null : AdNative("medium"),
-                      padding: EdgeInsets.only(bottom: 8),
-                    ),
+                    if (!premiumUser)
+                      Padding(
+                        child: AdNative("medium"),
+                        padding: EdgeInsets.only(bottom: 8),
+                      ),
                   ],
                 ),
         ),
-        if (!premiumUser)
-          Padding(
-            child: AdNative("medium"),
-            padding: EdgeInsets.only(bottom: 8),
-          ),
       ],
     );
   }

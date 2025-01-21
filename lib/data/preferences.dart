@@ -163,11 +163,4 @@ class UserPreferences with ChangeNotifier {
   }
 
   bool get premiumStatus => mercadoPago['isValid'];
-
-  bool errorPaymentCheck = false;
-  bool get errorPremiumChecking => errorPaymentCheck;
-  void toggleErrorPaymentCheck(bool newStatus) {
-    errorPaymentCheck = newStatus;
-    notifyListeners();
-  }
 }

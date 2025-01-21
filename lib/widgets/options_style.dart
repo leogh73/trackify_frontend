@@ -26,8 +26,10 @@ class OptionsStyle extends StatelessWidget {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     return PopupMenuButton<String>(
+      icon: Icon(Icons.brush),
+      iconSize: 25,
       // padding: EdgeInsets.zero,
-      tooltip: 'Opciones',
+      tooltip: 'Aspecto',
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
       ),

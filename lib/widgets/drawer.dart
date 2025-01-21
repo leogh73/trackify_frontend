@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/screens/claim.dart';
+import 'package:trackify/screens/help.dart';
 import 'package:trackify/screens/mercado_pago.dart';
 
 import '../data/services.dart';
@@ -129,7 +130,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 MaterialPageRoute(
                   builder: (_) => GoogleDrive(driveInterstitialAd),
                 ));
-          }, Image.asset('assets/other/googledrive.png'), 40, 180,
+          },
+              Image.network(
+                  'https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/googledrive.png'),
+              40,
+              180,
               googleStatus),
           optionAPI(
             () {
@@ -141,8 +146,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
               );
             },
-            Image.network(Provider.of<Services>(context, listen: false)
-                .servicesData["Mercado Libre"]['logoUrl']),
+            Image.network(
+                "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercadolibre.png"),
             38,
             155,
             meliStatus,
@@ -185,7 +190,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 )
               : Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: SizedBox(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade400),
+                    )),
                     height: 80,
                     child: InkWell(
                       onTap: () {
@@ -206,7 +215,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                                 padding: EdgeInsets.all(7.0),
                               ),
                               Container(
-                                width: 180,
+                                width: 185,
                                 child: Text(
                                   "¿Demasiados anuncios? Prueba la versión Premium",
                                   overflow: TextOverflow.ellipsis,
@@ -228,14 +237,14 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade400),
                     bottom: BorderSide(color: Colors.grey.shade400),
                   ),
                 ),
                 padding: EdgeInsets.only(top: 8, bottom: 8),
-                child: AdNative("medium"),
+                child: AdNative("small"),
               ),
             ),
+          DrawerOption(Icons.help_outline, "Ayuda", Help(), false, false),
           DrawerOption(
             Icons.info_outline,
             'Acerca de ésta aplicación',

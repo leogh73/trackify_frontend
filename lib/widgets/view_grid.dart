@@ -27,7 +27,7 @@ class ViewGrid {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 0),
+          padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
           child: InkWell(
             onTap: onTap,
             onLongPress: onLongPress,
@@ -55,24 +55,28 @@ class ViewGrid {
                           Container(
                             padding: const EdgeInsets.only(bottom: 4),
                             height: isPortrait
-                                ? 45
+                                ? 40
                                 : landscapeFullHD
-                                    ? 52
-                                    : 49,
+                                    ? 42
+                                    : 40,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Container(
-                                  padding: EdgeInsets.only(top: 4),
+                                  padding:
+                                      EdgeInsets.only(top: isPortrait ? 9 : 7),
                                   width: !tracking.checkError!
                                       ? isPortrait
                                           ? screenWidth * 0.312
                                           : screenWidth * 0.232
-                                      : screenWidth * 0.335,
-                                  height: 38,
+                                      : isPortrait
+                                          ? screenWidth * 0.182
+                                          : landscapeFullHD
+                                              ? screenWidth * 0.182
+                                              : screenWidth * 0.122,
+                                  height: 30,
                                   child: Text(
                                     title,
-                                    maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: portraitFullHD ? 16 : 15,
@@ -82,24 +86,20 @@ class ViewGrid {
                                 ),
                                 if (tracking.checkError! && !tracking.archived!)
                                   Container(
-                                      padding: const EdgeInsets.only(
-                                          left: 20, right: 6),
+                                      padding: const EdgeInsets.only(left: 10),
                                       child: button),
                                 if (!selectionMode)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 4.0),
-                                    child: Column(
-                                      children: [
-                                        SizedBox(
-                                          // constraints: BoxConstraints(maxWidth: 22),
-                                          width: 36,
-                                          height: 36,
-                                          // padding: EdgeInsets.only(right: 5),
-                                          // height: isPortrait ? 30 : 30,
-                                          child: optionsButton,
-                                        ),
-                                      ],
-                                    ),
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        // constraints: BoxConstraints(maxWidth: 22),
+                                        width: 36,
+                                        height: 36,
+                                        // padding: EdgeInsets.only(right: 5),
+                                        // height: isPortrait ? 30 : 30,
+                                        child: optionsButton,
+                                      ),
+                                    ],
                                   ),
                                 if (selectionMode)
                                   Padding(
@@ -282,13 +282,13 @@ class ViewGrid {
                                     child: SizedBox(
                                       height: isPortrait
                                           ? portraitFullHD
-                                              ? 42
-                                              : 38
+                                              ? 40
+                                              : 36
                                           : landscapeFullHD
-                                              ? 44
-                                              : 40,
+                                              ? 42
+                                              : 38,
                                       width: isPortrait
-                                          ? screenWidth * 0.381
+                                          ? screenWidth * 0.281
                                           : screenWidth * 0.262,
                                       child: tracking.checkError!
                                           ? const Text("Sin datos")
@@ -313,8 +313,8 @@ class ViewGrid {
                                         children: [
                                           const Icon(Icons.check, size: 20),
                                           Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 7),
+                                            padding: const EdgeInsets.only(
+                                                left: 7, bottom: 7),
                                             child: Column(
                                               children: [
                                                 SizedBox(
@@ -379,7 +379,7 @@ class ViewGrid {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            // padding: EdgeInsets.only(top: 2),
+                            padding: EdgeInsets.only(top: 3, bottom: 3),
                             constraints: isPortrait
                                 ? BoxConstraints(
                                     maxHeight: screenHeight * 0.0582,

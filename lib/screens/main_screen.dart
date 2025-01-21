@@ -19,6 +19,7 @@ import '../widgets/drawer.dart';
 import '../widgets/tracking_list.dart';
 import '../widgets/options_style.dart';
 import '../widgets/options_tracking.dart';
+import 'help.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -163,8 +164,9 @@ class _MainScreenState extends State<MainScreen> {
                                       MercadoPago(mePaInterstitialAd))),
                         ),
                       IconButton(
+                        tooltip: "Buscar",
                         icon: const Icon(Icons.search),
-                        iconSize: 20,
+                        iconSize: 27,
                         onPressed: () => {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -174,6 +176,18 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
                       const OptionsStyle(),
+                      IconButton(
+                        tooltip: "Ayuda",
+                        icon: const Icon(Icons.help_outline),
+                        iconSize: 28,
+                        onPressed: () => {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const Help(),
+                            ),
+                          ),
+                        },
+                      ),
                     ],
                   ),
             body: TrackingList(trackings),

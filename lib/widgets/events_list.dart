@@ -91,7 +91,7 @@ class Event extends StatelessWidget {
               padding: EdgeInsets.only(top: 3, bottom: 3),
               child: AdNative("medium"),
             ),
-          if (index == 0)
+          if (index == 0 && !premiumUser)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
             height: isPortrait ? 40 : 42,

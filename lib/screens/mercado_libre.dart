@@ -6,6 +6,8 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../data/../data/preferences.dart';
 
+import '../data/classes.dart';
+import '../data/trackings_active.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/mercado_libre_check.dart';
@@ -54,7 +56,7 @@ class MercadoLibre extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 10, height: 180),
+            SizedBox(width: 10, height: 170),
           ],
         ),
       ),
@@ -68,6 +70,8 @@ class MercadoLibre extends StatelessWidget {
     final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool errorMeLiCheck =
         Provider.of<UserPreferences>(context).errorMeLiCheck;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context).trackings;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -80,7 +84,8 @@ class MercadoLibre extends StatelessWidget {
                   ? const Icon(Icons.logout)
                   : const Icon(Icons.login),
               onPressed: () {
-                if (!premiumUser) adInterstitial.showInterstitialAd();
+                if (!premiumUser && trackingsList.isNotEmpty)
+                  adInterstitial.showInterstitialAd();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -143,7 +148,8 @@ class MercadoLibre extends StatelessWidget {
                 'No ha ingresado a MercadoLibre',
                 'INGRESAR',
                 () => {
-                  if (!premiumUser) adInterstitial.showInterstitialAd(),
+                  if (!premiumUser && trackingsList.isNotEmpty)
+                    adInterstitial.showInterstitialAd(),
                   Navigator.push(
                     context,
                     MaterialPageRoute(

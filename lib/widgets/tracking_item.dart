@@ -80,6 +80,8 @@ class _TrackingItemState extends State<TrackingItem> {
     final dynamic providerData = widget.tracking.archived!
         ? Provider.of<ArchivedTrackings>(context)
         : Provider.of<ActiveTrackings>(context);
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context).trackings;
     final bool selectionMode = providerData.selectionModeStatus;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -111,7 +113,8 @@ class _TrackingItemState extends State<TrackingItem> {
                   child: IconButton(
                     icon: const Icon(Icons.sync),
                     onPressed: () {
-                      if (!premiumUser) interstitialAd.showInterstitialAd();
+                      if (!premiumUser && trackingsList.length > 1)
+                        interstitialAd.showInterstitialAd();
                       setState(() {
                         widget.tracking.checkError = null;
                       });

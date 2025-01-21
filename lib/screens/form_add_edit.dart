@@ -95,7 +95,10 @@ class _FormAddEditState extends State<FormAddEdit> {
     if (widget.mercadoLibre && widget.rename == false) {
       Navigator.pop(context);
     }
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    if (!premiumUser && trackingsList.length > 1)
+      interstitialAd.showInterstitialAd();
   }
 
   void addTracking(context, service, premiumUser) {
@@ -137,6 +140,8 @@ class _FormAddEditState extends State<FormAddEdit> {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context).trackings;
     final String? service =
         loadedService?.chosen ?? Provider.of<Status>(context).chosenService;
     final String exampleCode = Provider.of<Status>(context).chosenServiceCode;
@@ -205,7 +210,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                         textInputAction: TextInputAction.next,
                         autofocus: false,
                         validator: (value) {
-                          if (value == null || value.length < 6) {
+                          if (value == null || value.length < 5) {
                             return 'Ingrese un código de seguimiento válido';
                           }
                           return null;
@@ -240,7 +245,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  if (!premiumUser)
+                                  if (!premiumUser && trackingsList.isNotEmpty)
                                     interstitialAd.showInterstitialAd();
                                 },
                               ),

@@ -199,10 +199,6 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                                   padding: EdgeInsets.only(bottom: 8),
                                 ),
                               MercadoLibreItem(itemsList[index]),
-                              Padding(
-                                child: premiumUser ? null : AdNative("small"),
-                                padding: EdgeInsets.only(bottom: 8),
-                              ),
                             ]);
                           },
                         ),
@@ -230,7 +226,7 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                             child: CircularProgressIndicator(),
                           ),
                         ),
-                      )
+                      ),
                   ],
                 );
         } else {

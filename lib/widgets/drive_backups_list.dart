@@ -81,8 +81,6 @@ class BackupItem extends StatelessWidget {
         ? Center(
             child: isPortrait
                 ? Column(
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
                         padding: index == 0
@@ -90,8 +88,6 @@ class BackupItem extends StatelessWidget {
                             : const EdgeInsets.only(top: 40),
                         child: const Icon(Icons.cloud_off, size: 70),
                       ),
-
-                      // SizedBox(width: 40, height: 40),
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Text(

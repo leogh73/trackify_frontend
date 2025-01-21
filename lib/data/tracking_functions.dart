@@ -33,7 +33,6 @@ class TrackingFunctions {
       'userId': userId,
       'trackingData': json.encode(tracking.toMap())
     };
-    await HttpConnection.awakeAPIs();
     Response response =
         await HttpConnection.requestHandler('/api/user/check/', body);
     Map<String, dynamic> responseData =
@@ -67,7 +66,8 @@ class TrackingFunctions {
     late int index;
     for (dynamic item in responseData) {
       index = trackingsList.indexWhere((t) => t.idMDB == item['idMDB']);
-      if (item['result']['lastEvent'] != trackingsList[index].lastEvent) {
+      if (index != -1 &&
+          item['result']['lastEvent'] != trackingsList[index].lastEvent) {
         trackingCheckUpdate(context, index, item);
         trackingDataUpdate(context, index, item['result']);
       }
@@ -115,18 +115,18 @@ class TrackingFunctions {
 
   static bool checkCompletedStatus(String service, String lastEvent) {
     List<String> words = [
-      "entregado",
-      "entregada",
+      'entregado',
+      'entregada',
       'entregamos',
       'devuelto',
       'entrega en',
       'devolución',
       'devuelto',
       'rehusado',
-      "decomisado",
-      "descomisado",
-      "retenido",
-      "incautado",
+      'decomisado',
+      'descomisado',
+      'retenido',
+      'incautado',
       'no pudo ser retirado',
       'entrega en sucursal',
     ];
@@ -152,7 +152,6 @@ class TrackingFunctions {
   }
 
   static void syncronizeUserData(BuildContext context) async {
-    await HttpConnection.awakeAPIs();
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     final List<Object> lastEventsList = [];
@@ -211,6 +210,9 @@ class TrackingFunctions {
     if (responseData['mercadoPago'] != null) {
       Provider.of<UserPreferences>(context, listen: false)
           .setPaymentData(responseData['mercadoPago']);
+      if (responseData['mercadoPago']["status"] == "Could not be checked") {
+        DialogError.paymentCheckError(context);
+      }
     }
     final String statusMessage =
         Provider.of<UserPreferences>(context, listen: false).getStatusMessage;

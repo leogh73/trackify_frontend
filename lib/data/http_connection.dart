@@ -12,23 +12,22 @@ class HttpConnection {
     Response response;
     try {
       response = await Client()
-          .post(Uri.parse("${dotenv.env['API_URL']}$route"), body: body)
+          .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
           .timeout(const Duration(seconds: 9));
-      // } catch (e) {
-      //   try {
-      //     response = await Client()
-      //         .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
-      //         .timeout(const Duration(seconds: 9));
     } catch (e) {
-      response = Response(
-        e is TimeoutException
-            ? '{"serverError":"Timeout"}'
-            : '{"serverError":"${e.toString()}"}',
-        500,
-      );
-      //   }
+      try {
+        response = await Client()
+            .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
+            .timeout(const Duration(seconds: 9));
+      } catch (e) {
+        response = Response(
+          e is TimeoutException
+              ? '{"serverError":"Timeout"}'
+              : '{"serverError":"${e.toString()}"}',
+          500,
+        );
+      }
     }
-    print("PRINT_${response.body}");
     return response;
   }
 
@@ -42,19 +41,5 @@ class HttpConnection {
           : DialogError.serverError(context);
     }
     return responseData;
-  }
-
-  static Future<void> awakeAPIs() async {
-    try {
-      await Client()
-          .get(Uri.parse("${dotenv.env['API_URL_1']}/api/cronjobs/awake"))
-          .timeout(const Duration(seconds: 5));
-      await Client()
-          .get(Uri.parse("${dotenv.env['API_URL_2']}/api/cronjobs/awake"))
-          .timeout(const Duration(seconds: 5));
-      print("HTTP_R_APIs awaken successfully");
-    } catch (e) {
-      print("HTTP_R_APIs awakening failed: $e");
-    }
   }
 }

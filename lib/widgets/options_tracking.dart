@@ -54,7 +54,10 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     Navigator.pop(context);
     Provider.of<Status>(context, listen: false).restartListEnd();
     GlobalToast.displayToast(context, message);
-    if (!premiumUser) interstitialAd.showInterstitialAd();
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    if (!premiumUser && trackingsList.isNotEmpty)
+      interstitialAd.showInterstitialAd();
   }
 
   void seeTrackingDetail() {

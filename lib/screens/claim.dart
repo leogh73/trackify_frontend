@@ -168,7 +168,7 @@ class _ClaimState extends State<Claim> {
           children: [
             Padding(
               child: premiumUser ? null : AdNative("small"),
-              padding: EdgeInsets.only(top: 10, bottom: 30),
+              padding: EdgeInsets.only(top: 10, bottom: 10),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 10),

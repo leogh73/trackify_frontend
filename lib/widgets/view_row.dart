@@ -36,7 +36,6 @@ class ViewRow {
                 ),
                 color: tracking.selected! ? Colors.black12 : null,
               ),
-              // margin: EdgeInsets.only(bottom: 2, top: 2),
               padding: isPortrait
                   ? selectionMode
                       ? const EdgeInsets.only(
@@ -71,26 +70,21 @@ class ViewRow {
                         ),
                         Container(
                           padding: const EdgeInsets.only(left: 6, right: 8),
-                          width:
-                              // !tracking.checkError!
-                              // ?
-                              isPortrait
-                                  ? selectionMode && tracking.archived == true
-                                      ? screenWidth - 226
-                                      : !selectionMode &&
-                                              tracking.archived == false
-                                          ? screenWidth - 187
-                                          : !selectionMode
-                                              ? screenWidth - 226
-                                              : screenWidth - 187
-                                  : selectionMode && tracking.archived == true
-                                      ? screenWidth - 256
-                                      : !selectionMode &&
-                                              tracking.archived == false
-                                          ? screenWidth - 219
-                                          : !selectionMode
-                                              ? screenWidth - 254
-                                              : screenWidth - 220,
+                          width: isPortrait
+                              ? selectionMode && tracking.archived == true
+                                  ? screenWidth - 226
+                                  : !selectionMode && tracking.archived == false
+                                      ? screenWidth - 187
+                                      : !selectionMode
+                                          ? screenWidth - 226
+                                          : screenWidth - 187
+                              : selectionMode && tracking.archived == true
+                                  ? screenWidth - 256
+                                  : !selectionMode && tracking.archived == false
+                                      ? screenWidth - 219
+                                      : !selectionMode
+                                          ? screenWidth - 254
+                                          : screenWidth - 220,
                           alignment: Alignment.center,
                           child: Text(
                             title,

@@ -37,7 +37,6 @@ class ViewCard {
                 ),
                 color: tracking.selected! ? Colors.black12 : null,
               ),
-              // margin: EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.only(left: 14, top: 1, bottom: 8),
               child: Column(
                 children: [
@@ -100,7 +99,6 @@ class ViewCard {
                             alignment: Alignment.center,
                           ),
                         if (!tracking.archived! && tracking.checkError!) button,
-                        // if (!tracking.checkError!) button,
                         if (selectionMode && tracking.selected!)
                           Padding(
                             padding: const EdgeInsets.only(top: 1, right: 6),

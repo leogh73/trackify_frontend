@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:device_uuid/device_uuid.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-
+import 'package:trackify/widgets/mercado_pago_option.dart';
+import 'package:trackify/widgets/mercado_pago_status.dart';
+import '../data/theme.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
-import '../widgets/mercado_pago_option.dart';
 
 import '../data/preferences.dart';
 
@@ -18,9 +18,9 @@ class MercadoPago extends StatefulWidget {
   State<MercadoPago> createState() => _MercadoPagoState();
 }
 
-class _MercadoPagoState extends State<MercadoPago> {
+class _MercadoPagoState extends State<MercadoPago>
+    with TickerProviderStateMixin {
   Map<String, String> _deviceData = {};
-  final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   final DeviceUuid _deviceUuidPlugin = DeviceUuid();
 
   @override
@@ -40,111 +40,10 @@ class _MercadoPagoState extends State<MercadoPago> {
       'userId': Provider.of<UserPreferences>(context, listen: false).userId,
       'uuid': uuid,
     };
+    print("PRINT_DEVICE_$deviceData");
     setState(() {
       _deviceData = deviceData;
     });
-  }
-
-  Widget paymentDetail(
-      bool isPortrait, double screenWidth, Map<String, dynamic> paymentData) {
-    const Map<String, IconData> statusIcon = {
-      "approved": Icons.check,
-      "pending": Icons.pending,
-      "rejected": Icons.cancel_outlined,
-      "authorized": Icons.check,
-      "paused": Icons.pause,
-      "cancelled": Icons.cancel,
-    };
-    const Map<String, String> statusText = {
-      "approved": "Aprobado",
-      "pending": "Pendiente",
-      "rejected": "Rechazado",
-      "authorized": "Autorizado",
-      "paused": "Pausado",
-      "cancelled": "Cancelado",
-    };
-    final List<List<dynamic>> dataList = [
-      [
-        Icons.numbers,
-        statusIcon[paymentData["status"]],
-        Icons.attach_money,
-        Icons.calendar_month,
-        Icons.timelapse,
-        Icons.description_outlined,
-      ],
-      [
-        "Operación",
-        "Estado",
-        "Tipo de pago",
-        "Fecha",
-        "Días restantes",
-        "Válido"
-      ],
-      [
-        paymentData["operationId"].toString(),
-        statusText[paymentData["status"]],
-        paymentData["paymentType"] == "simple" ? "Simple" : "Suscripción",
-        paymentData["dateCreated"],
-        paymentData["daysRemaining"].toString(),
-        paymentData["isValid"].toString() == "true" ? "Si" : "No"
-      ],
-    ];
-
-    return Container(
-      width: isPortrait ? screenWidth * 0.8 : screenWidth * 0.6,
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                children: dataList[0]
-                    .map((d) => Container(
-                        height: 30,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Icon(d, size: 22)],
-                        )))
-                    .toList(),
-              ),
-              Column(
-                children: dataList[1]
-                    .map((d) => Container(
-                        height: 30,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(d,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16))
-                          ],
-                        )))
-                    .toList(),
-              ),
-              Container(
-                width: isPortrait ? screenWidth * 0.30 : screenWidth * 0.15,
-                child: Column(
-                  children: dataList[2]
-                      .map((d) => Container(
-                          height: 30,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(d,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      overflow: TextOverflow.ellipsis))
-                            ],
-                          )))
-                      .toList(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -161,9 +60,8 @@ class _MercadoPagoState extends State<MercadoPago> {
     final Widget divider = Container(
         padding: EdgeInsets.only(right: 20, left: 20),
         child: Divider(color: Theme.of(context).primaryColor, thickness: .3));
-    final Widget separator = SizedBox(height: isPortrait ? 5 : 10);
-    final bool errorPremiumCheck =
-        Provider.of<UserPreferences>(context).errorPaymentCheck;
+    final Widget separator = SizedBox(height: isPortrait ? 5 : 15);
+    final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Premium"),
@@ -172,79 +70,62 @@ class _MercadoPagoState extends State<MercadoPago> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (!premiumUser)
-              Padding(
-                child: AdNative("small"),
-                padding: EdgeInsets.only(top: 5, bottom: 5),
-              ),
             Container(
-              padding: const EdgeInsets.only(right: 20, left: 25),
-              height: isPortrait ? screenWidth * 0.42 : screenWidth * 0.18,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const Icon(Icons.workspace_premium, size: 80),
-                  Text(
-                    "Mediante un pago mensual por dispositivo, puedes utilizar TrackeAR Premium, sin publicidades.",
-                    maxLines: 7,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: fullHD ? 17 : 16,
+                  Padding(
+                    child: premiumUser ? null : AdNative("small"),
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(right: 20, left: 25),
+                    height:
+                        isPortrait ? screenWidth * 0.36 : screenWidth * 0.15,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Icon(Icons.workspace_premium, size: 70),
+                        Text(
+                          "Mediante un pago mensual por dispositivo, puedes utilizar TrackeAR Premium, sin publicidades.",
+                          maxLines: 7,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: fullHD ? 17 : 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(right: 20, left: 20),
-              child:
-                  Divider(color: Theme.of(context).primaryColor, thickness: 1),
-            ),
-            errorPremiumCheck
-                ? MercadoPagoOption(
-                    premiumUser,
-                    widget.adInterstitial,
-                    "Ocurrió un error al verficar los datos de su pago.",
-                    [
-                      {
-                        "text": "REINTENTAR",
-                        "icon": Icons.monetization_on,
-                      }
-                    ],
-                    _deviceData,
-                    context,
+            divider,
+            Padding(
+              padding: EdgeInsets.only(top: isPortrait ? 8 : 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "ESTADO: ${premiumUser ? "ACTIVADO" : "NO ACTIVADO"}",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: mainColor,
+                    ),
                   )
-                : paymentData['operationId'] != null
-                    ? paymentDetail(isPortrait, screenWidth, paymentData)
-                    : MercadoPagoOption(
-                        premiumUser,
-                        widget.adInterstitial,
-                        "Si ya ha realizado un pago pero reinstaló la aplicación, verifique pagos activos para su dispositivo.",
-                        [
-                          {
-                            "text": "VERIFICAR",
-                            "icon": Icons.monetization_on,
-                          }
-                        ],
-                        _deviceData,
-                        context,
-                      ),
-            separator,
+                ],
+              ),
+            ),
+            MercadoPagoStatus(_deviceData, widget.adInterstitial, context),
             divider,
             MercadoPagoOption(
               premiumUser,
               widget.adInterstitial,
+              "PAGO SIMPLE",
               'Realice un pago simple y utilice la versión Premium por 30 días. Puede renovar en cualquier momento.',
-              [
-                {
-                  "text": "PAGO SIMPLE",
-                  "icon": Icons.payments,
-                }
-              ],
+              Icons.payments,
               _deviceData,
               context,
             ),
@@ -253,15 +134,9 @@ class _MercadoPagoState extends State<MercadoPago> {
             MercadoPagoOption(
               premiumUser,
               widget.adInterstitial,
-              'Realice pagos automáticamente cada 30 días mediante tarjeta de débito o crédito.',
-              paymentData["type"] == "subscription"
-                  ? [
-                      {"text": "PAUSAR", "icon": Icons.pause},
-                      {"text": "CANCELAR", "icon": Icons.cancel_outlined},
-                    ]
-                  : [
-                      {"text": "SUSCRIPCIÓN", "icon": Icons.credit_card}
-                    ],
+              "SUSCRIPCIÓN",
+              'Realice pagos automáticamente cada 30 días mediante tarjeta de débito o crédito. Puede cancelar en cualquier momento.',
+              Icons.credit_card,
               _deviceData,
               context,
             ),

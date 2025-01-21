@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
+import '../data/classes.dart';
+import '../data/trackings_active.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
@@ -74,6 +76,8 @@ class _GoogleDriveState extends State<GoogleDrive> {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context).trackings;
     final bool driveStatus = Provider.of<UserPreferences>(context).gdStatus;
     final String driveEmail = Provider.of<Status>(context).googleEmail;
     final bool errorCheckDrive =
@@ -101,7 +105,8 @@ class _GoogleDriveState extends State<GoogleDrive> {
                 ? const Icon(Icons.logout)
                 : const Icon(Icons.login),
             onPressed: () {
-              if (!premiumUser) widget.adInterstitial.showInterstitialAd();
+              if (!premiumUser && trackingsList.isNotEmpty)
+                widget.adInterstitial.showInterstitialAd();
               driveStatus
                   ? googleAccount('logout', context)
                   : googleAccount('login', context);
@@ -176,7 +181,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       '',
                       'INGRESAR',
                       () {
-                        if (!premiumUser)
+                        if (!premiumUser && trackingsList.isNotEmpty)
                           widget.adInterstitial.showInterstitialAd();
                         googleAccount("login", context);
                       },

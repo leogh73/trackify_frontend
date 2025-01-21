@@ -102,7 +102,7 @@ class ShowDialog {
                         "Cerrar",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: fullHD(context) ? 16 : 15,
+                          fontSize: fullHD(dialogContext) ? 16 : 15,
                         ),
                       ),
                       onPressed: () => Navigator.pop(dialogContext),
@@ -178,12 +178,12 @@ class ShowDialog {
     );
   }
 
-  static void error(BuildContext context, String message, String? service) {
+  static void error(BuildContext context, String message, String service) {
     show(
       true,
       false,
       false,
-      service!,
+      service,
       context,
       [
         Container(

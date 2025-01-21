@@ -183,7 +183,7 @@ class Status with ChangeNotifier {
   }
 
   List<dynamic> googleBackups = [];
-  List<dynamic> get googleUserData => [...googleBackups];
+  List<dynamic> get googleUserData => [];
   void loadGoogleBackups(List<dynamic> data, bool login) {
     googleBackups = data;
     if (login) {

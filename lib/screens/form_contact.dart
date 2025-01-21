@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart';
-import 'package:trackify/screens/claim.dart';
-import 'package:trackify/widgets/dialog_toast.dart';
+import 'package:device_uuid/device_uuid.dart';
+
+import '../data/classes.dart';
+import '../data/trackings_active.dart';
+import '../screens/claim.dart';
 
 import '../database.dart';
 import '../data/http_connection.dart';
-import '../widgets/ad_native.dart';
-
-import '../data/../data/preferences.dart';
+import '../data/preferences.dart';
 import '../data/theme.dart';
 
 import '../widgets/ad_banner.dart';
+import '../widgets/ad_native.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_error.dart';
+import '../widgets/dialog_toast.dart';
 
 class FormContact extends StatefulWidget {
   const FormContact({Key? key}) : super(key: key);
@@ -25,6 +28,7 @@ class FormContact extends StatefulWidget {
 class _FormContactState extends State<FormContact> {
   AdInterstitial interstitialAd = AdInterstitial();
   bool premiumUser = false;
+  final DeviceUuid _deviceUuidPlugin = DeviceUuid();
 
   @override
   void initState() {
@@ -53,6 +57,12 @@ class _FormContactState extends State<FormContact> {
   }
 
   void sendRequest(fullHD) async {
+    late String uuid;
+    try {
+      uuid = await _deviceUuidPlugin.getUUID() ?? '';
+    } catch (e) {
+      print("Error getting UUID: $e");
+    }
     if (formKey.currentState?.validate() == false) {
       DialogError.formError(context);
     } else {
@@ -63,6 +73,7 @@ class _FormContactState extends State<FormContact> {
           Provider.of<UserPreferences>(context, listen: false).userId;
       Object body = {
         'userId': userId,
+        'uuid': uuid,
         'message': message.text,
         'email': requestEmail,
       };
@@ -75,13 +86,18 @@ class _FormContactState extends State<FormContact> {
         if (response.statusCode == 400) index = 3;
       });
       Navigator.pop(context);
-      if (!premiumUser) interstitialAd.showInterstitialAd();
+      final List<ItemTracking> trackingsList =
+          Provider.of<ActiveTrackings>(context, listen: false).trackings;
+      if (!premiumUser && trackingsList.isNotEmpty)
+        interstitialAd.showInterstitialAd();
     }
   }
 
   Widget requestForm(bool fullHD) {
-    MaterialColor mainColor =
+    final MaterialColor mainColor =
         Provider.of<UserTheme>(context, listen: false).startColor;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -89,7 +105,7 @@ class _FormContactState extends State<FormContact> {
         children: [
           Padding(
             child: premiumUser ? null : AdNative("small"),
-            padding: EdgeInsets.only(top: 10, bottom: 30),
+            padding: EdgeInsets.only(top: 10, bottom: 10),
           ),
           Form(
             key: formKey,
@@ -97,29 +113,28 @@ class _FormContactState extends State<FormContact> {
               padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
               child: Column(
                 children: [
-                  if (!premiumUser)
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto y te responderemos a la brevedad.",
-                          maxLines: 10,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: fullHD ? 17 : 16,
-                          ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto y te responderemos a la brevedad.",
+                        maxLines: 10,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: fullHD ? 17 : 16,
                         ),
-                        Text(
-                          "Advertencia: si haces mal uso de éste formulario, serás baneado.",
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.red[400],
-                            fontSize: fullHD ? 17 : 16,
-                          ),
+                      ),
+                      Text(
+                        "Advertencia: si haces mal uso de éste formulario, serás baneado.",
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.red[400],
+                          fontSize: fullHD ? 17 : 16,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: TextFormField(
@@ -177,7 +192,8 @@ class _FormContactState extends State<FormContact> {
                                 ),
                                 onPressed: () => {
                                       Navigator.pop(context),
-                                      if (!premiumUser)
+                                      if (!premiumUser &&
+                                          trackingsList.isNotEmpty)
                                         interstitialAd.showInterstitialAd(),
                                     }),
                           ),
@@ -191,7 +207,8 @@ class _FormContactState extends State<FormContact> {
                                 ),
                                 onPressed: () => {
                                       sendRequest(fullHD),
-                                      if (!premiumUser)
+                                      if (!premiumUser &&
+                                          trackingsList.isNotEmpty)
                                         interstitialAd.showInterstitialAd(),
                                     }),
                           ),
@@ -199,7 +216,7 @@ class _FormContactState extends State<FormContact> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 50, height: 120),
+                  SizedBox(width: 50, height: 10),
                 ],
               ),
             ),
@@ -210,6 +227,8 @@ class _FormContactState extends State<FormContact> {
   }
 
   Widget sendResult(String text1, String text2, bool success) {
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -239,7 +258,8 @@ class _FormContactState extends State<FormContact> {
               style: TextStyle(fontSize: 17),
             ),
             onPressed: () {
-              if (!premiumUser) interstitialAd.showInterstitialAd();
+              if (!premiumUser && trackingsList.isNotEmpty)
+                interstitialAd.showInterstitialAd();
               Navigator.pop(context);
               if (index == 3)
                 Navigator.of(context)
@@ -281,7 +301,7 @@ class _FormContactState extends State<FormContact> {
       ),
       3: sendResult(
         '',
-        'El formulario de contacto no es para hacer reclamos. La información que le proveemos, es la que informa la empresa de transporte. Si tiene problemas con un envío, debe comunicarse con dicha empresa. Ellos son los responsables de su encomienda',
+        'El formulario de contacto no es para hacer reclamos ni preguntas sobre servicios. La información que le proveemos, es la que informa la empresa de transporte. Si tiene problemas con un envío o quiere hacer consultas, debe comunicarse con dicha empresa.',
         false,
       ),
       4: sendResult(
@@ -299,10 +319,7 @@ class _FormContactState extends State<FormContact> {
             IconButton(
               icon: const Icon(Icons.send),
               iconSize: 26,
-              onPressed: () => {
-                if (!premiumUser) interstitialAd.showInterstitialAd(),
-                sendRequest(fullHD),
-              },
+              onPressed: () => sendRequest(fullHD),
             ),
         ],
       ),
