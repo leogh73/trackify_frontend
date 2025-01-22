@@ -8,8 +8,6 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:trackify/screens/main_screen.dart';
-import 'package:trackify/screens/mercado_pago.dart';
-import 'package:trackify/screens/mercado_pago_detail.dart';
 
 import 'initial_data.dart';
 import 'data/classes.dart';
@@ -218,7 +216,6 @@ class _AppState extends State<App> {
         disabledColor: Colors.grey[700],
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
-      // home: MercadoPago(interstitialAd!),
       home: MainScreen(),
     );
   }

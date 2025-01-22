@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:device_uuid/device_uuid.dart';
-import 'package:trackify/widgets/drive_content.dart';
-
-import '../data/http_connection.dart';
-import '../widgets/ad_banner.dart';
-import '../widgets/ad_interstitial.dart';
-import '../widgets/ad_native.dart';
-
-import '../data/preferences.dart';
-
 import 'package:http/http.dart';
 
-import '../screens/mercado_pago.dart';
+import '../data/http_connection.dart';
+import '../data/preferences.dart';
+
+import '../widgets/ad_banner.dart';
+import '../widgets/ad_native.dart';
 import '../widgets/dialog_error.dart';
 
 class PaymentDetail extends StatefulWidget {
@@ -74,7 +68,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
         paymentData["dateCreated"],
         paymentData["paymentType"] == "simple"
             ? paymentData["daysRemaining"].toString()
-            : paymentData["billingDay"],
+            : paymentData["billingDay"].toString(),
         paymentData["isValid"].toString() == "true" ? "Si" : "No"
       ],
     ];

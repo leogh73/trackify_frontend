@@ -1,33 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:device_uuid/device_uuid.dart';
-
-import 'package:device_uuid/device_uuid.dart';
-import 'package:trackify/widgets/mercado_pago_option.dart';
-import 'package:trackify/widgets/mercado_pago_status.dart';
-import '../widgets/ad_banner.dart';
-import '../widgets/ad_interstitial.dart';
-import '../widgets/ad_native.dart';
-
-import '../data/preferences.dart';
-
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart';
-import 'package:device_uuid/device_uuid.dart';
-
-import '../screens/claim.dart';
-
-import '../database.dart';
-import '../data/http_connection.dart';
-import '../data/preferences.dart';
-import '../data/theme.dart';
 
 import '../widgets/ad_banner.dart';
-import '../widgets/ad_native.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_error.dart';
-import '../widgets/dialog_toast.dart';
+import '../widgets/ad_native.dart';
+
+import '../data/preferences.dart';
+import '../data/http_connection.dart';
 
 class MercadoPagoInput extends StatefulWidget {
   const MercadoPagoInput({super.key});
@@ -105,20 +87,9 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
-    final bool isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context, listen: false).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final Widget divider = Container(
-        padding: EdgeInsets.only(right: 20, left: 20),
-        child: Divider(color: Theme.of(context).primaryColor, thickness: .3));
-    final Widget separator = SizedBox(height: isPortrait ? 5 : 15);
-    // final bool errorPremiumOperation =
-    //     Provider.of<UserPreferences>(context).errorPaymentOperation;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ingresar pago"),
@@ -154,7 +125,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://images4.imagebam.com/03/36/f1/MEYCH5O_o.png"),
+                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_ticket.png"),
               ),
             ),
             checking

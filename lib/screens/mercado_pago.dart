@@ -53,8 +53,6 @@ class _MercadoPagoState extends State<MercadoPago>
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
-    final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context, listen: false).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Widget divider = Container(

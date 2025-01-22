@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/screens/claim.dart';
-import 'package:trackify/screens/help.dart';
-import 'package:trackify/screens/mercado_pago.dart';
 
-import '../data/services.dart';
 import 'ad_native.dart';
 import 'dialog_toast.dart';
 
@@ -12,11 +8,14 @@ import '../data/../data/preferences.dart';
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
 
-import '../screens/form_contact.dart';
-import '../screens/main_screen.dart';
 import '../screens/archived.dart';
-import '../screens/mercado_libre.dart';
+import '../screens/claim.dart';
+import '../screens/form_contact.dart';
 import '../screens/google_drive.dart';
+import '../screens/help.dart';
+import '../screens/main_screen.dart';
+import '../screens/mercado_libre.dart';
+import '../screens/mercado_pago.dart';
 
 import '../widgets/ad_interstitial.dart';
 
@@ -132,7 +131,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ));
           },
               Image.network(
-                  'https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/googledrive.png'),
+                  'https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/google_drive.png'),
               40,
               180,
               googleStatus),
@@ -147,7 +146,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               );
             },
             Image.network(
-                "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercadolibre.png"),
+                "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_libre.png"),
             38,
             155,
             meliStatus,

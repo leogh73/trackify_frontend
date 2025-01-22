@@ -23,20 +23,9 @@ class MercadoPagoSubscription extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
-    final bool isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context, listen: false).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final Widget divider = Container(
-        padding: EdgeInsets.only(right: 20, left: 20),
-        child: Divider(color: Theme.of(context).primaryColor, thickness: .3));
-    final Widget separator = SizedBox(height: isPortrait ? 5 : 15);
-    // final bool errorPremiumOperation =
-    //     Provider.of<UserPreferences>(context).errorPaymentOperation;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Nueva suscripción"),
@@ -73,7 +62,7 @@ class MercadoPagoSubscription extends StatelessWidget {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://images4.imagebam.com/cd/db/8b/MEYWKQE_o.png"),
+                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_subsc_1.png"),
               ),
             ),
             Padding(
@@ -85,7 +74,7 @@ class MercadoPagoSubscription extends StatelessWidget {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://images4.imagebam.com/97/96/a9/MEYWKKR_o.png"),
+                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_subsc_2.png"),
               ),
             ),
             Padding(

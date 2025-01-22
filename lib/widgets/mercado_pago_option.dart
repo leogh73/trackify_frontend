@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:trackify/screens/mercado_pago_subscription.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/http_connection.dart';
 import '../data/theme.dart';
+
 import '../screens/mercado_pago.dart';
-import '../data/preferences.dart';
+import '../screens/mercado_pago_subscription.dart';
+
 import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_error.dart';
 
@@ -81,20 +82,11 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context, listen: false).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final Widget divider = Container(
-        padding: EdgeInsets.only(right: 20, left: 20),
-        child: Divider(color: Theme.of(context).primaryColor, thickness: .3));
-    final Widget separator = SizedBox(height: isPortrait ? 5 : 15);
     final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     final Widget button = SizedBox(
       width: 155,
