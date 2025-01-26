@@ -239,7 +239,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     bottom: BorderSide(color: Colors.grey.shade400),
                   ),
                 ),
-                padding: EdgeInsets.only(top: 8, bottom: 8),
+                padding: EdgeInsets.only(top: 8, bottom: 2.5),
                 child: AdNative("small"),
               ),
             ),

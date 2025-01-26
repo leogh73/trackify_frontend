@@ -30,20 +30,27 @@ class _PaymentDetailState extends State<PaymentDetail> {
       "rejected": Icons.cancel_outlined,
       "authorized": Icons.check,
       "cancelled": Icons.cancel,
-      "Could not be checked": Icons.warning_amber,
+      "could not be checked": Icons.warning_amber,
     };
-    const Map<String, String> statusText = {
+    Map<String, String> statusText = {
       "approved": "Aprobado",
       "pending": "Pendiente",
       "rejected": "Rechazado",
-      "authorized": "Autorizado",
-      "cancelled": "Cancelada",
-      "Could not be checked": "No se pudo verificar"
+      "authorized": paymentData["paymentType"] == "simple"
+          ? "Autorizado (no acreditado)"
+          : "Autorizada",
+      "paused": "Pausada",
+      "cancelled": "Cancelado",
+      "in_process": "En proceso",
+      "in_mediation": "En mediación",
+      "refunded": "Reembolsado",
+      "charged_back": "Contracargo",
+      "could not be checked": "No se pudo verificar"
     };
     final List<List<dynamic>> dataList = [
       [
         Icons.numbers,
-        statusIcon[paymentData["status"]],
+        statusIcon[paymentData["status"]] ?? Icons.cancel_outlined,
         Icons.attach_money,
         Icons.calendar_month,
         paymentData["paymentType"] == "simple"
@@ -74,7 +81,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
     ];
 
     return Container(
-      width: isPortrait ? screenWidth * 0.8 : screenWidth * 0.6,
+      width: isPortrait ? screenWidth * 0.9 : screenWidth * 0.6,
       padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
@@ -166,7 +173,6 @@ class _PaymentDetailState extends State<PaymentDetail> {
     final double screenHeight = MediaQuery.of(context).size.height;
     final Map<String, dynamic> paymentData =
         Provider.of<UserPreferences>(context, listen: false).paymentData;
-    print("PRINT_$paymentData");
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Widget divider = Container(

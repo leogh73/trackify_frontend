@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 import '../data/http_connection.dart';
 import '../data/theme.dart';
@@ -33,7 +34,7 @@ class MercadoPagoOption extends StatefulWidget {
 class _MercadoPagoOptionState extends State<MercadoPagoOption> {
   bool onProcess = false;
 
-  final Map<String, String> operation = {
+  final Map<String, String> paymentType = {
     "PAGO SIMPLE": "simple",
     "SUSCRIPCIÓN": "subscription",
   };
@@ -44,19 +45,14 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
     });
   }
 
-  Future<void> paymentHandler() async {
+  Future<void> paymentRequest() async {
     onProcessToggle();
     Object body = {
-      'operation': operation[widget.title],
+      'paymentType': paymentType[widget.title],
       'deviceData': json.encode(widget.deviceData),
     };
-    if (widget.deviceData['uuid'] == "" && operation[widget.title] == "check") {
-      onProcessToggle();
-      DialogError.getUuidCheck(widget.context);
-      return;
-    }
-    final Response response =
-        await HttpConnection.requestHandler("/api/mercadopago/payment/", body);
+    final Response response = await HttpConnection.requestHandler(
+        "/api/mercadopago/paymentRequest/", body);
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
@@ -67,10 +63,18 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
         if (widget.title == "SUSCRIPCIÓN") {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => MercadoPagoSubscription(responseData["url"])));
-        } else if (!await launchUrl(Uri.parse(responseData['url']),
-            mode: LaunchMode.externalApplication)) {
-          throw 'Could not launch ${responseData['url']}';
-        }
+        } else
+          try {
+            final int colorValue =
+                Provider.of<UserTheme>(context, listen: false).startColor.value;
+            await launch(
+              responseData['url'],
+              customTabsOption:
+                  CustomTabsOption(toolbarColor: Color(colorValue)),
+            );
+          } catch (e) {
+            debugPrint(e.toString());
+          }
       }
     } else {
       if (responseData['serverError'] == null) {
@@ -99,7 +103,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
-        onPressed: () => paymentHandler(),
+        onPressed: () => paymentRequest(),
       ),
     );
     final Widget title = Padding(

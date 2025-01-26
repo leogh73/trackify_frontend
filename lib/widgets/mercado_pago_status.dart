@@ -32,8 +32,13 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
     });
   }
 
-  Future<void> paymentHandler(
+  Future<void> optionHandler(
       String buttonText, Map<String, dynamic> paymentData) async {
+    if (buttonText == "VERIFICAR PAGOS" &&
+        paymentData['status'] == "could not be checked") {
+      DialogError.paymentCheckError(context);
+      return;
+    }
     if (buttonText == "INGRESAR PAGO") {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (_) => MercadoPagoInput()));
@@ -48,14 +53,8 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
           .push(MaterialPageRoute(builder: (_) => PaymentDetail()));
       return;
     }
-    if (buttonText == "VERIFICAR PAGOS" &&
-        paymentData['status'] == "Could not be checked") {
-      DialogError.paymentCheckError(context);
-      return;
-    }
     onProcessToggle();
     Object body = {
-      'operation': "check",
       'deviceData': json.encode(widget.deviceData),
     };
     if (widget.deviceData['uuid'] == "") {
@@ -63,8 +62,8 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
       DialogError.getUuidCheck(widget.context);
       return;
     }
-    final Response response =
-        await HttpConnection.requestHandler("/api/mercadopago/payment/", body);
+    final Response response = await HttpConnection.requestHandler(
+        "/api/mercadopago/checkDeviceId/", body);
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
@@ -106,7 +105,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                 ),
-                onPressed: () => paymentHandler(button["text"], paymentData),
+                onPressed: () => optionHandler(button["text"], paymentData),
               ),
             ))
         .toList();

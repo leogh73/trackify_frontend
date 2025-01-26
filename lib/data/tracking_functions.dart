@@ -210,7 +210,7 @@ class TrackingFunctions {
     if (responseData['mercadoPago'] != null) {
       Provider.of<UserPreferences>(context, listen: false)
           .setPaymentData(responseData['mercadoPago']);
-      if (responseData['mercadoPago']["status"] == "Could not be checked") {
+      if (responseData['mercadoPago']["status"] == "could not be checked") {
         DialogError.paymentCheckError(context);
       }
     }

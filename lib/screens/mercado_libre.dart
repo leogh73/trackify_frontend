@@ -147,15 +147,15 @@ class MercadoLibre extends StatelessWidget {
                 'Información no disponible',
                 'No ha ingresado a MercadoLibre',
                 'INGRESAR',
-                () => {
+                () {
                   if (!premiumUser && trackingsList.isNotEmpty)
-                    adInterstitial.showInterstitialAd(),
+                    adInterstitial.showInterstitialAd();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => MercadoLibreSite("login", context),
                     ),
-                  ),
+                  );
                 },
                 premiumUser,
               ),

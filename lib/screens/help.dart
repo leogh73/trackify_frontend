@@ -28,14 +28,14 @@ class Help extends StatelessWidget {
         "question": "¿Porqué mi seguimiento devuelve un error?",
         "answer":
             "Los errores al agregar o verificar seguimientos, pueden deberse a errores de nuestro servidor y/o el servicio seleccionado y/o el código ingresado. En cualquier caso, revise el código de seguimiento y reintente más tarde.",
-        'showAd': true,
+        'showAd': false,
       },
       {
         "question":
             "¿Porqué al abrir la aplicación, recibo el mensaje 'Datos sincronizados'?",
         "answer":
             "Los datos de los seguimientos, se actualizan cada vez que toca una notificación de actualización de envío y entra a la aplicación. Pero, si no ha otorgado el permiso para recibir notificaciones, o las descarta sin abrir la aplicación, al iniciarla, los datos de sus seguimientos se actualizarán y se sincronizarán con los datos en nuestro servidor.",
-        'showAd': false,
+        'showAd': true,
       },
       {
         "question": "¿Porqué tiene tanta publicidad?",
@@ -47,7 +47,7 @@ class Help extends StatelessWidget {
         "question": "¿Puedo pagar para usarla sin publicidades?",
         "answer":
             "Si, se admiten pagos por MercadoPago. Vea las opciones en la sección 'Premium'. Si realiza un pago, quedará asociado a su dispositivo: si reinstala la aplicación podrá actualizar su estado a Premium, pero si hace un reinicio de fábrica, deberá ingresar el número de operación para que verifiquemos su pago y actualicemos su estado.",
-        'showAd': true,
+        'showAd': false,
       },
       {
         "question": "¿Cómo reclamo por un envío?",
@@ -59,13 +59,13 @@ class Help extends StatelessWidget {
         "question": "¿Para qué sirve la sección 'Archivados'?",
         "answer":
             "Si tiene seguimientos que han finalizado pero no quiere eliminarlos, sino almacenarlos aparte, use la opción 'Archivar'. Los seguimientos se eliminarán de la pantalla principal, pero los seguirá viendo en la sección 'Archivados'. Advertencia: si archiva seguimientos activos, los mismos serán eliminados de nuestra base de datos y no se verificarán más.",
-        'showAd': false,
+        'showAd': true,
       },
       {
         "question": "¿Para qué sirve la integración con Google Drive?",
         "answer":
             "Desde dicha sección puede iniciar sesión en su cuenta de Google y almacenar en Drive sus preferencias y seguimientos a modo de copia de seguirdad. En caso de que tenga muchos seguimientos y reinstale la aplicación, o cambie de dispositivo, puede usar esa copia de seguirdad para restaurar sus datos.",
-        'showAd': true,
+        'showAd': false,
       },
       {
         "question": "¿Para qué sirve la integración con MercadoLibre?",

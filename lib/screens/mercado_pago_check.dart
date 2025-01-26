@@ -59,19 +59,21 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
       'uuid': uuid,
       'transactionId': transactionId.text,
     };
-    Response response =
-        await HttpConnection.requestHandler('/api/mercadopago/check', body);
+    Response response = await HttpConnection.requestHandler(
+        '/api/mercadopago/checkPaymentId', body);
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
       if (responseData['result'] == "payment not found") {
         DialogError.paymentNotFound(context);
-      } else if (responseData['result']['isValid'] == false) {
-        DialogError.paymentNotValid(context);
       } else {
         Provider.of<UserPreferences>(context, listen: false)
             .setPaymentData(responseData['result']);
-        Navigator.of(context).pop();
+        if (responseData['result']['isValid'] == false) {
+          DialogError.paymentNotValid(context);
+        } else {
+          Navigator.of(context).pop();
+        }
       }
     } else {
       if (responseData['serverError'] == null) {
@@ -125,7 +127,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_ticket.png"),
+                    "https://github.com/leogh73/trackify_frontend/blob/master/assets/other/mercado_pago_ticket.png"),
               ),
             ),
             checking
@@ -202,16 +204,12 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                                   SizedBox(
                                     width: 120,
                                     child: ElevatedButton(
-                                        child: const Text(
-                                          "Enviar",
-                                          style: TextStyle(fontSize: 17),
-                                        ),
-                                        onPressed: () => {
-                                              checkPaymentId(),
-                                              if (!premiumUser)
-                                                interstitialAd
-                                                    .showInterstitialAd(),
-                                            }),
+                                      child: const Text(
+                                        "Enviar",
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                      onPressed: () => checkPaymentId(),
+                                    ),
                                   ),
                                 ],
                               ),

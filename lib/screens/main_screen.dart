@@ -155,13 +155,17 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     actions: <Widget>[
                       if (!premiumUser)
-                        IconButton(
-                          icon: const Icon(Icons.workspace_premium),
-                          iconSize: 22,
-                          onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      MercadoPago(mePaInterstitialAd))),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0),
+                          child: IconButton(
+                            tooltip: "Premium",
+                            icon: const Icon(Icons.workspace_premium),
+                            iconSize: 22,
+                            onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        MercadoPago(mePaInterstitialAd))),
+                          ),
                         ),
                       IconButton(
                         tooltip: "Buscar",

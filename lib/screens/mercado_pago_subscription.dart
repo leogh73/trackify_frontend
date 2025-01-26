@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-import '../widgets/ad_banner.dart';
-import '../widgets/ad_native.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 import '../data/preferences.dart';
+import '../data/theme.dart';
+
+import '../widgets/ad_banner.dart';
+import '../widgets/ad_native.dart';
 
 class MercadoPagoSubscription extends StatelessWidget {
   final String url;
   const MercadoPagoSubscription(this.url, {Key? key}) : super(key: key);
 
   void openSubscriptionUrl(BuildContext context) async {
-    if (!await launchUrl(Uri.parse(url),
-        mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
+    try {
+      final int colorValue =
+          Provider.of<UserTheme>(context, listen: false).startColor.value;
+      await launch(
+        url,
+        customTabsOption: CustomTabsOption(toolbarColor: Color(colorValue)),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
     }
     Navigator.of(context).pop();
   }

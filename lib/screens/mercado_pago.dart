@@ -40,7 +40,6 @@ class _MercadoPagoState extends State<MercadoPago>
       'userId': Provider.of<UserPreferences>(context, listen: false).userId,
       'uuid': uuid,
     };
-    print("PRINT_DEVICE_$deviceData");
     setState(() {
       _deviceData = deviceData;
     });

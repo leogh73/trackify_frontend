@@ -34,9 +34,6 @@ class MercadoLibre extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Padding(
-            //     child: AdNative("medium"),
-            //     padding: EdgeInsets.only(top: 8, bottom: 8)),
             Padding(
               child: AdNative("small"),
               padding: EdgeInsets.only(top: 10, bottom: 100),
@@ -143,15 +140,16 @@ class MercadoLibre extends StatelessWidget {
                 'Información no disponible',
                 'No ha ingresado a MercadoLibre',
                 'INGRESAR',
-                () => {
-                      adInterstitial.showInterstitialAd(),
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MercadoLibreSite("login"),
-                        ),
-                      ),
-                    }),
+                () {
+                  adInterstitial.showInterstitialAd();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MercadoLibreSite("login"),
+                    ),
+                  );
+                },
+              ),
         bottomNavigationBar: const AdBanner(),
       ),
     );
