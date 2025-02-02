@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../data/classes.dart';
 import '../data/http_connection.dart';

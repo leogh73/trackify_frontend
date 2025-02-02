@@ -110,7 +110,6 @@ class _OptionsTrackingState extends State<OptionsTracking> {
   }
 
   void removeTracking() async {
-    Navigator.pop(context);
     bool success = await provider
         .removeTracking([widget.tracking], context, widget.tracking.checkError);
     if (success == false) {

@@ -128,7 +128,7 @@ class UserData {
   bool googleDriveStatus;
   String statusMessage;
   bool showAgainStatusMessage;
-  bool showAgainPaymentError;
+  bool? showAgainPaymentError;
   Map<String, dynamic>? servicesData;
 
   UserData({
