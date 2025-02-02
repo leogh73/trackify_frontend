@@ -36,7 +36,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
       String buttonText, Map<String, dynamic> paymentData) async {
     if (buttonText == "VERIFICAR PAGOS" &&
         paymentData['status'] == "could not be checked") {
-      DialogError.paymentCheckError(context);
+      DialogError.show(context, 21, "");
       return;
     }
     if (buttonText == "INGRESAR PAGO") {
@@ -46,7 +46,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
     }
     if (buttonText == "DETALLE DE PAGO") {
       if (paymentData["operationId"] == null) {
-        DialogError.paymentDetailNotFound(context);
+        DialogError.show(context, 18, "");
         return;
       }
       Navigator.of(context)
@@ -59,7 +59,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
     };
     if (widget.deviceData['uuid'] == "") {
       onProcessToggle();
-      DialogError.getUuidCheck(widget.context);
+      DialogError.show(context, 14, "");
       return;
     }
     final Response response = await HttpConnection.requestHandler(
@@ -68,17 +68,17 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
       if (responseData['result'] == "payment not found") {
-        DialogError.devicePaymentNotFound(context);
+        DialogError.show(context, 16, "");
       } else {
         if (responseData['result']['isValid'] == false) {
-          DialogError.paymentValidNotFound(context);
+          DialogError.show(context, 20, "");
         }
         Provider.of<UserPreferences>(context, listen: false)
             .setPaymentData(responseData['result']);
       }
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.paymentError(context);
+        DialogError.show(context, 21, "");
       }
     }
     onProcessToggle();

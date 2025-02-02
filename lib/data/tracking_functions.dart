@@ -37,18 +37,19 @@ class TrackingFunctions {
         await HttpConnection.requestHandler('/api/user/check/', body);
     Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
+    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
     if (response.statusCode == 500) {
       if (responseData['error'] == "No data") {
-        DialogError.trackingNoDataRemoved(context, tracking.service);
-      }
-      if (responseData['result']['error']['body'] == "Service timeout") {
-        DialogError.serviceTimeout(context, tracking.service);
+        DialogError.show(context, 5, tracking.service);
+      } else if (responseData['result']['error']['body'] == "Service timeout") {
+        DialogError.show(context, 6, tracking.service);
+      } else {
+        DialogError.show(context, 8, tracking.service);
       }
       return;
     }
     int index = trackingsList.indexWhere((t) => t.idMDB == tracking.idMDB);
     trackingCheckUpdate(context, index, responseData);
-    Provider.of<Status>(context, listen: false).toggleCheckingStatus();
     if (responseData['result']['events'].isEmpty) {
       GlobalToast.displayToast(context, "No hay actualizaciones");
     } else {
@@ -194,7 +195,7 @@ class TrackingFunctions {
     final Response response =
         await HttpConnection.requestHandler('/api/user/syncronize/', body);
     if (response.statusCode == 500) {
-      DialogError.serverError(context);
+      DialogError.show(context, 1, "");
       return;
     }
     final Map<String, dynamic> responseData = json.decode(response.body);
@@ -210,29 +211,9 @@ class TrackingFunctions {
     if (responseData['mercadoPago'] != null) {
       Provider.of<UserPreferences>(context, listen: false)
           .setPaymentData(responseData['mercadoPago']);
-      if (responseData['mercadoPago']["status"] == "could not be checked") {
-        DialogError.paymentCheckError(context);
-      }
+      checkPayment(context, responseData['mercadoPago']);
     }
-    final String statusMessage =
-        Provider.of<UserPreferences>(context, listen: false).getStatusMessage;
-    final bool showAgainStatusMessage =
-        Provider.of<UserPreferences>(context, listen: false).showMessageAgain;
-    if (responseData['statusMessage'].isEmpty) {
-      Provider.of<UserPreferences>(context, listen: false).setStatusMessage('');
-      Provider.of<UserPreferences>(context, listen: false)
-          .setShowMessageAgain(false);
-    } else if (statusMessage != responseData['statusMessage']) {
-      Provider.of<UserPreferences>(context, listen: false)
-          .setStatusMessage(responseData['statusMessage']);
-      Provider.of<UserPreferences>(context, listen: false)
-          .setShowMessageAgain(true);
-      ShowDialog.statusMessage(context, responseData['statusMessage']);
-      Provider.of<UserPreferences>(context, listen: false)
-          .storeMessageData(responseData['statusMessage']);
-    } else if (showAgainStatusMessage && statusMessage.isNotEmpty) {
-      ShowDialog.statusMessage(context, statusMessage);
-    }
+    checkStatusMessage(context, responseData['statusMessage']);
     if (responseData['driveStatus'] != null) {
       if (responseData['driveStatus'] == "Update required" ||
           responseData['driveStatus'] == 'Backup not found') {
@@ -256,6 +237,47 @@ class TrackingFunctions {
       }
       Provider.of<Status>(context, listen: false)
           .showNotificationOverlay("Datos sincronizados", message);
+    }
+  }
+
+  static void checkPayment(
+      BuildContext context, Map<String, dynamic> paymentData) {
+    final bool showPaymentErrorAgain =
+        Provider.of<UserPreferences>(context, listen: false)
+            .showAgainPaymentError;
+    if (paymentData["status"] == "could not be checked") {
+      if (showPaymentErrorAgain) {
+        ShowDialog.showMessage(
+            context,
+            "No se pudo verificar el pago asociado a éste dispositivo, su estado Premium fue desactivado. Si el problema persiste, pongasé en contacto con nosotros.",
+            "payment");
+      }
+    } else {
+      Provider.of<UserPreferences>(context, listen: false)
+          .setShowPaymentErrorAgain(true);
+    }
+  }
+
+  static void checkStatusMessage(BuildContext context, String message) {
+    final String statusMessage =
+        Provider.of<UserPreferences>(context, listen: false).getStatusMessage;
+    final bool showAgainStatusMessage =
+        Provider.of<UserPreferences>(context, listen: false)
+            .showStatusMessageAgain;
+    if (message.isEmpty) {
+      Provider.of<UserPreferences>(context, listen: false).setStatusMessage('');
+      Provider.of<UserPreferences>(context, listen: false)
+          .setShowStatusMessageAgain(false);
+    } else if (statusMessage != message) {
+      Provider.of<UserPreferences>(context, listen: false)
+          .setStatusMessage(message);
+      Provider.of<UserPreferences>(context, listen: false)
+          .setShowStatusMessageAgain(true);
+      ShowDialog.showMessage(context, message, "status");
+      Provider.of<UserPreferences>(context, listen: false)
+          .storeMessageData(message);
+    } else if (showAgainStatusMessage && statusMessage.isNotEmpty) {
+      ShowDialog.showMessage(context, statusMessage, "status");
     }
   }
 

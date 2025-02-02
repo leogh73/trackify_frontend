@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:http/http.dart';
 
 import '../database.dart';
 import '../data/classes.dart';
 import '../data/preferences.dart';
 import '../initial_data.dart';
 
+import '../widgets/dialog_error.dart';
 import 'http_connection.dart';
 
 class ActiveTrackings extends ChangeNotifier {
@@ -64,34 +66,55 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeTracking(List<ItemTracking> trackingList, BuildContext context,
-      bool startError) async {
-    List<String> trackingIds = [];
+  Future<bool> removeTracking(List<ItemTracking> trackingList,
+      BuildContext context, bool startError) async {
+    if (!startError) {
+      String _userId =
+          Provider.of<UserPreferences>(context, listen: false).userId;
+      Object body = {
+        'userId': _userId,
+        'trackingIds': json.encode(trackingList.map((t) => t.idMDB).toList())
+      };
+      Response response = await HttpConnection.requestHandler(
+          '/api/user/$_userId/remove/', body);
+      if (response.statusCode == 500) {
+        DialogError.show(context, 21, "");
+        return false;
+      }
+    }
     for (var tracking in trackingList) {
       _trackings.remove(tracking);
       if (tracking.checkError == false) {
         storedData.removeMainTracking(tracking);
-        trackingIds.add(tracking.idMDB!);
       }
     }
     notifyListeners();
-    if (startError) return;
-    String _userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
-    Object body = {'trackingIds': json.encode(trackingIds)};
-    await HttpConnection.requestHandler('/api/user/$_userId/remove/', body);
+    return true;
   }
 
-  void editTracking(ItemTracking tracking) {
-    int index = _trackings.indexWhere((seg) => seg.idSB == tracking.idSB);
-    _trackings[index].code = tracking.code;
-    _trackings[index].service = tracking.service;
-    _trackings[index].title = tracking.title;
-    if (tracking.title == null) {
+  Future<bool> renameTracking(
+      BuildContext context, ItemTracking editedTracking) async {
+    String _userId =
+        Provider.of<UserPreferences>(context, listen: false).userId;
+    Object body = {
+      'userId': _userId,
+      'trackingId': editedTracking.idMDB,
+      'newTitle': editedTracking.title,
+    };
+    Response response =
+        await HttpConnection.requestHandler('/api/user/$_userId/rename/', body);
+    if (response.statusCode == 500) {
+      DialogError.show(context, 21, "");
+      return false;
+    }
+    int index = _trackings.indexWhere((seg) => seg.idSB == editedTracking.idSB);
+    _trackings[index].title = editedTracking.title;
+    if (editedTracking.title == null) {
       _trackings[index].title = _trackings[index].code;
     }
     storedData.updateMainTracking(_trackings[index]);
     notifyListeners();
+    return true;
   }
 
   late ItemTracking _loadedTracking;
@@ -145,9 +168,10 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSelection(BuildContext context) {
-    removeTracking(_selection, context, false);
+  Future<bool> removeSelection(BuildContext context) async {
+    bool success = await removeTracking(_selection, context, false);
     _selection.clear();
     notifyListeners();
+    return success;
   }
 }

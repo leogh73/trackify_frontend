@@ -51,13 +51,10 @@ class MercadoPagoSubscription extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                "Luego de pagar, toque el botón 'Volver al sitio' y espere a ver una pantalla en blanco, para que podamos recibir información sobre su suscripción:",
+                "Luego de pagar, toque el botón 'Volver al sitio' y espere a ver una pantalla en blanco, para que recibamos la información sobre su suscripción:",
                 maxLines: 8,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fullHD ? 18 : 17,
-                ),
+                style: TextStyle(fontSize: fullHD ? 17 : 16),
               ),
             ),
             Padding(
@@ -69,35 +66,20 @@ class MercadoPagoSubscription extends StatelessWidget {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_subsc_1.png"),
+                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_subscription.png"),
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).primaryColor, width: .5),
-                ),
-                child: Image.network(
-                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_subsc_2.png"),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(12.0),
               child: Text(
-                "Si no lo hace, luego de efectuar su pago, deberá ingresarlo manualmente.",
+                'De lo contrario, envíe el número de transacción de su comprobante, desde la sección "INGRESAR PAGO".',
                 maxLines: 8,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: fullHD ? 17 : 16,
-                ),
+                style: TextStyle(fontSize: fullHD ? 17 : 16),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 20),
+              padding: const EdgeInsets.only(bottom: 12),
               child: SizedBox(
                 width: 200,
                 height: 45,

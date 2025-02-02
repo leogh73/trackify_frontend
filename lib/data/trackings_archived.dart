@@ -30,10 +30,8 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void editTracking(Tracking tracking) async {
+  void renameTracking(Tracking tracking) async {
     int index = _trackings.indexWhere((seg) => seg.idSB == tracking.id);
-    _trackings[index].code = tracking.code;
-    _trackings[index].service = tracking.service;
     _trackings[index].title = tracking.title;
     if (tracking.title.isEmpty) {
       _trackings[index].title = _trackings[index].code;

@@ -16,14 +16,10 @@ class TrackingData {
   static Future fetch(BuildContext context, ItemTracking tracking) async {
     final String userId =
         Provider.of<UserPreferences>(context, listen: false).userId;
-    final bool premiumStatus =
-        Provider.of<UserPreferences>(context).premiumStatus;
     Object body = {
       'title': tracking.title,
       'service': tracking.service,
       'code': tracking.code.trim(),
-      'token': await FirebaseMessaging.instance.getToken(),
-      'premiumStatus': premiumStatus.toString(),
     };
     Response response =
         await HttpConnection.requestHandler('/api/user/$userId/add', body);
@@ -39,12 +35,12 @@ class TrackingData {
         if (responseData['error'] == "No data") {
           Provider.of<ActiveTrackings>(context, listen: false)
               .removeTracking([tracking], context, true);
-          DialogError.trackingNoData(context, tracking.service);
+          DialogError.show(context, 4, tracking.service);
           return;
         } else {
           responseData['error']['body'] == "Service timeout"
-              ? DialogError.serviceTimeout(context, tracking.service)
-              : DialogError.startTrackingError(context);
+              ? DialogError.show(context, 6, tracking.service)
+              : DialogError.show(context, 2, "");
         }
       }
       tracking.checkError = true;

@@ -128,6 +128,7 @@ class UserData {
   bool googleDriveStatus;
   String statusMessage;
   bool showAgainStatusMessage;
+  bool showAgainPaymentError;
   Map<String, dynamic>? servicesData;
 
   UserData({
@@ -141,6 +142,7 @@ class UserData {
     required this.googleDriveStatus,
     required this.statusMessage,
     required this.showAgainStatusMessage,
+    required this.showAgainPaymentError,
     required this.servicesData,
   });
 
@@ -157,6 +159,7 @@ class UserData {
       googleDriveStatus: map['googleDriveStatus'],
       statusMessage: map['statusMessage'] ?? '',
       showAgainStatusMessage: map['showAgainStatusMessage'] ?? true,
+      showAgainPaymentError: map['showAgainPaymentError'] ?? true,
       servicesData: map['servicesData'] == null ? {} : map['servicesData'],
     );
   }
@@ -173,6 +176,7 @@ class UserData {
       'googleDriveStatus': googleDriveStatus,
       'statusMessage': statusMessage,
       'showAgainStatusMessage': showAgainStatusMessage,
+      'showAgainPaymentError': showAgainPaymentError,
       'servicesData': servicesData,
     };
   }
@@ -188,6 +192,7 @@ class UserData {
     bool? googleDriveStatus,
     String? statusMessage,
     bool? showAgainStatusMessage,
+    bool? showAgainPaymentError,
     Map<String, dynamic>? servicesData,
   }) {
     return UserData(
@@ -202,6 +207,8 @@ class UserData {
       statusMessage: statusMessage ?? this.statusMessage,
       showAgainStatusMessage:
           showAgainStatusMessage ?? this.showAgainStatusMessage,
+      showAgainPaymentError:
+          showAgainPaymentError ?? this.showAgainPaymentError,
       servicesData: servicesData ?? this.servicesData,
     );
   }

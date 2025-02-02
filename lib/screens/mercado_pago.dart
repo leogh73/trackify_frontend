@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:device_uuid/device_uuid.dart';
-import 'package:trackify/widgets/mercado_pago_option.dart';
-import 'package:trackify/widgets/mercado_pago_status.dart';
+
 import '../data/theme.dart';
+import '../data/preferences.dart';
+
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
-
-import '../data/preferences.dart';
+import '../widgets/mercado_pago_option.dart';
+import '../widgets/mercado_pago_status.dart';
 
 class MercadoPago extends StatefulWidget {
   final AdInterstitial adInterstitial;

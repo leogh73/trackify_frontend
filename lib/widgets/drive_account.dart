@@ -53,7 +53,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
       if (responseData['serverError'] == null)
-        DialogError.googleDriveError(context);
+        DialogError.show(context, 12, "");
     }
   }
 
@@ -80,7 +80,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
       if (responseData['serverError'] == null) {
-        DialogError.googleDriveError(context);
+        DialogError.show(context, 12, "");
       }
     }
     Provider.of<Status>(context, listen: false).toggleGoogleProcess(false);

@@ -7,19 +7,19 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:trackify/screens/main_screen.dart';
 
 import 'initial_data.dart';
-import 'data/classes.dart';
-import 'data/services.dart';
 
-import 'data/../data/preferences.dart';
+import 'data/classes.dart';
+import 'data/preferences.dart';
 import 'data/theme.dart';
+import 'data/services.dart';
 import 'data/status.dart';
+import 'data/tracking_functions.dart';
 import 'data/trackings_active.dart';
 import 'data/trackings_archived.dart';
-import 'data/tracking_functions.dart';
 
+import '../screens/main_screen.dart';
 import '../widgets/ad_interstitial.dart';
 
 void main() async {
@@ -35,7 +35,6 @@ void main() async {
       projectId: "${dotenv.env['FIREBASE_PROJECT_ID']}",
     ),
   );
-
   runApp(
     Phoenix(child: const TrackeAR()),
   );

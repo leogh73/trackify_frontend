@@ -68,6 +68,7 @@ class Init {
       googleDriveStatus: false,
       statusMessage: '',
       showAgainStatusMessage: true,
+      showAgainPaymentError: true,
       servicesData: {},
     );
     String? firebaseToken = await firebaseMessagingNotifications();
@@ -108,6 +109,8 @@ class Init {
     bool driveStatus = userPreferences[0].googleDriveStatus;
     String statusMessage = userPreferences[0].statusMessage;
     bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
+    bool showAgainPaymentError =
+        userPreferences[0].showAgainPaymentError ?? true;
     Map<String, dynamic> servicesData = userPreferences[0].servicesData ?? {};
     Map<String, dynamic> mercadoPago = userPreferences.isEmpty
         ? {'isValid': false}
@@ -130,6 +133,7 @@ class Init {
       driveStatus,
       statusMessage,
       showAgainStatusMessage,
+      showAgainPaymentError,
       servicesData,
       mercadoPago,
       searchHistory,
@@ -148,6 +152,7 @@ class StartData {
   bool googleDrive;
   String statusMessage;
   bool showAgainStatusMessage;
+  bool showAgainPaymentError;
   Map<String, dynamic> servicesData;
   Map<String, dynamic> mercadoPago;
   List<String> searchHistory;
@@ -162,6 +167,7 @@ class StartData {
     this.googleDrive,
     this.statusMessage,
     this.showAgainStatusMessage,
+    this.showAgainPaymentError,
     this.servicesData,
     this.mercadoPago,
     this.searchHistory,

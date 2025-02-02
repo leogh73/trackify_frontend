@@ -109,30 +109,44 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     if (widget.detail) Navigator.pop(context);
   }
 
-  void removeTracking() {
-    provider
+  void removeTracking() async {
+    Navigator.pop(context);
+    bool success = await provider
         .removeTracking([widget.tracking], context, widget.tracking.checkError);
+    if (success == false) {
+      return;
+    }
     screenPopToast("Seguimiento eliminado");
     if (widget.detail) Navigator.pop(context);
   }
 
-  void removeSelection() {
-    provider.removeSelection(context);
+  void removeSelection() async {
+    bool success = await provider.removeSelection(context);
     provider.toggleSelectionMode();
+    if (success == false) {
+      return;
+    }
     screenPopToast("Selección eliminada");
   }
 
-  void archiveTracking() {
+  void archiveTracking() async {
+    Navigator.pop(context);
+    bool success = await provider
+        .removeTracking([widget.tracking], context, widget.tracking.checkError);
+    if (success == false) return;
     widget.tracking.archived = true;
     Provider.of<ArchivedTrackings>(context, listen: false)
         .addTracking(widget.tracking);
-    provider
-        .removeTracking([widget.tracking], context, widget.tracking.checkError);
     screenPopToast("Seguimiento archivado");
     if (widget.detail) Navigator.pop(context);
   }
 
-  void archiveSelection() {
+  void archiveSelection() async {
+    bool success = await provider.removeSelection(context);
+    if (success == false) {
+      provider.toggleSelectionMode();
+      return;
+    }
     List<ItemTracking> selection = provider.selectionElements;
     for (var element in selection) {
       element.selected = false;
@@ -140,7 +154,6 @@ class _OptionsTrackingState extends State<OptionsTracking> {
       Provider.of<ArchivedTrackings>(context, listen: false)
           .addTracking(element);
     }
-    provider.removeSelection(context);
     provider.toggleSelectionMode();
     screenPopToast("Selección archivada");
   }
@@ -155,7 +168,7 @@ class _OptionsTrackingState extends State<OptionsTracking> {
     );
   }
 
-  void displayDialog(String action) {
+  void displayDialog(String action) async {
     VoidCallback dialogFunction;
     String buttonText = action == "archivar" ? "Archivar" : 'Eliminar';
     dialogFunction = action == "archivar"

@@ -33,7 +33,7 @@ class Status with ChangeNotifier {
     loadedService = service.chosen;
     exampleCode = "Ejemplo: ${service.exampleCode}";
     if (service.chosen == "Correo Argentino") {
-      DialogError.serviceCAWarning(context);
+      DialogError.show(context, 13, "");
     }
     notifyListeners();
   }
@@ -253,7 +253,7 @@ class Status with ChangeNotifier {
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
       if (responseData['serverError'] == null)
-        DialogError.googleDriveError(context);
+        DialogError.show(context, 12, "");
     }
     toggleGoogleProcess(false);
   }

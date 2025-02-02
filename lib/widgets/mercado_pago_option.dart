@@ -58,7 +58,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
     if (response.statusCode == 200) {
       if (responseData['url'] != null) {
         if (widget.deviceData['uuid'] == "") {
-          DialogError.getUuidWarning(widget.context);
+          DialogError.show(context, 15, "");
         }
         if (widget.title == "SUSCRIPCIÓN") {
           Navigator.of(context).push(MaterialPageRoute(
@@ -78,7 +78,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
       }
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.paymentError(context);
+        DialogError.show(context, 21, "");
       }
     }
     onProcessToggle();

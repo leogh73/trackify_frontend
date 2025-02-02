@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/screens/form_contact.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../data/status.dart';
 import '../screens/claim.dart';
-import '../widgets/showStatusMessage.dart';
+import '../widgets/show_message_again.dart';
 
 class ShowDialog {
   static bool fullHD(BuildContext context) {
@@ -19,8 +18,8 @@ class ShowDialog {
 
   static void show(
     bool error,
-    bool statusMessage,
-    bool premiumSubscription,
+    bool showAgain,
+    String messageType,
     String serviceError,
     BuildContext context,
     List<Widget> contentWidgets,
@@ -67,7 +66,7 @@ class ShowDialog {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ...contentWidgets,
-                if (statusMessage) ShowAgainStatusMessage(),
+                if (showAgain) ShowMessageAgain(messageType),
                 if (serviceError.isNotEmpty)
                   Container(
                     height: 55,
@@ -92,7 +91,7 @@ class ShowDialog {
                       },
                     ),
                   ),
-                if (error)
+                if (error || showAgain)
                   Container(
                     height: 55,
                     width: 110,
@@ -110,9 +109,8 @@ class ShowDialog {
                   ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: premiumSubscription ? [] : buttonsList,
+                  children: buttonsList,
                 ),
-                if (premiumSubscription) ...buttonsList,
               ],
             ),
           ),
@@ -121,16 +119,12 @@ class ShowDialog {
     );
   }
 
-  static void actionConfirmation(
-    BuildContext context,
-    String action,
-    String buttonText,
-    VoidCallback buttonFunction,
-  ) {
+  static void actionConfirmation(BuildContext context, String action,
+      String buttonText, VoidCallback buttonFunction) {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [
@@ -157,14 +151,11 @@ class ShowDialog {
   }
 
   static void styleDialog(
-    BuildContext context,
-    bool isPortrait,
-    Widget widget,
-  ) {
+      BuildContext context, bool isPortrait, Widget widget) {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [widget],
@@ -182,7 +173,7 @@ class ShowDialog {
     show(
       true,
       false,
-      false,
+      "",
       service,
       context,
       [
@@ -204,11 +195,15 @@ class ShowDialog {
     );
   }
 
-  static void statusMessage(BuildContext context, String message) {
+  static void showMessage(
+    BuildContext context,
+    String message,
+    String type,
+  ) {
     show(
       true,
       true,
-      false,
+      type,
       '',
       context,
       [
@@ -235,7 +230,7 @@ class ShowDialog {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [
@@ -264,7 +259,7 @@ class ShowDialog {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [
@@ -383,7 +378,7 @@ class ShowDialog {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [
@@ -406,78 +401,11 @@ class ShowDialog {
     );
   }
 
-  static void premiumPaymentNotFound(BuildContext context) {
-    final fHD = fullHD(context);
-    final List<Widget> widgetsData = [
-      Text(
-        "Pago no encontrado",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: fHD ? 18 : 17,
-        ),
-      ),
-      Text(
-        "No se encontraron pagos asociados a éste dispositivo. Si cree que se trata de un error, póngase en contacto con nosotros.",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: fHD ? 16 : 15,
-        ),
-      ),
-    ];
-
-    List<Widget> contentWidgets = widgetsData
-        .map(
-          (text) => Container(
-            width: 225,
-            padding: const EdgeInsets.only(bottom: 10, top: 10),
-            child: text,
-          ),
-        )
-        .toList();
-    contentWidgets.insert(
-      0,
-      Container(
-        padding: const EdgeInsets.only(top: 6),
-        child: Icon(Icons.workspace_premium, size: 50),
-      ),
-    );
-
-    List<Map<String, dynamic>> buttonsData = [
-      {
-        "width": 190,
-        "text": "Contacto",
-        "function": () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => FormContact()));
-          Navigator.pop(context);
-        }
-      },
-      {
-        "width": 190,
-        "text": "Cerrar",
-        "function": () {
-          Navigator.pop(context);
-        },
-      }
-    ];
-
-    show(
-      false,
-      false,
-      true,
-      '',
-      context,
-      contentWidgets,
-      buttonsData,
-    );
-  }
-
   static void deleteDriveBackup(BuildContext context, String backupId) {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [
@@ -523,7 +451,7 @@ class ShowDialog {
     show(
       false,
       false,
-      false,
+      "",
       '',
       context,
       [...content],

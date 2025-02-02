@@ -17,6 +17,7 @@ class UserPreferences with ChangeNotifier {
   late bool googleDrive;
   late String statusMessage;
   late bool showAgainStatusMessage;
+  late bool showAgainPaymentError;
   late Map<String, dynamic> mercadoPago;
 
   UserPreferences(StartData startData) {
@@ -26,6 +27,7 @@ class UserPreferences with ChangeNotifier {
     googleDrive = startData.googleDrive;
     statusMessage = startData.statusMessage;
     showAgainStatusMessage = startData.showAgainStatusMessage;
+    showAgainPaymentError = startData.showAgainPaymentError;
     mercadoPago = startData.mercadoPago;
   }
 
@@ -46,6 +48,9 @@ class UserPreferences with ChangeNotifier {
     }
     if (type == "showAgainStatusMessage") {
       newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
+    }
+    if (type == "showAgainPaymentError") {
+      newPreferences = storedPreferences.edit(showAgainPaymentError: value);
     }
     storedData.updatePreferences(newPreferences);
   }
@@ -74,7 +79,7 @@ class UserPreferences with ChangeNotifier {
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
       if (responseData['serverError'] == null)
-        DialogError.meLiLoginError(context);
+        DialogError.show(context, 10, "");
     }
     Navigator.of(context).pop();
   }
@@ -110,7 +115,7 @@ class UserPreferences with ChangeNotifier {
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
       if (responseData['serverError'] == null)
-        DialogError.googleLoginError(context);
+        DialogError.show(context, 11, "");
     }
   }
 
@@ -139,13 +144,13 @@ class UserPreferences with ChangeNotifier {
   }
 
   String get getStatusMessage => statusMessage;
-  bool get showMessageAgain => showAgainStatusMessage;
+  bool get showStatusMessageAgain => showAgainStatusMessage;
 
   void setStatusMessage(String incomingMessage) {
     statusMessage = incomingMessage;
   }
 
-  void setShowMessageAgain(bool newStatus) {
+  void setShowStatusMessageAgain(bool newStatus) {
     showAgainStatusMessage = newStatus;
     updateDatabase("showAgainStatusMessage", newStatus);
     notifyListeners();
@@ -163,4 +168,12 @@ class UserPreferences with ChangeNotifier {
   }
 
   bool get premiumStatus => mercadoPago['isValid'];
+
+  bool get showPaymentErrorAgain => showAgainPaymentError;
+
+  void setShowPaymentErrorAgain(bool newStatus) {
+    showAgainPaymentError = newStatus;
+    updateDatabase("showAgainPaymentError", newStatus);
+    notifyListeners();
+  }
 }

@@ -90,7 +90,7 @@ class _FormAddEditState extends State<FormAddEdit> {
   void pagePopMessage(context, edit, premiumUser) {
     Navigator.pop(context);
     if (edit) {
-      GlobalToast.displayToast(context, "Seguimiento editado");
+      GlobalToast.displayToast(context, "Seguimiento renombrado");
     }
     if (widget.mercadoLibre && widget.rename == false) {
       Navigator.pop(context);
@@ -103,7 +103,7 @@ class _FormAddEditState extends State<FormAddEdit> {
 
   void addTracking(context, service, premiumUser) {
     if (formKey.currentState?.validate() == false || service == null) {
-      DialogError.formError(context);
+      DialogError.show(context, 3, "");
     } else {
       final newTracking = Tracking(
         id: DateTime.now().millisecondsSinceEpoch,
@@ -117,13 +117,13 @@ class _FormAddEditState extends State<FormAddEdit> {
     }
   }
 
-  void editTracking(context, service, listView, premiumUser) {
+  void renameTracking(context, service, listView, premiumUser) async {
     if (formKey.currentState?.validate() == false || service == null) {
-      DialogError.formError(context);
+      DialogError.show(context, 3, "");
     } else {
-      int? idSB = widget.tracking?.idSB;
       final editedTracking = ItemTracking(
-        idSB: idSB,
+        idSB: widget.tracking?.idSB,
+        idMDB: widget.tracking?.idMDB,
         title: title.text,
         code: code.text,
         service: service,
@@ -131,7 +131,11 @@ class _FormAddEditState extends State<FormAddEdit> {
         moreData: [],
         lastEvent: "Sample",
       );
-      providerFunctions.editTracking(editedTracking);
+      bool success =
+          await providerFunctions.renameTracking(context, editedTracking);
+      if (success == false) {
+        return;
+      }
       pagePopMessage(context, widget.rename, premiumUser);
     }
   }
@@ -155,7 +159,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                 widget.rename ? const Icon(Icons.save) : const Icon(Icons.add),
             iconSize: 26,
             onPressed: widget.rename
-                ? () => editTracking(context, service, 'main', premiumUser)
+                ? () => renameTracking(context, service, 'main', premiumUser)
                 : () =>
                     addTracking(context, widget.tracking?.service, premiumUser),
           ),
@@ -192,7 +196,6 @@ class _FormAddEditState extends State<FormAddEdit> {
                             mercadoLibre: widget.mercadoLibre,
                             servicesData: services,
                           ),
-                          // SelectService(),
                         ),
                       ],
                     ),
@@ -260,7 +263,7 @@ class _FormAddEditState extends State<FormAddEdit> {
                                   style: const TextStyle(fontSize: 17),
                                 ),
                                 onPressed: () => widget.rename
-                                    ? editTracking(
+                                    ? renameTracking(
                                         context, service, 'main', premiumUser)
                                     : addTracking(
                                         context, service, premiumUser),

@@ -40,7 +40,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
 
   void checkPaymentId() async {
     if (formKey.currentState?.validate() == false) {
-      DialogError.formError(context);
+      DialogError.show(context, 3, "");
       return;
     }
     setState(() {
@@ -65,19 +65,19 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
       if (responseData['result'] == "payment not found") {
-        DialogError.paymentNotFound(context);
+        DialogError.show(context, 17, "");
       } else {
         Provider.of<UserPreferences>(context, listen: false)
             .setPaymentData(responseData['result']);
         if (responseData['result']['isValid'] == false) {
-          DialogError.paymentNotValid(context);
+          DialogError.show(context, 19, "");
         } else {
           Navigator.of(context).pop();
         }
       }
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.paymentError(context);
+        DialogError.show(context, 21, "");
       }
     }
     setState(() {
@@ -127,7 +127,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                       color: Theme.of(context).primaryColor, width: .5),
                 ),
                 child: Image.network(
-                    "https://github.com/leogh73/trackify_frontend/blob/master/assets/other/mercado_pago_ticket.png"),
+                    "https://raw.githubusercontent.com/leogh73/trackify_frontend/refs/heads/master/assets/other/mercado_pago_ticket.png"),
               ),
             ),
             checking

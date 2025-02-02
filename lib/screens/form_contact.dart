@@ -64,7 +64,7 @@ class _FormContactState extends State<FormContact> {
       print("Error getting UUID: $e");
     }
     if (formKey.currentState?.validate() == false) {
-      DialogError.formError(context);
+      DialogError.show(context, 3, "");
     } else {
       ShowDialog.waiting(context, "Enviando...");
       String requestEmail = 'Sin datos';

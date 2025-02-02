@@ -90,8 +90,7 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
         loadMore = false;
       });
     } else {
-      if (responseData['serverError'] == null)
-        DialogError.meLiCheckError(context);
+      if (responseData['serverError'] == null) DialogError.show(context, 9, "");
     }
   }
 
@@ -118,8 +117,9 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
     } else {
       Provider.of<UserPreferences>(context, listen: false)
           .toggleMeLiErrorStatus(true);
-      if (responseData['serverError'] == null)
-        DialogError.meLiCheckError(context);
+      if (responseData['serverError'] == null) {
+        DialogError.show(context, 9, "");
+      }
     }
   }
 

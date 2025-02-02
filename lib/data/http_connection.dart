@@ -37,8 +37,8 @@ class HttpConnection {
     if (response.statusCode == 200) return responseData;
     if (responseData['serverError'] != null) {
       responseData['serverError'] == "Timeout"
-          ? DialogError.serverTimeout(context)
-          : DialogError.serverError(context);
+          ? DialogError.show(context, 7, "")
+          : DialogError.show(context, 1, "");
     }
     return responseData;
   }

@@ -157,7 +157,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
           .setPaymentData(responseData['paymentData']);
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.paymentError(context);
+        DialogError.show(context, 21, "");
       }
     }
     onProcessToggle();
@@ -172,7 +172,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context, listen: false).paymentData;
+        Provider.of<UserPreferences>(context).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Widget divider = Container(
