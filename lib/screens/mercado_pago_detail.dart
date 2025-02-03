@@ -206,7 +206,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
                     ],
                     mainAxisAlignment: MainAxisAlignment.center,
                   ),
-                  onPressed: () => cancelSubscription(),
+                  onPressed: cancelSubscription,
                 ),
               ),
             ),

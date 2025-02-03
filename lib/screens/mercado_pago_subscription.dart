@@ -5,19 +5,28 @@ import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import '../data/preferences.dart';
 import '../data/theme.dart';
 
+import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_native.dart';
 
-class MercadoPagoSubscription extends StatelessWidget {
+class MercadoPagoSubscription extends StatefulWidget {
   final String url;
   const MercadoPagoSubscription(this.url, {Key? key}) : super(key: key);
 
-  void openSubscriptionUrl(BuildContext context) async {
+  @override
+  State<MercadoPagoSubscription> createState() =>
+      _MercadoPagoSubscriptionState();
+}
+
+class _MercadoPagoSubscriptionState extends State<MercadoPagoSubscription> {
+  AdInterstitial interstitialAd = AdInterstitial();
+
+  void openSubscriptionUrl() async {
     try {
       final int colorValue =
           Provider.of<UserTheme>(context, listen: false).startColor.value;
       await launch(
-        url,
+        widget.url,
         customTabsOption: CustomTabsOption(toolbarColor: Color(colorValue)),
       );
     } catch (e) {
@@ -78,18 +87,36 @@ class MercadoPagoSubscription extends StatelessWidget {
                 style: TextStyle(fontSize: fullHD ? 17 : 16),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: SizedBox(
-                width: 200,
-                height: 45,
-                child: ElevatedButton(
-                  child: const Text(
-                    "Aceptar y continuar",
-                    style: TextStyle(fontSize: 17),
+            Container(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: 120,
+                    child: ElevatedButton(
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(fontSize: 17),
+                        ),
+                        onPressed: () => {
+                              Navigator.pop(context),
+                              if (!premiumUser)
+                                interstitialAd.showInterstitialAd(),
+                            }),
                   ),
-                  onPressed: () => openSubscriptionUrl(context),
-                ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 120,
+                    child: ElevatedButton(
+                      child: const Text(
+                        "Continuar",
+                        style: TextStyle(fontSize: 17),
+                      ),
+                      onPressed: openSubscriptionUrl,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

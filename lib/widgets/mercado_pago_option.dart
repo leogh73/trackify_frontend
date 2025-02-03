@@ -103,7 +103,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
-        onPressed: () => paymentRequest(),
+        onPressed: paymentRequest,
       ),
     );
     final Widget title = Padding(

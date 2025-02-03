@@ -38,9 +38,9 @@ class Help extends StatelessWidget {
         'showAd': true,
       },
       {
-        "question": "¿Porqué tiene tanta publicidad?",
+        "question": "¿Porqué tiene esa molesta publicidad?",
         "answer":
-            "La aplicación funciona gracias a un servidor y una base de datos que no son gratuitos, deben pagarse todos los meses. Las publicidades permiten solventar dichos gastos y que la aplicación sea gratuita. Además, crear ésta aplicación, requirió cientos de horas. Los videos de publicidad, duran entre 2 y 5 segundos.",
+            "La aplicación funciona gracias a un servidor y una base de datos que no son gratuitos, deben pagarse todos los meses. Las publicidades permiten solventar dichos gastos y que la aplicación sea gratuita.",
         'showAd': false,
       },
       {

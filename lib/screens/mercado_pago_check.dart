@@ -208,7 +208,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                                         "Enviar",
                                         style: TextStyle(fontSize: 17),
                                       ),
-                                      onPressed: () => checkPaymentId(),
+                                      onPressed: checkPaymentId,
                                     ),
                                   ),
                                 ],
