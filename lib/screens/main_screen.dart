@@ -29,12 +29,14 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  AdInterstitial mePaInterstitialAd = AdInterstitial();
+  AdInterstitial? mePaInterstitialAd = AdInterstitial();
+  AdInterstitial? addInterstitialAd = AdInterstitial();
 
   @override
   void initState() {
     super.initState();
-    mePaInterstitialAd.createInterstitialAd();
+    mePaInterstitialAd?.createInterstitialAd();
+    addInterstitialAd?.createInterstitialAd();
     Future.delayed(
       const Duration(seconds: 3),
       () => TrackingFunctions.syncronizeUserData(context),
@@ -164,7 +166,7 @@ class _MainScreenState extends State<MainScreen> {
                             onPressed: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                     builder: (_) =>
-                                        MercadoPago(mePaInterstitialAd))),
+                                        MercadoPago(mePaInterstitialAd!))),
                           ),
                         ),
                       IconButton(
@@ -199,35 +201,25 @@ class _MainScreenState extends State<MainScreen> {
                 ? null
                 : FloatingActionButton(
                     onPressed: () => {},
-                    child: AddTracking(32),
+                    child: IconButton(
+                      icon: const Icon(Icons.add),
+                      iconSize: 32,
+                      onPressed: () {
+                        if (!premiumUser && trackings.isNotEmpty) {
+                          addInterstitialAd?.showInterstitialAd();
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const FormAddEdit(
+                                    rename: false,
+                                    mercadoLibre: false,
+                                  )),
+                        );
+                      },
+                    ),
                   ),
             bottomNavigationBar: premiumUser ? null : const AdBanner(),
           );
-  }
-}
-
-class AddTracking extends StatelessWidget {
-  final double iconSize;
-  const AddTracking(this.iconSize, {Key? key}) : super(key: key);
-
-  void addTracking(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const FormAddEdit(
-          rename: false,
-          mercadoLibre: false,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.add),
-      iconSize: iconSize,
-      onPressed: () => addTracking(context),
-    );
   }
 }

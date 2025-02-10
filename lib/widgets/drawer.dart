@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/classes.dart';
 import 'ad_native.dart';
 import 'dialog_toast.dart';
 
@@ -30,6 +31,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   AdInterstitial driveInterstitialAd = AdInterstitial();
   AdInterstitial meLiInterstitialAd = AdInterstitial();
   AdInterstitial mePaInterstitialAd = AdInterstitial();
+  AdInterstitial optionInterstitialAd = AdInterstitial();
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     driveInterstitialAd.createInterstitialAd();
     meLiInterstitialAd.createInterstitialAd();
     mePaInterstitialAd.createInterstitialAd();
+    optionInterstitialAd.createInterstitialAd();
   }
 
   Widget optionAPI(
@@ -157,6 +160,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             MainScreen(),
             true,
             false,
+            optionInterstitialAd,
           ),
           DrawerOption(
             Icons.archive,
@@ -164,6 +168,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             const Archived(),
             false,
             false,
+            optionInterstitialAd,
           ),
           DrawerOption(
             Icons.error,
@@ -171,6 +176,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             Claim(''),
             false,
             false,
+            optionInterstitialAd,
           ),
           DrawerOption(
             Icons.mail_outline,
@@ -178,6 +184,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             FormContact(),
             false,
             false,
+            optionInterstitialAd,
           ),
           premiumUser
               ? DrawerOption(
@@ -186,6 +193,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   MercadoPago(mePaInterstitialAd),
                   false,
                   false,
+                  optionInterstitialAd,
                 )
               : Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -243,13 +251,21 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 child: AdNative("small"),
               ),
             ),
-          DrawerOption(Icons.help_outline, "Ayuda", Help(), false, false),
+          DrawerOption(
+            Icons.help_outline,
+            "Ayuda",
+            Help(),
+            false,
+            false,
+            optionInterstitialAd,
+          ),
           DrawerOption(
             Icons.info_outline,
             'Acerca de ésta aplicación',
             () => ShowDialog.aboutThisApp(context, premiumUser),
             false,
             true,
+            optionInterstitialAd,
           ),
         ],
       ),
@@ -263,18 +279,26 @@ class DrawerOption extends StatelessWidget {
   final dynamic destination;
   final bool main;
   final bool about;
+  final AdInterstitial? interstitialAd;
 
-  const DrawerOption(
-      this.icon, this.text, this.destination, this.main, this.about,
+  const DrawerOption(this.icon, this.text, this.destination, this.main,
+      this.about, this.interstitialAd,
       {Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final bool premiumUser =
+        Provider.of<UserPreferences>(context).premiumStatus;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InkWell(
         onTap: () {
+          if (!premiumUser && trackingsList.isNotEmpty) {
+            interstitialAd?.showInterstitialAd();
+          }
           if (main) Navigator.pop(context);
           if (!main && !about) {
             Navigator.pop(context);

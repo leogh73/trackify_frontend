@@ -13,12 +13,12 @@ class HttpConnection {
     try {
       response = await Client()
           .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
-          .timeout(const Duration(seconds: 9));
+          .timeout(const Duration(seconds: 13));
     } catch (e) {
       try {
         response = await Client()
             .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
-            .timeout(const Duration(seconds: 9));
+            .timeout(const Duration(seconds: 13));
       } catch (e) {
         response = Response(
           e is TimeoutException

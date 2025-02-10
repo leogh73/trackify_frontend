@@ -124,15 +124,6 @@ class _FormContactState extends State<FormContact> {
                           fontSize: fullHD ? 17 : 16,
                         ),
                       ),
-                      Text(
-                        "Advertencia: si haces mal uso de éste formulario, serás baneado.",
-                        maxLines: 5,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.red[400],
-                          fontSize: fullHD ? 17 : 16,
-                        ),
-                      ),
                     ],
                   ),
                   Padding(

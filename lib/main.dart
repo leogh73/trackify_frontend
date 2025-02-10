@@ -20,6 +20,7 @@ import 'data/trackings_active.dart';
 import 'data/trackings_archived.dart';
 
 import '../screens/main_screen.dart';
+
 import '../widgets/ad_interstitial.dart';
 
 void main() async {
@@ -74,7 +75,7 @@ class TrackeAR extends StatelessWidget {
                       ArchivedTrackings(snapshot.data as StartData),
                 ),
               ],
-              child: const App(),
+              child: App(),
             );
           } else {
             return Material(
@@ -108,16 +109,15 @@ class TrackeAR extends StatelessWidget {
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
-
   @override
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
-  AdInterstitial? interstitialAd = AdInterstitial();
-  bool isPremium = false;
+  final AdInterstitial? interstitialAd = AdInterstitial();
   late Map<String, dynamic> servicesData;
+  bool isPremium = false;
 
   void firebaseSettings(context) async {
     FirebaseMessaging.instance
@@ -141,7 +141,7 @@ class _AppState extends State<App> {
     });
   }
 
-  static void syncData(BuildContext context) async {
+  void syncData(BuildContext context) {
     Future.delayed(
       const Duration(seconds: 2),
       () => TrackingFunctions.syncronizeUserData(context),
@@ -153,11 +153,7 @@ class _AppState extends State<App> {
     AppStateEventNotifier.appStateStream.forEach(
       (state) {
         if (state == AppState.foreground) {
-          List<ItemTracking> trackingsList =
-              Provider.of<ActiveTrackings>(context, listen: false).trackings;
           syncData(navKey.currentContext!);
-          if (!isPremium && trackingsList.isNotEmpty)
-            interstitialAd?.showInterstitialAd();
         }
       },
     );
@@ -166,9 +162,22 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     firebaseSettings(context);
     listenToAppStateChanges();
     interstitialAd?.createInterstitialAd();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && navKey.currentContext != null) {
+      List<ItemTracking> trackingsList =
+          Provider.of<ActiveTrackings>(context, listen: false).trackings;
+      if (!isPremium && trackingsList.isNotEmpty) {
+        interstitialAd?.showInterstitialAd();
+      }
+    }
   }
 
   void togglePremiumStatus() {
