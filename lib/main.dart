@@ -141,19 +141,15 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
-  void syncData(BuildContext context) {
-    Future.delayed(
-      const Duration(seconds: 2),
-      () => TrackingFunctions.syncronizeUserData(context),
-    );
-  }
-
   void listenToAppStateChanges() {
     AppStateEventNotifier.startListening();
     AppStateEventNotifier.appStateStream.forEach(
       (state) {
         if (state == AppState.foreground) {
-          syncData(navKey.currentContext!);
+          Future.delayed(
+            const Duration(seconds: 2),
+            () => TrackingFunctions.syncronizeUserData(navKey.currentContext!),
+          );
         }
       },
     );
@@ -171,7 +167,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed && navKey.currentContext != null) {
+    if (state == AppLifecycleState.resumed) {
       List<ItemTracking> trackingsList =
           Provider.of<ActiveTrackings>(context, listen: false).trackings;
       if (!isPremium && trackingsList.isNotEmpty) {

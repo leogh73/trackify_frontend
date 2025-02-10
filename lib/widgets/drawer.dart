@@ -78,6 +78,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     final bool meliStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool googleStatus = Provider.of<UserPreferences>(context).gdStatus;
     final int mainAmount =
@@ -205,6 +207,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                     height: 80,
                     child: InkWell(
                       onTap: () {
+                        if (!premiumUser && trackingsList.isNotEmpty) {
+                          optionInterstitialAd.showInterstitialAd();
+                        }
                         Navigator.pop(context);
                         Navigator.push(
                             context,
