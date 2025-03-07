@@ -39,8 +39,8 @@ class _TrackingDetailState extends State<TrackingDetail> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    String screenList = widget.tracking.archived! ? "archived" : "main";
-    List<Map<String, String>> events = widget.tracking.events;
+    final String screenList = widget.tracking.archived! ? "archived" : "main";
+    final List<Map<String, String>> events = widget.tracking.events;
     return WillPopScope(
       onWillPop: () => Future.value(!checking),
       child: Scaffold(

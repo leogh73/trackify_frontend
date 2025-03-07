@@ -56,7 +56,7 @@ class MercadoLibre extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 10, height: 170),
+            SizedBox(width: 10, height: 80),
           ],
         ),
       ),
@@ -67,6 +67,7 @@ class MercadoLibre extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool premiumUser =
         Provider.of<UserPreferences>(context).premiumStatus;
+
     final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
     final bool errorMeLiCheck =
         Provider.of<UserPreferences>(context).errorMeLiCheck;
@@ -126,39 +127,49 @@ class MercadoLibre extends StatelessWidget {
             ],
           ),
         ),
-        body: meLiStatus
-            ? errorMeLiCheck
-                ? mercadoLibreScreen(
+        body: Column(
+          children: [
+            meLiStatus
+                ? errorMeLiCheck
+                    ? mercadoLibreScreen(
+                        context,
+                        'Información no disponible',
+                        'Error de consulta a MercadoLibre',
+                        'REINTENTAR',
+                        () =>
+                            Provider.of<UserPreferences>(context, listen: false)
+                                .toggleMeLiErrorStatus(false),
+                        premiumUser)
+                    : const TabBarView(
+                        children: [
+                          MercadoLibreCheck("buyer"),
+                          MercadoLibreCheck("seller"),
+                        ],
+                      )
+                : mercadoLibreScreen(
                     context,
                     'Información no disponible',
-                    'Error de consulta a MercadoLibre',
-                    'REINTENTAR',
-                    () => Provider.of<UserPreferences>(context, listen: false)
-                        .toggleMeLiErrorStatus(false),
-                    premiumUser)
-                : const TabBarView(
-                    children: [
-                      MercadoLibreCheck("buyer"),
-                      MercadoLibreCheck("seller"),
-                    ],
-                  )
-            : mercadoLibreScreen(
-                context,
-                'Información no disponible',
-                'No ha ingresado a MercadoLibre',
-                'INGRESAR',
-                () {
-                  if (!premiumUser && trackingsList.isNotEmpty)
-                    adInterstitial.showInterstitialAd();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MercadoLibreSite("login", context),
-                    ),
-                  );
-                },
-                premiumUser,
+                    'No ha ingresado a MercadoLibre',
+                    'INGRESAR',
+                    () {
+                      if (!premiumUser && trackingsList.isNotEmpty)
+                        adInterstitial.showInterstitialAd();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MercadoLibreSite("login", context),
+                        ),
+                      );
+                    },
+                    premiumUser,
+                  ),
+            if (!premiumUser && trackingsList.isNotEmpty)
+              Padding(
+                child: premiumUser ? null : AdNative("medium"),
+                padding: EdgeInsets.only(top: 10, bottom: 10),
               ),
+          ],
+        ),
         bottomNavigationBar: premiumUser ? null : const AdBanner(),
       ),
     );

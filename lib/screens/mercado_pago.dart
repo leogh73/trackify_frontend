@@ -8,8 +8,8 @@ import '../data/preferences.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
-import '../widgets/mercado_pago_option.dart';
-import '../widgets/mercado_pago_status.dart';
+import '../widgets/mercado_pago_payment.dart';
+import 'mercado_pago_status.dart';
 
 class MercadoPago extends StatefulWidget {
   final AdInterstitial adInterstitial;
@@ -84,6 +84,7 @@ class _MercadoPagoState extends State<MercadoPago>
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         const Icon(Icons.workspace_premium, size: 70),
+                        SizedBox(height: 10),
                         Text(
                           "Mediante un pago mensual por dispositivo, puedes utilizar TrackeAR Premium, sin publicidades.",
                           maxLines: 7,
@@ -99,26 +100,9 @@ class _MercadoPagoState extends State<MercadoPago>
                 ],
               ),
             ),
+            separator,
             divider,
-            Padding(
-              padding: EdgeInsets.only(top: isPortrait ? 8 : 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "ESTADO: ${premiumUser ? "ACTIVADO" : "NO ACTIVADO"}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: mainColor,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            MercadoPagoStatus(_deviceData, widget.adInterstitial, context),
-            divider,
-            MercadoPagoOption(
+            MercadoPagoPayment(
               premiumUser,
               widget.adInterstitial,
               "PAGO SIMPLE",
@@ -129,7 +113,7 @@ class _MercadoPagoState extends State<MercadoPago>
             ),
             separator,
             divider,
-            MercadoPagoOption(
+            MercadoPagoPayment(
               premiumUser,
               widget.adInterstitial,
               "SUSCRIPCIÓN",
@@ -139,6 +123,39 @@ class _MercadoPagoState extends State<MercadoPago>
               context,
             ),
             separator,
+            divider,
+            separator,
+            Padding(
+              padding:
+                  EdgeInsets.only(left: 25, right: 25, top: 10, bottom: 10),
+              child: InkWell(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MercadoPagoStatus(
+                        _deviceData, widget.adInterstitial, context))),
+                child: Container(
+                  padding: EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Theme.of(context).primaryColor, width: 1),
+                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        "ESTADO: ${!premiumUser ? 'NO ' : ''}ACTIVADO",
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: mainColor,
+                        ),
+                      ),
+                      const Icon(Icons.arrow_right),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             separator,
           ],
         ),

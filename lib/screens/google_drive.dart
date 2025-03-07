@@ -187,6 +187,11 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       },
                       null,
                     ),
+              if (!premiumUser && trackingsList.isNotEmpty)
+                Padding(
+                  child: AdNative("medium"),
+                  padding: EdgeInsets.only(top: 8, bottom: 8),
+                ),
               SizedBox(width: 50, height: 180),
             ],
           ),

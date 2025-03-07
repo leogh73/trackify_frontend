@@ -87,7 +87,8 @@ class _FormAddEditState extends State<FormAddEdit> {
     super.dispose();
   }
 
-  void pagePopMessage(context, edit, premiumUser) {
+  void pagePopMessage(
+      BuildContext context, bool edit, bool premiumUser, bool rename) {
     Navigator.pop(context);
     if (edit) {
       GlobalToast.displayToast(context, "Seguimiento renombrado");
@@ -97,7 +98,7 @@ class _FormAddEditState extends State<FormAddEdit> {
     }
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    if (!premiumUser && trackingsList.length > 1)
+    if (rename && !premiumUser && trackingsList.length > 1)
       interstitialAd.showInterstitialAd();
   }
 
@@ -113,7 +114,7 @@ class _FormAddEditState extends State<FormAddEdit> {
       );
       Provider.of<ActiveTrackings>(context, listen: false)
           .addTracking(newTracking);
-      pagePopMessage(context, widget.rename, premiumUser);
+      pagePopMessage(context, widget.rename, premiumUser, false);
     }
   }
 
@@ -136,7 +137,7 @@ class _FormAddEditState extends State<FormAddEdit> {
       if (success == false) {
         return;
       }
-      pagePopMessage(context, widget.rename, premiumUser);
+      pagePopMessage(context, widget.rename, premiumUser, true);
     }
   }
 

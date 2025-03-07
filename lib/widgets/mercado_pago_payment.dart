@@ -2,47 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
+// import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 import '../data/http_connection.dart';
-import '../data/preferences.dart';
 import '../data/theme.dart';
 
 import '../screens/mercado_pago.dart';
-import '../screens/mercado_pago_check.dart';
-import '../screens/mercado_pago_detail.dart';
+import '../screens/mercado_pago_subscription.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_error.dart';
 
-class MercadoPagoOption extends StatefulWidget {
+class MercadoPagoPayment extends StatefulWidget {
   final bool premiumUser;
   final AdInterstitial adInterstitial;
   final String title;
   final String description;
-  final String buttonTitle;
   final IconData buttonIcon;
   final Map<String, String> deviceData;
-  final Map<String, dynamic> paymentData;
   final BuildContext context;
-  MercadoPagoOption(
-      this.premiumUser,
-      this.adInterstitial,
-      this.title,
-      this.description,
-      this.buttonTitle,
-      this.buttonIcon,
-      this.deviceData,
-      this.paymentData,
-      this.context,
+  MercadoPagoPayment(this.premiumUser, this.adInterstitial, this.title,
+      this.description, this.buttonIcon, this.deviceData, this.context,
       {Key? key})
       : super(key: key);
 
   @override
-  State<MercadoPagoOption> createState() => _MercadoPagoOptionState();
+  State<MercadoPagoPayment> createState() => _MercadoPagoPaymentState();
 }
 
-class _MercadoPagoOptionState extends State<MercadoPagoOption> {
+class _MercadoPagoPaymentState extends State<MercadoPagoPayment> {
   bool onProcess = false;
+
+  final Map<String, String> paymentType = {
+    "PAGO SIMPLE": "simple",
+    "SUSCRIPCIÓN": "subscription",
+  };
 
   void onProcessToggle() {
     setState(() {
@@ -50,48 +45,36 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
     });
   }
 
-  Future<void> optionHandler() async {
-    if (widget.buttonTitle == "VERIFICAR" &&
-        widget.paymentData['status'] == "could not be checked") {
-      DialogError.show(context, 21, "");
-      return;
-    }
-    if (widget.buttonTitle == "INGRESAR") {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => MercadoPagoInput()));
-      return;
-    }
-    if (widget.buttonTitle == "VER") {
-      if (widget.paymentData["operationId"] == null) {
-        DialogError.show(context, 18, "");
-        return;
-      }
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => PaymentDetail()));
-      return;
-    }
+  Future<void> paymentRequest() async {
     onProcessToggle();
     Object body = {
+      'paymentType': paymentType[widget.title],
       'deviceData': json.encode(widget.deviceData),
     };
-    if (widget.deviceData['uuid'] == "") {
-      onProcessToggle();
-      DialogError.show(context, 14, "");
-      return;
-    }
     final Response response = await HttpConnection.requestHandler(
-        "/api/mercadopago/checkDeviceId/", body);
+        "/api/mercadopago/paymentRequest/", body);
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
-      if (responseData['result'] == "payment not found") {
-        DialogError.show(context, 16, "");
-      } else {
-        if (responseData['result']['isValid'] == false) {
-          DialogError.show(context, 20, "");
+      if (responseData['url'] != null) {
+        if (widget.deviceData['uuid'] == "") {
+          DialogError.show(context, 15, "");
         }
-        Provider.of<UserPreferences>(context, listen: false)
-            .setPaymentData(responseData['result']);
+        if (widget.title == "SUSCRIPCIÓN") {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => MercadoPagoSubscription(responseData["url"])));
+        } else
+          try {
+            final int colorValue =
+                Provider.of<UserTheme>(context, listen: false).startColor.value;
+            await launch(
+              responseData['url'],
+              customTabsOption:
+                  CustomTabsOption(toolbarColor: Color(colorValue)),
+            );
+          } catch (e) {
+            debugPrint(e.toString());
+          }
       }
     } else {
       if (responseData['serverError'] == null) {
@@ -110,17 +93,17 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
     final Widget button = SizedBox(
-      width: 175,
+      width: 155,
       child: ElevatedButton(
         child: Row(
           children: [
             Icon(widget.buttonIcon),
             SizedBox(width: 20),
-            screenText(widget.buttonTitle, fullHD),
+            screenText("PAGAR", fullHD),
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
-        onPressed: optionHandler,
+        onPressed: paymentRequest,
       ),
     );
     final Widget title = Padding(
@@ -174,7 +157,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Container(
-                            width: screenWidth * .6,
+                            width: screenWidth * .68,
                             child: Text(
                               widget.description,
                               style: TextStyle(
