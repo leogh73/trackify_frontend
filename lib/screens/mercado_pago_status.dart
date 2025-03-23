@@ -66,7 +66,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 7),
+                  SizedBox(height: 5),
                   Padding(
                     padding: EdgeInsets.only(top: isPortrait ? 8 : 0),
                     child: Text(
@@ -79,6 +79,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
                       ),
                     ),
                   ),
+                  separator,
                   separator,
                   divider,
                   MercadoPagoOption(
@@ -97,7 +98,7 @@ class _MercadoPagoStatusState extends State<MercadoPagoStatus> {
                       premiumUser,
                       widget.adInterstitial,
                       "INGRESAR PAGO",
-                      "Ingrese manualmente su pago, mediante el número de transacción.",
+                      "Ingrese manualmente su pago, mediante el número de operación.",
                       "INGRESAR",
                       Icons.numbers,
                       widget.deviceData,

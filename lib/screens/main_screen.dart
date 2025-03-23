@@ -205,9 +205,6 @@ class _MainScreenState extends State<MainScreen> {
                       icon: const Icon(Icons.add),
                       iconSize: 32,
                       onPressed: () {
-                        if (!premiumUser && trackings.isNotEmpty) {
-                          addInterstitialAd?.showInterstitialAd();
-                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(

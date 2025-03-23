@@ -32,9 +32,6 @@ class Status with ChangeNotifier {
   void loadService(ServiceItemModel service, BuildContext context) {
     loadedService = service.chosen;
     exampleCode = "Ejemplo: ${service.exampleCode}";
-    if (service.chosen == "Correo Argentino") {
-      DialogError.show(context, 13, "");
-    }
     notifyListeners();
   }
 
