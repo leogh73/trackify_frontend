@@ -150,6 +150,11 @@ class _FormAddEditState extends State<FormAddEdit> {
     final String? service =
         loadedService?.chosen ?? Provider.of<Status>(context).chosenService;
     final String exampleCode = Provider.of<Status>(context).chosenServiceCode;
+    final bool fullHD = MediaQuery.of(context).size.width *
+            MediaQuery.of(context).devicePixelRatio >
+        1079;
+    final String selectionMessage =
+        Provider.of<Status>(context, listen: false).messageService;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
@@ -200,6 +205,26 @@ class _FormAddEditState extends State<FormAddEdit> {
                         ),
                       ],
                     ),
+                    if (selectionMessage.isNotEmpty)
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 10, right: 10, top: 20),
+                        child: Column(
+                          children: [
+                            Text(
+                              selectionMessage,
+                              maxLines: 8,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red[400],
+                                fontSize: fullHD ? 17 : 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: TextFormField(

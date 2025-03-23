@@ -26,17 +26,23 @@ class Status with ChangeNotifier {
 
   String? loadedService;
   String? get chosenService => loadedService;
+  String messageService = '';
+  String get serviceMessage => messageService;
   String exampleCode = "Seleccione un servicio";
   String get chosenServiceCode => exampleCode;
 
   void loadService(ServiceItemModel service, BuildContext context) {
     loadedService = service.chosen;
+    messageService = Provider.of<Services>(context, listen: false)
+            .servicesData[service.chosen]["selectionMessage"] ??
+        '';
     exampleCode = "Ejemplo: ${service.exampleCode}";
     notifyListeners();
   }
 
   void clearStartService() {
     loadedService = null;
+    messageService = '';
     exampleCode = "Seleccione un servicio";
   }
 
