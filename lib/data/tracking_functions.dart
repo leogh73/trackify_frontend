@@ -264,7 +264,7 @@ class TrackingFunctions {
     final bool showAgainStatusMessage =
         Provider.of<UserPreferences>(context, listen: false)
             .showStatusMessageAgain;
-    if (message.isEmpty) {
+    if (message.isEmpty && statusMessage.isNotEmpty) {
       Provider.of<UserPreferences>(context, listen: false).setStatusMessage('');
       Provider.of<UserPreferences>(context, listen: false)
           .setShowStatusMessageAgain(false);
