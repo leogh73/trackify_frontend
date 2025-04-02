@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart';
 
 import '../data/http_connection.dart';
+import '../data/preferences.dart';
+
 import '../widgets/ad_native.dart';
-import 'dialog_error.dart';
-
-import '../data/../data/preferences.dart';
-
-import 'mercado_libre_item.dart';
+import '../widgets/dialog_error.dart';
+import '../widgets/mercado_libre_item.dart';
 
 class MercadoLibreCheck extends StatefulWidget {
   final String checkInput;
