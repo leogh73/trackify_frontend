@@ -4,14 +4,14 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-import '../data/../data/preferences.dart';
-
 import '../data/classes.dart';
 import '../data/trackings_active.dart';
+import '../data/preferences.dart';
+
+import '../widgets/ad_banner.dart';
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/mercado_libre_check.dart';
-import '../widgets/ad_banner.dart';
 
 class MercadoLibre extends StatelessWidget {
   final AdInterstitial adInterstitial;

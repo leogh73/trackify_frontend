@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 
-import '../data/../data/preferences.dart';
+import '../data/classes.dart';
+import '../data/preferences.dart';
+import '../data/services.dart';
+import '../data/trackings_active.dart';
+
 import '../widgets/ad_native.dart';
 import '../widgets/ad_banner.dart';
-import '../data/services.dart';
 
 class Claim extends StatefulWidget {
   final String serviceName;
@@ -157,10 +160,12 @@ class _ClaimState extends State<Claim> {
     final bool fullHD = MediaQuery.of(context).size.width *
             MediaQuery.of(context).devicePixelRatio >
         1079;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context).trackings;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: const Text('Reclamar'),
+        title: const Text('Reclamo'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -241,10 +246,11 @@ class _ClaimState extends State<Claim> {
                           context, servicesData[selectedServiceName]),
                       padding: EdgeInsets.only(top: 10),
                     ),
-                  Padding(
-                    child: premiumUser ? null : AdNative("medium"),
-                    padding: EdgeInsets.only(top: 20),
-                  ),
+                  if (!premiumUser && trackingsList.isNotEmpty)
+                    Padding(
+                      child: premiumUser ? null : AdNative("medium"),
+                      padding: EdgeInsets.only(top: 20),
+                    ),
                   SizedBox(width: 50, height: 50),
                 ],
               ),
