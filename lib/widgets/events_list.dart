@@ -53,6 +53,7 @@ class _EventsListState extends State<EventsList> {
             widget.events[index],
             index,
             widget.events.length,
+            index == widget.events.length,
             Provider.of<Services>(context, listen: false)
                 .eventData(widget.service, widget.events[index]),
           );
@@ -66,8 +67,10 @@ class Event extends StatelessWidget {
   final Map<dynamic, String> event;
   final int index;
   final int listLength;
+  final bool lastItem;
   final List<Map<String, dynamic>> eventData;
-  const Event(this.event, this.index, this.listLength, this.eventData,
+  const Event(
+      this.event, this.index, this.listLength, this.lastItem, this.eventData,
       {Key? key})
       : super(key: key);
 
@@ -82,15 +85,19 @@ class Event extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
+    const Widget smallAd = Padding(
+      child: AdNative("small"),
+      padding: EdgeInsets.zero,
+    );
     return Padding(
       padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
-          if (index == 0 && !premiumUser)
-            Padding(
-              padding: EdgeInsets.only(top: 3, bottom: 3),
-              child: AdNative("medium"),
-            ),
+          if (index == 0 && !premiumUser) ...[
+            smallAd,
+            SizedBox(height: 3),
+            smallAd
+          ],
           if (index == 0 && !premiumUser)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
@@ -216,11 +223,7 @@ class Event extends StatelessWidget {
               .toList(),
           if (!premiumUser)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
-          if (!premiumUser)
-            Padding(
-              padding: EdgeInsets.only(top: 3, bottom: 3),
-              child: AdNative("medium"),
-            ),
+          if (!premiumUser) ...[smallAd, SizedBox(height: 5), smallAd],
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

@@ -208,10 +208,11 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const FormAddEdit(
-                                    rename: false,
-                                    mercadoLibre: false,
-                                  )),
+                            builder: (_) => const FormAddEdit(
+                              rename: false,
+                              mercadoLibre: false,
+                            ),
+                          ),
                         );
                       },
                     ),

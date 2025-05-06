@@ -172,9 +172,13 @@ class TrackingFunctions {
     final bool driveStatus =
         Provider.of<UserPreferences>(context, listen: false).gdStatus;
     final String userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
+        Provider.of<UserPreferences>(context, listen: false).userId.isEmpty
+            ? (await StoredData().loadUserData())[0].userId
+            : Provider.of<UserPreferences>(context, listen: false).userId;
     final Map<String, dynamic> servicesData =
-        Provider.of<Services>(context, listen: false).servicesData;
+        Provider.of<Services>(context, listen: false).servicesData.isEmpty
+            ? (await StoredData().loadUserData())[0].servicesData!
+            : Provider.of<Services>(context, listen: false).servicesData;
     final Map<String, dynamic> paymentData =
         Provider.of<UserPreferences>(context, listen: false).paymentData;
     final Object body = {

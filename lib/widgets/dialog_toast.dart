@@ -347,7 +347,7 @@ class ShowDialog {
                 context: context,
                 applicationIcon:
                     Image.asset("assets/icon/icon.png", height: 35, width: 35),
-                applicationVersion: '1.1.7',
+                applicationVersion: '1.2.0',
               ),
             },
       },

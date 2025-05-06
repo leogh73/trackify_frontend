@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/classes.dart';
 import '../data/../data/preferences.dart';
 import '../screens/form_add_edit.dart';
 import '../widgets/ad_native.dart';
-
-import 'mercado_libre_check.dart';
+import '../widgets/mercado_libre_check.dart';
 
 class MercadoLibreItem extends StatefulWidget {
   final MeLiItemData itemML;
@@ -45,7 +43,6 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
             children: [
               SizedBox(
                 height: isPortrait ? 55 : 42,
-                // alignment: Alignment.bottomCenter,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -91,16 +88,6 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                 shippingId: widget.itemML.shippingId,
                                 title: widget.itemML.title,
                                 code: widget.itemML.code,
-                                tracking: ItemTracking(
-                                  idSB: 0,
-                                  idMDB: 'idMDB',
-                                  code: 'code',
-                                  service: 'service',
-                                  events: [],
-                                  moreData: [],
-                                  checkError: false,
-                                  lastEvent: "Not checked yet",
-                                ),
                               ),
                             ),
                           );
@@ -325,7 +312,6 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                 child: Column(
                                   children: [
                                     Row(
-                                      // mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         const Padding(
                                           padding: EdgeInsets.only(right: 7),

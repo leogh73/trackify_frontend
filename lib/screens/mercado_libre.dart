@@ -186,9 +186,13 @@ class MercadoLibreSite extends StatefulWidget {
 
 class _MercadoLibreSiteState extends State<MercadoLibreSite> {
   late final WebViewController _controller;
+  String currentUrl = '';
 
   void urlChangeHandler(BuildContext context, String url) {
     if (widget.action == "login" && url.contains("code=")) {
+      setState(() {
+        currentUrl = url;
+      });
       RegExp regExp = url.contains("&state")
           ? RegExp(r'code=([^]*?)&state=')
           : RegExp("code=(.*)");
@@ -236,6 +240,9 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
             return NavigationDecision.navigate;
           },
           onUrlChange: (UrlChange change) {
+            if (change.url == currentUrl) {
+              return;
+            }
             urlChangeHandler(widget.context, change.url!);
           },
         ),

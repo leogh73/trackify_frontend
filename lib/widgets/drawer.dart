@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../data/classes.dart';
 import 'ad_native.dart';
@@ -231,7 +232,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                                 child: Text(
                                   "¿Demasiados anuncios? Prueba la versión Premium",
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 16),
+                                  style: const TextStyle(fontSize: 17),
                                   maxLines: 3,
                                 ),
                               ),
@@ -263,6 +264,43 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             false,
             false,
             optionInterstitialAd,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border(
+                bottom: BorderSide(color: Colors.grey.shade400),
+              )),
+              height: 45,
+              child: InkWell(
+                onTap: () => Share.share(
+                    "https://play.google.com/store/apps/details?id=com.leogh73.trackify"),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Icon(Icons.share_outlined, size: 26),
+                        const Padding(
+                          padding: EdgeInsets.all(7.0),
+                        ),
+                        Container(
+                          width: 185,
+                          child: Text(
+                            "Compartir",
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 17),
+                            maxLines: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Icon(Icons.arrow_right),
+                  ],
+                ),
+              ),
+            ),
           ),
           DrawerOption(
             Icons.info_outline,
