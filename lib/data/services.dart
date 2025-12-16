@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/data/http_connection.dart';
 import 'package:trackify/data/preferences.dart';
@@ -74,17 +75,27 @@ class Services with ChangeNotifier {
   String searchInput = "";
   String get getSearchInput => searchInput;
 
+  static String filterString(String value) {
+    String searchValue = value.trim().toLowerCase();
+    String withDia =
+        'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+    String withoutDia =
+        'AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz';
+    for (int i = 0; i < withDia.length; i++) {
+      searchValue = searchValue.replaceAll(withDia[i], withoutDia[i]);
+    }
+    return searchValue;
+  }
+
   void filterServicesList(
     BuildContext context,
     String value,
     List<ServiceItemModel> services,
     String code,
   ) async {
-    final String searchValue = value.toLowerCase();
-    filteredList.clear();
-    filteredList = services
-        .where((s) => s.name.toLowerCase().contains(searchValue))
-        .toList();
+    final String filteredValue = filterString(value);
+    filteredList =
+        services.where((s) => s.name.contains(filteredValue)).toList();
     if (filteredList.isEmpty &&
         value.trim().isNotEmpty &&
         code.trim().isNotEmpty) {
@@ -129,6 +140,58 @@ class Services with ChangeNotifier {
 
   void clearDetectedServices() {
     detectedServices.clear();
+  }
+
+  Future<void> autoDetectServices(BuildContext context, String code,
+      List<ServiceItemModel> servicesList) async {
+    toggleIsAutodetecting(true);
+    clearDetectedServices();
+    clearStartService();
+    if (code.length == 4) {
+      if (isAutodetecting) {
+        toggleIsAutodetecting(false);
+      }
+      if (isExpanded) {
+        toggleIsExpanded(false);
+      }
+      return;
+    }
+    final BuildContext ctx = context;
+    final String userId =
+        Provider.of<UserPreferences>(ctx, listen: false).userId;
+    final Object body = {'code': code.trim()};
+    final Response response = await HttpConnection.requestHandler(
+        '/api/user/$userId/autodetect', body);
+    if (!ctx.mounted) {
+      return;
+    }
+    final Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, ctx);
+    toggleIsAutodetecting(false);
+    if (response.statusCode != 200) {
+      return;
+    }
+    final List<String> detectedServices =
+        List<String>.from(responseData["result"]);
+    if (detectedServices.isEmpty) {
+      return;
+    }
+    if (detectedServices.length == 1) {
+      loadService(detectedServices[0], ctx);
+      if (isExpanded) {
+        toggleIsExpanded(false);
+      }
+    } else {
+      final List<ServiceItemModel> detectedModelServices = detectedServices
+          .map((service) => servicesList.firstWhere((s) => s.name == service))
+          .toList();
+      Provider.of<Services>(context, listen: false)
+          .setDetectedServices(detectedModelServices);
+      clearStartService();
+      if (!isExpanded) {
+        toggleIsExpanded(true);
+      }
+    }
   }
 }
 

@@ -42,22 +42,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Future<void> scanBarcodeMain(String errorText) async {
-    final BuildContext ctx = context;
-    final String result = await CodeHandler.scanBarcode(context, errorText);
-    if (result.isEmpty) {
-      return;
-    }
-    if (!ctx.mounted) {
-      return;
-    }
-    Navigator.of(ctx).push(
-      MaterialPageRoute(
-        builder: (_) => FormAdd(storeName: "", code: result),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final Map<int, dynamic> texts = context.select(
@@ -85,11 +69,9 @@ class _MainScreenState extends State<MainScreen> {
     final List<String> languages = ["Español", "English"];
     final List<Widget> floatingActionButtons = [
       Padding(
-        padding: isPortrait
-            ? const EdgeInsets.only(bottom: 7)
-            : const EdgeInsets.only(right: 7),
+        padding: const EdgeInsets.only(right: 8, bottom: 4),
         child: FloatingActionButton(
-          onPressed: () => scanBarcodeMain(texts[146]!),
+          onPressed: () => CodeHandlerMain.scanBarcode(context, texts),
           heroTag: "herotag1",
           child: Icon(MdiIcons.barcodeScan),
         ),
@@ -250,7 +232,17 @@ class _MainScreenState extends State<MainScreen> {
                                 height: 40,
                                 child: Row(
                                   children: [
-                                    SizedBox(width: 75, child: Text(lang)),
+                                    SizedBox(
+                                      width: 75,
+                                      child: Text(
+                                        lang,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .color),
+                                      ),
+                                    ),
                                     if (texts[0] == lang)
                                       Icon(
                                         Icons.check,
@@ -267,22 +259,43 @@ class _MainScreenState extends State<MainScreen> {
                   ),
             body: TrackingList(trackingsList),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-            floatingActionButton: selectionMode || endOfList
+            floatingActionButton: selectionMode ||
+                    endOfList ||
+                    !isPortrait && trackingsList.isNotEmpty
                 ? null
-                : isPortrait
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: floatingActionButtons)
-                    : Container(
-                        alignment: Alignment.center,
-                        height: 70,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                : SizedBox(
+                    height: 72,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: floatingActionButtons,
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
             bottomNavigationBar: premiumUser ? null : const AdBanner(),
           );
+  }
+}
+
+class CodeHandlerMain {
+  static Future<void> scanBarcode(
+      BuildContext context, Map<int, dynamic> texts) async {
+    final BuildContext ctx = context;
+    final String result = await CodeHandler.scanBarcode(context, texts);
+    if (result.isEmpty) {
+      return;
+    }
+    if (!ctx.mounted) {
+      return;
+    }
+    Navigator.of(ctx).push(
+      MaterialPageRoute(
+        builder: (_) => FormAdd(storeName: "", code: result),
+      ),
+    );
   }
 }

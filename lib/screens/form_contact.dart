@@ -219,8 +219,6 @@ class _FormContactState extends State<FormContact> {
                       ),
                     ),
                   ),
-                  if (!premiumUser && trackingsList.isNotEmpty)
-                    const AdNative("medium"),
                   if (premiumUser) const SizedBox(width: 50, height: 10),
                 ],
               ),

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../data/classes.dart';
-import '../data/http_connection.dart';
 import '../data/preferences.dart';
 import '../data/services.dart';
 import '../data/status.dart';
@@ -53,10 +51,9 @@ class FormAddState extends State<FormAdd> {
   void initState() {
     super.initState();
     if (widget.code != null) {
-      codeController.text = widget.code!;
       final List<ServiceItemModel> servicesList =
           Provider.of<Services>(context, listen: false).itemModelList(true);
-      CodeHandler.autoDetectServices(context, widget.code!, servicesList);
+      codeValueHandler(context, widget.code!, servicesList);
     }
     if (widget.storeName == "Mercado Libre") {
       titleController.text = widget.title!;
@@ -81,6 +78,7 @@ class FormAddState extends State<FormAdd> {
 
   final FocusNode codeFocus = FocusNode();
   final FocusNode titleFocus = FocusNode();
+  final FocusNode scanFocus = FocusNode();
 
   @override
   void dispose() {
@@ -89,6 +87,7 @@ class FormAddState extends State<FormAdd> {
     codeController.dispose();
     codeFocus.dispose();
     serviceController.dispose();
+    scanFocus.dispose();
     super.dispose();
   }
 
@@ -148,6 +147,26 @@ class FormAddState extends State<FormAdd> {
       }
       pagePopMessage(premiumUser);
     }
+  }
+
+  void codeValueHandler(
+      BuildContext context, String value, List<ServiceItemModel> servicesList) {
+    final BuildContext ctx = context;
+    codeController.text = value;
+    if (value.isEmpty || value.length < 4) {
+      return;
+    }
+    Future.delayed(const Duration(seconds: 1), () async {
+      if (!ctx.mounted) {
+        return;
+      }
+      await Provider.of<Services>(context, listen: false)
+          .autoDetectServices(ctx, value, servicesList);
+      if (!ctx.mounted) {
+        return;
+      }
+      Provider.of<Status>(ctx, listen: false).setCodeInput(value);
+    });
   }
 
   @override
@@ -211,24 +230,11 @@ class FormAddState extends State<FormAdd> {
                               child: TextFormField(
                                 focusNode: codeFocus,
                                 onChanged: (dynamic value) async {
-                                  codeController.text = value;
-                                  if (value == null || value.length < 5) {
+                                  if (value == null) {
                                     return;
                                   }
-                                  final BuildContext ctx = context;
-                                  Future.delayed(const Duration(seconds: 1),
-                                      () async {
-                                    if (!ctx.mounted) {
-                                      return;
-                                    }
-                                    await CodeHandler.autoDetectServices(
-                                        ctx, value, servicesList);
-                                    if (!ctx.mounted) {
-                                      return;
-                                    }
-                                    Provider.of<Status>(ctx, listen: false)
-                                        .setCodeInput(value);
-                                  });
+                                  codeValueHandler(
+                                      context, value, servicesList);
                                 },
                                 decoration: InputDecoration(
                                   enabledBorder: OutlineInputBorder(
@@ -271,8 +277,15 @@ class FormAddState extends State<FormAdd> {
                                   : screenWidth * 0.6 * 0.323,
                               height: 48,
                               child: ElevatedButton(
-                                onPressed: () => CodeHandler.scanBarcode(
-                                    context, texts[246]!),
+                                onPressed: () async {
+                                  final String code =
+                                      await CodeHandler.scanBarcode(
+                                          context, texts);
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+                                  codeValueHandler(context, code, servicesList);
+                                },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -376,8 +389,7 @@ class FormAddState extends State<FormAdd> {
                               child: ElevatedButton(
                                 child: Text(
                                   texts[19]!,
-                                  style:
-                                      TextStyle(fontSize: fullHD ? 17 : 1617),
+                                  style: TextStyle(fontSize: fullHD ? 17 : 16),
                                 ),
                                 onPressed: () => addTracking(
                                     selectedService!.name, premiumUser),
@@ -404,78 +416,25 @@ class FormAddState extends State<FormAdd> {
 
 class CodeHandler {
   static Future<String> scanBarcode(
-      BuildContext context, String errorText) async {
+      BuildContext context, Map<int, dynamic> texts) async {
     final BuildContext ctx = context;
     String? response;
     try {
-      response = await SimpleBarcodeScanner.scanBarcode(
-        context,
-        barcodeAppBar: const BarcodeAppBar(
-          appBarTitle: 'Test',
-          centerTitle: false,
-          enableBackButton: true,
-          backButtonIcon: Icon(Icons.arrow_back_ios),
-        ),
-        isShowFlashIcon: true,
-        delayMillis: 500,
-        cameraFace: CameraFace.back,
-        scanFormat: ScanFormat.ONLY_BARCODE,
+      response = response = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        texts[26],
+        true,
+        ScanMode.BARCODE,
       );
     } catch (e) {
       if (ctx.mounted) {
-        GlobalToast.displayToast(ctx, errorText);
+        GlobalToast.displayToast(ctx, texts[246]);
       }
       return "";
     }
-    if (response == null || response == "-1") {
+    if (response == "-1") {
       return "";
     }
     return response;
-  }
-
-  static Future<void> autoDetectServices(BuildContext context, String code,
-      List<ServiceItemModel> servicesList) async {
-    Provider.of<Services>(context, listen: false).toggleIsAutodetecting(true);
-    Provider.of<Services>(context, listen: false).clearDetectedServices();
-    Provider.of<Services>(context, listen: false).clearStartService();
-    final BuildContext ctx = context;
-    final String userId =
-        Provider.of<UserPreferences>(ctx, listen: false).userId;
-    final Object body = {'code': code.trim()};
-    final Response response = await HttpConnection.requestHandler(
-        '/api/user/$userId/autodetect', body);
-    if (!ctx.mounted) {
-      return;
-    }
-    final Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, ctx);
-    Provider.of<Services>(context, listen: false).toggleIsAutodetecting(false);
-    if (response.statusCode != 200) {
-      return;
-    }
-    final List<String> detectedServices =
-        List<String>.from(responseData["result"]);
-    if (detectedServices.isEmpty) {
-      return;
-    }
-    final bool isExpanded =
-        Provider.of<Services>(context, listen: false).isExpanded;
-    if (detectedServices.length == 1) {
-      Provider.of<Services>(context, listen: false)
-          .loadService(detectedServices[0], ctx);
-      if (isExpanded) {
-        Provider.of<Services>(context, listen: false).toggleIsExpanded(false);
-      }
-    } else {
-      final List<ServiceItemModel> detectedModelServices = detectedServices
-          .map((service) => servicesList.firstWhere((s) => s.name == service))
-          .toList();
-      Provider.of<Services>(context, listen: false)
-          .setDetectedServices(detectedModelServices);
-      Provider.of<Services>(context, listen: false).clearStartService();
-      if (!isExpanded) {
-        Provider.of<Services>(context, listen: false).toggleIsExpanded(true);
-      }
-    }
   }
 }
