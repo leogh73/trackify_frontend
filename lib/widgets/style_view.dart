@@ -6,10 +6,10 @@ class StyleView extends StatefulWidget {
   const StyleView({Key? key}) : super(key: key);
 
   @override
-  _StyleViewState createState() => _StyleViewState();
+  StyleViewState createState() => StyleViewState();
 }
 
-class _StyleViewState extends State<StyleView> {
+class StyleViewState extends State<StyleView> {
   late String chosenView;
   List<ListModelType> viewTypes = [
     ListModelType(
@@ -39,8 +39,8 @@ class _StyleViewState extends State<StyleView> {
 
   @override
   Widget build(BuildContext context) {
-    String chosenView =
-        Provider.of<UserPreferences>(context, listen: false).startList;
+    String chosenView = context
+        .select((UserPreferences userPreferences) => userPreferences.startList);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -49,16 +49,13 @@ class _StyleViewState extends State<StyleView> {
       child: Column(
         children: [
           SizedBox(
-            // padding: EdgeInsets.only(right: 8, left: 4),
             width: isPortrait ? screenWidth * 0.65 : screenWidth * 0.385,
             height: isPortrait
                 ? (screenWidth * 0.65) * 0.59
                 : (screenWidth * 0.35) * 0.59,
             child: GridView.count(
-              // shrinkWrap: true,
               childAspectRatio: 1 / 1.8,
               crossAxisSpacing: 8,
-              // mainAxisSpacing: 8,
               crossAxisCount: 3,
               children: List.generate(
                 viewTypes.length,
@@ -73,7 +70,6 @@ class _StyleViewState extends State<StyleView> {
                     chosenView = viewTypes[index].chosen;
                     Provider.of<UserPreferences>(context, listen: false)
                         .loadNewView(chosenView);
-                    // ListaElegida(chosenView);
                   },
                   child: ListType(viewTypes[index]),
                 ),
@@ -121,8 +117,6 @@ class ListType extends StatelessWidget {
           ],
         ),
       ),
-      // width: 80,
-      // padding: const EdgeInsets.only(left: 5, right: 5),
     );
   }
 }

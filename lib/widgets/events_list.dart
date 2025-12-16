@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/../data/preferences.dart';
-import '../widgets/ad_native.dart';
-import '../data/services.dart';
+import '../data/preferences.dart';
+import '../data/tracking_functions.dart';
 import '../data/status.dart';
+
+import '../widgets/ad_native.dart';
 
 class EventsList extends StatefulWidget {
   final List<Map<dynamic, String>> events;
@@ -12,10 +13,10 @@ class EventsList extends StatefulWidget {
   const EventsList(this.events, this.service, {Key? key}) : super(key: key);
 
   @override
-  _EventsListState createState() => _EventsListState();
+  EventsListState createState() => EventsListState();
 }
 
-class _EventsListState extends State<EventsList> {
+class EventsListState extends State<EventsList> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -40,6 +41,32 @@ class _EventsListState extends State<EventsList> {
     super.dispose();
   }
 
+  List<Map<String, dynamic>> eventData(
+      String service, Map<dynamic, String> event) {
+    const Map<String, IconData> iconsData = {
+      "location": Icons.place,
+      "motive": Icons.description,
+      "sign": Icons.description,
+      "condition": Icons.description,
+      "description": Icons.local_shipping,
+      "detail": Icons.local_shipping,
+      "status": Icons.local_shipping,
+      "place": Icons.location_city,
+      "branch": Icons.location_city,
+    };
+    List<String> keys = event.keys.map((k) => k.toString()).toList();
+    keys.removeWhere((k) => k == "date");
+    keys.removeWhere((k) => k == "time");
+    final List<Map<String, dynamic>> eventData = [];
+    for (String key in keys) {
+      eventData.add({
+        "icon": iconsData[key],
+        "text": event[key],
+      });
+    }
+    return eventData;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -54,8 +81,7 @@ class _EventsListState extends State<EventsList> {
             index,
             widget.events.length,
             index == widget.events.length,
-            Provider.of<Services>(context, listen: false)
-                .eventData(widget.service, widget.events[index]),
+            eventData(widget.service, widget.events[index]),
           );
         },
       ),
@@ -76,8 +102,10 @@ class Event extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final String formatedDate =
+        TrackingFunctions.formatEventDate(context, event['date']!, true);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     bool lastItem = false;
     if (listLength - 1 == index) lastItem = true;
     final isPortrait =
@@ -85,23 +113,19 @@ class Event extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    const Widget smallAd = Padding(
-      child: AdNative("small"),
-      padding: EdgeInsets.zero,
-    );
     return Padding(
       padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
-          if (index == 0 && !premiumUser) ...[
-            smallAd,
-            SizedBox(height: 3),
-            smallAd
-          ],
+          if (index == 0 && !premiumUser)
+            const Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium"),
+            ),
           if (index == 0 && !premiumUser)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
           SizedBox(
-            height: isPortrait ? 40 : 42,
+            height: isPortrait ? 45 : 42,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -116,7 +140,7 @@ class Event extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.445
+                            ? screenWidth * 0.52
                             : screenWidth * 0.351,
                         child: Column(
                           children: [
@@ -133,7 +157,7 @@ class Event extends StatelessWidget {
                                           top: 2, bottom: 2, right: 15),
                                       // width: 158,
                                       child: Text(
-                                        event['date']!,
+                                        formatedDate,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: fullHD ? 16 : 15,
@@ -149,12 +173,11 @@ class Event extends StatelessWidget {
                       ),
                       SizedBox(
                         width: isPortrait
-                            ? screenWidth * 0.445
+                            ? screenWidth * 0.35
                             : screenWidth * 0.225,
                         child: Column(
                           children: [
                             Row(
-                              // mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 const Padding(
                                   padding: EdgeInsets.only(right: 7),
@@ -223,7 +246,11 @@ class Event extends StatelessWidget {
               .toList(),
           if (!premiumUser)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
-          if (!premiumUser) ...[smallAd, SizedBox(height: 5), smallAd],
+          if (!premiumUser)
+            const Padding(
+              padding: EdgeInsets.only(top: 3, bottom: 3),
+              child: AdNative("medium"),
+            ),
           if (!lastItem)
             Divider(color: Theme.of(context).primaryColor, thickness: 1),
         ],

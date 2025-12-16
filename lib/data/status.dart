@@ -1,122 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:trackify/widgets/dialog_error.dart';
 import 'package:http/http.dart';
 
-import 'services.dart';
-import 'http_connection.dart';
-
-import 'preferences.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
-import 'classes.dart';
-import 'trackings_archived.dart';
-import 'trackings_active.dart';
+import '../data/http_connection.dart';
+import '../data/classes.dart';
+import '../data/preferences.dart';
+
+import '../widgets/dialog_error.dart';
 
 class Status with ChangeNotifier {
   StoredData storedData = StoredData();
 
-  late List<String> recentSearch;
+  late String lastSync;
 
   Status(StartData startData) {
-    recentSearch = [...startData.searchHistory];
+    lastSync = startData.lastSyncDate;
   }
 
-  String? loadedService;
-  String? get chosenService => loadedService;
-  String messageService = '';
-  String get serviceMessage => messageService;
-  String exampleCode = "Seleccione un servicio";
-  String get chosenServiceCode => exampleCode;
+  String get getLastSyncDate => lastSync;
 
-  void loadService(ServiceItemModel service, BuildContext context) {
-    loadedService = service.chosen;
-    messageService = Provider.of<Services>(context, listen: false)
-            .servicesData[service.chosen]["selectionMessage"] ??
-        '';
-    exampleCode = "Ejemplo: ${service.exampleCode}";
-    notifyListeners();
+  void setNewSyncDate() async {
+    final String newDate = DateTime.now().toString();
+    lastSync = newDate;
+    final UserData storedPreferences = [...await storedData.loadUserData()][0];
+    final UserData newPreferences = storedPreferences.edit(lastSync: newDate);
+    storedData.updatePreferences(newPreferences);
   }
 
-  void clearStartService() {
-    loadedService = null;
-    messageService = '';
-    exampleCode = "Seleccione un servicio";
-  }
-
-  List<String> get searchRecent => [...recentSearch];
-
-  void searchElementHandler(String action, String value) async {
-    List<UserData> _storedPreferences = await storedData.loadUserData();
-    List<String> _searchHistory = _storedPreferences[0].searchHistory;
-    if (action == "add") {
-      _searchHistory.add(value);
-    }
-    if (action == "remove") {
-      _searchHistory.removeWhere((element) => element == value);
-    }
-    UserData _newPreferences =
-        _storedPreferences[0].edit(searchHistory: _searchHistory);
-    storedData.updatePreferences(_newPreferences);
-  }
-
-  void addSearch(String search) async {
-    recentSearch.insert(0, search);
-    searchElementHandler("add", search);
-    notifyListeners();
-  }
-
-  void removeSearch(String search) async {
-    recentSearch.removeWhere((element) => element == search);
-    searchElementHandler("remove", search);
-    notifyListeners();
-  }
-
-  bool recentList = false;
-  bool get resultList => recentList;
-
-  void toggleResultList(bool newStatus) {
-    recentList = newStatus;
-    notifyListeners();
-  }
+  String searchInput = "";
+  String get getSearchInput => searchInput;
 
   List<ItemTracking> searchResults = [];
-  List<ItemTracking> get searchResult => [...searchResults];
+  List<ItemTracking> get searchResult => searchResults;
 
-  void addSearchElement(ItemTracking tracking) {
-    ItemTracking newTracking =
-        tracking.edit(id: DateTime.now().microsecond, search: true);
-    searchResults.insert(0, newTracking);
+  void clearSearchResults() {
+    searchInput = '';
+    notifyListeners();
   }
 
-  void search(context, String searchInput) {
-    searchResults.clear();
+  String codeInput = "";
+  String get getcodeInput => codeInput;
 
-    itemCheck(ItemTracking tracking) {
-      String searchData = searchInput.toLowerCase();
-      if (tracking.service.toLowerCase().contains(searchData) ||
-          tracking.title!.toLowerCase().contains(searchData) ||
-          tracking.moreData.toString().toLowerCase().contains(searchData) ||
-          tracking.events.toString().toLowerCase().contains(searchData) &&
-              !tracking.checkError!) return true;
-    }
+  void setCodeInput(String value) {
+    codeInput = value;
+    notifyListeners();
+  }
 
-    Provider.of<ActiveTrackings>(context, listen: false)
-        .trackings
-        .forEach((element) {
-      if (itemCheck(element) == true) {
-        addSearchElement(element);
-      }
-    });
-    Provider.of<ArchivedTrackings>(context, listen: false)
-        .trackings
-        .forEach((element) {
-      if (itemCheck(element) == true) {
-        addSearchElement(element);
-      }
-    });
+  void search(context, String value, List<ItemTracking> trackingsList) {
+    final String searchValue = value.toLowerCase();
+    searchResult.clear();
+    searchResults = trackingsList
+        .where((tracking) =>
+            tracking.service.toLowerCase().contains(searchValue) ||
+            tracking.title!.toLowerCase().contains(searchValue) ||
+            tracking.moreData.toString().toLowerCase().contains(searchValue) ||
+            tracking.events.toString().toLowerCase().contains(searchValue) &&
+                !tracking.checkError!)
+        .toList();
+    searchInput = value;
+    notifyListeners();
   }
 
   bool checking = false;
@@ -251,12 +197,16 @@ class Status with ChangeNotifier {
       }
       loadGoogleBackups(googleBackups, false);
     } else {
+      if (!context.mounted) {
+        return;
+      }
       Provider.of<UserPreferences>(context, listen: false)
           .toggleGDErrorStatus(true);
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['serverError'] == null)
+      if (responseData['serverError'] == null) {
         DialogError.show(context, 12, "");
+      }
     }
     toggleGoogleProcess(false);
   }

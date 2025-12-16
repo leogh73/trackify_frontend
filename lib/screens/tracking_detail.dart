@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../data/classes.dart';
 import '../data/../data/preferences.dart';
@@ -10,11 +11,11 @@ import '../screens/tracking_more.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_banner.dart';
-import '../widgets/options_tracking.dart';
+import '../widgets/tracking_options.dart';
 import '../widgets/events_list.dart';
 
 class TrackingDetail extends StatefulWidget {
-  final ItemTracking tracking;
+  final ItemTracking? tracking;
   const TrackingDetail(this.tracking, {Key? key}) : super(key: key);
 
   @override
@@ -32,59 +33,52 @@ class _TrackingDetailState extends State<TrackingDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    bool checking = Provider.of<Status>(context).checkingStatus;
-    bool endList = Provider.of<Status>(context).endOfEvents;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final bool checking =
+        context.select((Status status) => status.checkingStatus);
+    final bool endList = context.select((Status status) => status.endOfEvents);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final String screenList = widget.tracking.archived! ? "archived" : "main";
-    final List<Map<String, String>> events = widget.tracking.events;
-    return WillPopScope(
-      onWillPop: () => Future.value(!checking),
+    final String screenList = widget.tracking!.archived! ? "archived" : "main";
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) => () => Future.value(!checking),
       child: Scaffold(
         appBar: AppBar(
           titleSpacing: 1.0,
           title: Text(
-            widget.tracking.title!,
+            widget.tracking!.title!,
             maxLines: 2,
             style: TextStyle(fontSize: fullHD ? 18 : 17),
           ),
           actions: [
-            OptionsTracking(
-              tracking: widget.tracking,
+            TrackingOptions(
+              tracking: widget.tracking!,
               menu: true,
               action: '',
               detail: true,
             ),
             if (screenList == "search")
               PopupMenuButton<String>(
-                // padding: EdgeInsets.zero,
-                tooltip: 'Opciones',
+                tooltip: texts[122],
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
                 ),
                 elevation: 2,
-                // icon: Icon(Icons.more_vert),
                 onSelected: (String value) {
-                  switch (value) {
-                    case 'Más datos':
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TrackingMore(
-                            widget.tracking.moreData!,
-                          ),
-                        ),
-                      );
-                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TrackingMore(widget.tracking!.moreData!),
+                    ),
+                  );
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                   PopupMenuItem<String>(
-                    value: "Más datos",
+                    value: texts[123],
                     height: 35,
                     child: Row(
                       children: [
@@ -95,9 +89,9 @@ class _TrackingDetailState extends State<TrackingDetail> {
                             color: Theme.of(context).iconTheme.color,
                           ),
                         ),
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.zero,
-                          child: Text("Más datos"),
+                          child: Text(texts[123]!),
                         ),
                       ],
                     ),
@@ -121,7 +115,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                     ),
                   ),
                   Text(
-                    'Verificando...',
+                    texts[69]!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
@@ -141,7 +135,8 @@ class _TrackingDetailState extends State<TrackingDetail> {
                 ],
               ),
             Expanded(
-              child: EventsList(events, widget.tracking.service),
+              child:
+                  EventsList(widget.tracking!.events, widget.tracking!.service),
             ),
           ],
         ),
@@ -149,9 +144,12 @@ class _TrackingDetailState extends State<TrackingDetail> {
             ? null
             : FloatingActionButton(
                 heroTag: 'events',
-                onPressed: () => {
-                  if (!premiumUser) interstitialAd.showInterstitialAd(),
-                  TrackingFunctions.searchUpdates(context, widget.tracking),
+                onPressed: () {
+                  if (!premiumUser) {
+                    interstitialAd.showInterstitialAd();
+                    ShowDialog.goPremiumDialog(context);
+                  }
+                  TrackingFunctions.searchUpdates(context, widget.tracking!);
                 },
                 child: const Icon(Icons.update, size: 29),
               ),

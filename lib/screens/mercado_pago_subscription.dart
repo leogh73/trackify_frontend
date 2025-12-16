@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
+import 'package:trackify/widgets/dialog_toast.dart';
 
+import '../data/http_connection.dart';
 import '../data/preferences.dart';
-import '../data/theme.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_banner.dart';
@@ -21,32 +21,20 @@ class MercadoPagoSubscription extends StatefulWidget {
 class _MercadoPagoSubscriptionState extends State<MercadoPagoSubscription> {
   AdInterstitial interstitialAd = AdInterstitial();
 
-  void openSubscriptionUrl() async {
-    try {
-      final int colorValue =
-          Provider.of<UserTheme>(context, listen: false).startColor.value;
-      await launch(
-        widget.url,
-        customTabsOption: CustomTabsOption(toolbarColor: Color(colorValue)),
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Nueva suscripción"),
+        title: Text(texts[111]!),
         titleSpacing: 1.0,
-        actions: [],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -54,13 +42,13 @@ class _MercadoPagoSubscriptionState extends State<MercadoPagoSubscription> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              child: premiumUser ? null : AdNative("small"),
-              padding: EdgeInsets.only(top: 5, bottom: 5),
+              padding: const EdgeInsets.only(top: 5, bottom: 5),
+              child: premiumUser ? null : const AdNative("small"),
             ),
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                "Luego de pagar, toque el botón 'Volver al sitio' y espere a ver una pantalla en blanco, para que recibamos la información sobre su suscripción:",
+                texts[112]!,
                 maxLines: 8,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: fullHD ? 17 : 16),
@@ -81,7 +69,7 @@ class _MercadoPagoSubscriptionState extends State<MercadoPagoSubscription> {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                'De lo contrario, envíe el número de transacción de su comprobante, desde la sección "INGRESAR PAGO".',
+                texts[113]!,
                 maxLines: 8,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: fullHD ? 17 : 16),
@@ -95,26 +83,31 @@ class _MercadoPagoSubscriptionState extends State<MercadoPagoSubscription> {
                   SizedBox(
                     width: 120,
                     child: ElevatedButton(
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(fontSize: 17),
+                        child: Text(
+                          texts[114]!,
+                          style: const TextStyle(fontSize: 17),
                         ),
-                        onPressed: () => {
-                              Navigator.pop(context),
-                              if (!premiumUser)
-                                interstitialAd.showInterstitialAd(),
-                            }),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          if (!premiumUser) {
+                            interstitialAd.showInterstitialAd();
+                            ShowDialog.goPremiumDialog(context);
+                          }
+                        }),
                   ),
                   const SizedBox(width: 10),
                   SizedBox(
                     width: 120,
                     child: ElevatedButton(
-                      child: const Text(
-                        "Continuar",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                      onPressed: openSubscriptionUrl,
-                    ),
+                        child: Text(
+                          texts[115]!,
+                          style: const TextStyle(fontSize: 17),
+                        ),
+                        onPressed: () {
+                          HttpConnection.customTabsLaunchUrl(
+                              widget.url, context);
+                          Navigator.of(context).pop();
+                        }),
                   ),
                 ],
               ),

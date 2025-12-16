@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
+import "package:provider/provider.dart";
 
 import './classes.dart';
+import './preferences.dart';
+
 import '../database.dart';
 import '../initial_data.dart';
 
 class ArchivedTrackings with ChangeNotifier {
   StoredData storedData = StoredData();
-
   late List<ItemTracking> _trackings;
 
   ArchivedTrackings(StartData startData) {
     _trackings = [...startData.archivedTrackings];
   }
 
-  List<ItemTracking> get trackings => [..._trackings];
+  List<ItemTracking> get trackings => _trackings;
 
-  void addTracking(ItemTracking tracking) {
-    storedData.newArchivedTracking(tracking);
+  void addTracking(ItemTracking tracking, BuildContext context) {
     _trackings.insert(0, tracking);
+    storedData.newArchivedTracking(tracking);
     notifyListeners();
+    int chosenSort = Provider.of<UserPreferences>(context, listen: false)
+        .sortTrackingsOption;
+    Map<int, dynamic> texts =
+        Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
+    if (texts[chosenSort] != texts[205]) {
+      Provider.of<UserPreferences>(context, listen: false)
+          .sortTrackingsList(texts[chosenSort]!, context, false);
+    }
   }
 
   void removeTracking(
@@ -30,12 +40,11 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void renameTracking(Tracking tracking) async {
-    int index = _trackings.indexWhere((seg) => seg.idSB == tracking.id);
-    _trackings[index].title = tracking.title;
-    if (tracking.title.isEmpty) {
-      _trackings[index].title = _trackings[index].code;
-    }
+  void updateRenamedTracking(ItemTracking editedTracking) async {
+    int index = _trackings.indexWhere((seg) => seg.idSB == editedTracking.idSB);
+    _trackings[index].title = editedTracking.title!.isEmpty
+        ? _trackings[index].code
+        : editedTracking.title;
     storedData.updateArchivedTracking(_trackings[index]);
     notifyListeners();
   }
@@ -94,9 +103,19 @@ class ArchivedTrackings with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSelection(BuildContext context) {
+  bool removeSelection(BuildContext context) {
     removeTracking(_selection, context, false);
     _selection.clear();
+    notifyListeners();
+    return true;
+  }
+
+  void clearSelection() {
+    _selection.clear();
+  }
+
+  void sortedTrackings(List<ItemTracking> newList) {
+    _trackings = [...newList];
     notifyListeners();
   }
 }

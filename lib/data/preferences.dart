@@ -1,34 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:trackify/data/tracking_functions.dart';
+import 'package:trackify/data/trackings_archived.dart';
 
-import './classes.dart';
 import '../database.dart';
 import '../initial_data.dart';
 
-import 'http_connection.dart';
+import '../data/classes.dart';
+import '../data/http_connection.dart';
+import '../data/trackings_active.dart';
+
+import 'languages.dart';
+
 import '../widgets/dialog_error.dart';
 
 class UserPreferences with ChangeNotifier {
   StoredData storedData = StoredData();
 
   late String userId;
+  late String language;
   late String userView;
+  late int sortTrackingsNumber;
   late bool mercadoLibre;
   late bool googleDrive;
-  late String statusMessage;
-  late bool showAgainStatusMessage;
   late bool showAgainPaymentError;
-  late Map<String, dynamic> mercadoPago;
+  late Map<String, dynamic> paymentData;
 
   UserPreferences(StartData startData) {
     userId = startData.userId;
+    language = startData.language;
     userView = startData.startView;
+    sortTrackingsNumber = startData.sortTrackingsBy;
     mercadoLibre = startData.mercadoLibre;
     googleDrive = startData.googleDrive;
-    statusMessage = startData.statusMessage;
-    showAgainStatusMessage = startData.showAgainStatusMessage;
     showAgainPaymentError = startData.showAgainPaymentError;
-    mercadoPago = startData.mercadoPago;
+    paymentData = startData.paymentData;
+  }
+
+  Map<int, dynamic> get selectedLanguage => Languages.select[language]!;
+
+  void changeLanguage(String newLanguage) {
+    language = newLanguage;
+    updateDatabase("language", newLanguage);
+    notifyListeners();
   }
 
   updateDatabase(String type, dynamic value) async {
@@ -37,17 +52,17 @@ class UserPreferences with ChangeNotifier {
     if (type == "view") {
       newPreferences = storedPreferences.edit(view: value);
     }
+    if (type == "language") {
+      newPreferences = storedPreferences.edit(language: value);
+    }
+    if (type == "sortTrackings") {
+      newPreferences = storedPreferences.edit(sortTrackingsBy: value);
+    }
     if (type == "meLiStatus") {
       newPreferences = storedPreferences.edit(meLiStatus: value);
     }
     if (type == "googleDriveStatus") {
       newPreferences = storedPreferences.edit(googleDriveStatus: value);
-    }
-    if (type == "statusMessage") {
-      newPreferences = storedPreferences.edit(statusMessage: value);
-    }
-    if (type == "showAgainStatusMessage") {
-      newPreferences = storedPreferences.edit(showAgainStatusMessage: value);
     }
     if (type == "showAgainPaymentError") {
       newPreferences = storedPreferences.edit(showAgainPaymentError: value);
@@ -63,6 +78,129 @@ class UserPreferences with ChangeNotifier {
     notifyListeners();
   }
 
+  int get sortTrackingsOption => sortTrackingsNumber;
+
+  void sortTrackingsList(
+      String chosenSort, BuildContext context, bool areActive) {
+    int chosenValue = 0;
+    if (chosenSort == selectedLanguage[205]) {
+      chosenValue = 205;
+    }
+    if (chosenSort == selectedLanguage[206]) {
+      chosenValue = 206;
+    }
+    if (chosenSort == selectedLanguage[207]) {
+      chosenValue = 207;
+    }
+
+    List<ItemTracking> sortTrackings(
+        String chosen, List<ItemTracking> trackingsList) {
+      if (trackingsList.isEmpty) {
+        return [];
+      }
+
+      if (chosenSort == selectedLanguage[207]) {
+        trackingsList.sort((t1, t2) => t1.service.compareTo(t2.service));
+        return trackingsList;
+      }
+
+      trackingsList.sort((t1, t2) {
+        List<int> date1Splitted = [];
+        List<int> time1Splitted = [];
+        List<int> date2Splitted = [];
+        List<int> time2Splitted = [];
+
+        if (chosenSort == selectedLanguage[206]) {
+          date1Splitted = TrackingFunctions.parseDate(
+              selectedLanguage[248], t1.events[0]["date"]!);
+          time1Splitted = TrackingFunctions.parseTime(t1.events[0]["time"]!);
+          date2Splitted = TrackingFunctions.parseDate(
+              selectedLanguage[248], t2.events[0]["date"]!);
+          time2Splitted = TrackingFunctions.parseTime(t2.events[0]["time"]!);
+        }
+        if (chosenSort == selectedLanguage[205]) {
+          date1Splitted = TrackingFunctions.parseDate(
+              selectedLanguage[248], t1.startCheck!.split(" - ")[0]);
+          time1Splitted =
+              TrackingFunctions.parseTime(t1.startCheck!.split(" - ")[1]);
+          date2Splitted = TrackingFunctions.parseDate(
+              selectedLanguage[248], t2.startCheck!.split(" - ")[0]);
+          time2Splitted =
+              TrackingFunctions.parseTime(t2.startCheck!.split(" - ")[1]);
+        }
+        DateTime date1 = DateTime(
+          date1Splitted[2],
+          date1Splitted[1],
+          date1Splitted[0],
+          time1Splitted[0],
+          time1Splitted[1],
+          time1Splitted.length == 3 ? time1Splitted[2] : 00,
+        );
+        DateTime date2 = DateTime(
+          date2Splitted[2],
+          date2Splitted[1],
+          date2Splitted[0],
+          time2Splitted[0],
+          time2Splitted[1],
+          time2Splitted.length == 3 ? time2Splitted[2] : 00,
+        );
+        return date2.compareTo(date1);
+      });
+      return trackingsList;
+    }
+
+    if (areActive) {
+      List<ItemTracking> activeTrackings =
+          Provider.of<ActiveTrackings>(context, listen: false).trackings;
+      List<ItemTracking> newActiveTrackings =
+          sortTrackings(chosenSort, activeTrackings);
+      Provider.of<ActiveTrackings>(context, listen: false)
+          .sortedTrackings(newActiveTrackings);
+    } else {
+      List<ItemTracking> archivedTrackings =
+          Provider.of<ArchivedTrackings>(context, listen: false).trackings;
+      List<ItemTracking> newArchivedTrackings =
+          sortTrackings(chosenSort, archivedTrackings);
+      Provider.of<ArchivedTrackings>(context, listen: false)
+          .sortedTrackings(newArchivedTrackings);
+    }
+
+    updateDatabase("sortTrackings", chosenValue);
+    sortTrackingsNumber = chosenValue;
+
+    notifyListeners();
+  }
+
+  void reverseTrackingsList(BuildContext context, bool areActive) {
+    if (areActive) {
+      List<ItemTracking> activeTrackings =
+          Provider.of<ActiveTrackings>(context, listen: false)
+              .trackings
+              .reversed
+              .toList();
+      Provider.of<ActiveTrackings>(context, listen: false)
+          .sortedTrackings(activeTrackings);
+    } else {
+      List<ItemTracking> archivedTrackings =
+          Provider.of<ArchivedTrackings>(context, listen: false)
+              .trackings
+              .reversed
+              .toList();
+      Provider.of<ArchivedTrackings>(context, listen: false)
+          .sortedTrackings(archivedTrackings);
+    }
+    notifyListeners();
+  }
+
+  List<String> sortOptionsList(selectedLanguage) {
+    List<String> menuOptions = [
+      selectedLanguage[205]!,
+      selectedLanguage[206]!,
+      selectedLanguage[207]!
+    ];
+    return menuOptions;
+  }
+
   String get uId => userId;
 
   void initializeMeLi(BuildContext context, String code) async {
@@ -76,10 +214,17 @@ class UserPreferences with ChangeNotifier {
       toggleMeLiStatus(true);
     } else {
       toggleMeLiStatus(false);
+      if (!context.mounted) {
+        return;
+      }
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['serverError'] == null)
+      if (responseData['serverError'] == null) {
         DialogError.show(context, 10, "");
+      }
+    }
+    if (!context.mounted) {
+      return;
     }
     Navigator.of(context).pop();
   }
@@ -112,10 +257,14 @@ class UserPreferences with ChangeNotifier {
     if (response.statusCode == 200) {
       toggleGoogleStatus(true);
     } else {
+      if (!context.mounted) {
+        return;
+      }
       Map<String, dynamic> responseData =
           HttpConnection.responseHandler(response, context);
-      if (responseData['serverError'] == null)
+      if (responseData['serverError'] == null) {
         DialogError.show(context, 11, "");
+      }
     }
   }
 
@@ -143,32 +292,14 @@ class UserPreferences with ChangeNotifier {
     notifyListeners();
   }
 
-  String get getStatusMessage => statusMessage;
-  bool get showStatusMessageAgain => showAgainStatusMessage;
+  Map<String, dynamic> get getPaymentData => paymentData;
 
-  void setStatusMessage(String incomingMessage) {
-    statusMessage = incomingMessage;
-  }
-
-  void setShowStatusMessageAgain(bool newStatus) {
-    showAgainStatusMessage = newStatus;
-    updateDatabase("showAgainStatusMessage", newStatus);
+  void setPaymentData(Map<String, dynamic> payData) {
+    paymentData = payData;
     notifyListeners();
   }
 
-  void storeMessageData(String message) {
-    updateDatabase("statusMessage", message);
-  }
-
-  Map<String, dynamic> get paymentData => mercadoPago;
-
-  void setPaymentData(Map<String, dynamic> paymentData) {
-    mercadoPago = paymentData;
-    notifyListeners();
-  }
-
-  bool get premiumStatus => mercadoPago['isValid'];
-
+  bool get premiumStatus => paymentData['isValid'];
   bool get showPaymentErrorAgain => showAgainPaymentError;
 
   void setShowPaymentErrorAgain(bool newStatus) {

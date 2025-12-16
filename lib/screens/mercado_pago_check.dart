@@ -53,7 +53,10 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
     try {
       uuid = await _deviceUuidPlugin.getUUID() ?? '';
     } catch (e) {
-      print("Error getting UUID: $e");
+      // print("Error getting UUID: $e");
+    }
+    if (!mounted) {
+      return;
     }
     final String userId =
         Provider.of<UserPreferences>(context, listen: false).userId;
@@ -64,6 +67,9 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
     };
     Response response = await HttpConnection.requestHandler(
         '/api/mercadopago/checkPaymentId', body);
+    if (!mounted) {
+      return;
+    }
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, context);
     if (response.statusCode == 200) {
@@ -90,21 +96,22 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-    final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context, listen: false).trackings;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ingresar pago"),
+        title: Text(texts[68]!),
         titleSpacing: 1.0,
-        actions: [],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -112,8 +119,8 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                child: premiumUser ? null : AdNative("small"),
-                padding: EdgeInsets.only(top: 5, bottom: 5),
+                padding: const EdgeInsets.only(top: 5, bottom: 5),
+                child: premiumUser ? null : const AdNative("small"),
               ),
               checking
                   ? Column(
@@ -127,17 +134,15 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                           ),
                         ),
                         Text(
-                          'Verificando...',
+                          texts[69]!,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Theme.of(context).primaryColor,
                             fontSize: fullHD ? 16 : 15,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 15,
-                          ),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 15),
                         ),
                       ],
                     )
@@ -149,7 +154,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                         child: Column(
                           children: [
                             Text(
-                              "Busque el detalle de operación en su cuenta de MercadoPago e ingrese el número que figura en la parte superior:",
+                              texts[70]!,
                               maxLines: 8,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -160,14 +165,14 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                             TextFormField(
                               focusNode: FocusNode(),
                               decoration: InputDecoration(
-                                labelText: "Número de operación",
+                                labelText: texts[71],
                               ),
                               controller: transactionId,
                               textInputAction: TextInputAction.next,
                               autofocus: false,
                               validator: (value) {
                                 if (value == null || value.length < 5) {
-                                  return 'Ingrese un número válido';
+                                  return texts[72];
                                 }
                                 return null;
                               },
@@ -184,9 +189,10 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                                     SizedBox(
                                       width: 120,
                                       child: ElevatedButton(
-                                          child: const Text(
-                                            'Cancelar',
-                                            style: TextStyle(fontSize: 17),
+                                          child: Text(
+                                            texts[26]!,
+                                            style:
+                                                const TextStyle(fontSize: 17),
                                           ),
                                           onPressed: () => {
                                                 Navigator.pop(context),
@@ -200,18 +206,18 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                                     SizedBox(
                                       width: 120,
                                       child: ElevatedButton(
-                                        child: const Text(
-                                          "Enviar",
-                                          style: TextStyle(fontSize: 17),
-                                        ),
                                         onPressed: checkPaymentId,
+                                        child: Text(
+                                          texts[27]!,
+                                          style: const TextStyle(fontSize: 17),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            SizedBox(width: 50, height: 10),
+                            const SizedBox(width: 50, height: 10),
                           ],
                         ),
                       ),
@@ -261,7 +267,7 @@ class _MercadoPagoInputState extends State<MercadoPagoInput> {
                                         : screenWidth * .8,
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      "¿Dónde encuentro el número de operación?",
+                                      texts[73]!,
                                       maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(

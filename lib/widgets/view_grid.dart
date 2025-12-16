@@ -7,6 +7,7 @@ class ViewGrid {
     BuildContext context,
     Image serviceLogo,
     ItemTracking tracking,
+    String daysInTransit,
     VoidCallback onTap,
     VoidCallback onLongPress,
     double screenWidth,
@@ -31,7 +32,6 @@ class ViewGrid {
           child: InkWell(
             onTap: onTap,
             onLongPress: onLongPress,
-            splashColor: Theme.of(context).primaryColor,
             child: Column(
               children: [
                 Container(
@@ -235,9 +235,9 @@ class ViewGrid {
                                               ),
                                               Container(
                                                 width: 29,
+                                                alignment: Alignment.center,
                                                 child:
                                                     const Icon(Icons.archive),
-                                                alignment: Alignment.center,
                                               ),
                                             ],
                                           ),
@@ -267,9 +267,9 @@ class ViewGrid {
                                               ),
                                               Container(
                                                 width: 29,
+                                                alignment: Alignment.center,
                                                 child:
                                                     const Icon(Icons.archive),
-                                                alignment: Alignment.center,
                                               ),
                                             ],
                                           ),
@@ -375,11 +375,10 @@ class ViewGrid {
                         ],
                       ),
                       Row(
-                        // mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            padding: EdgeInsets.only(top: 3, bottom: 3),
+                            padding: const EdgeInsets.only(top: 3, bottom: 3),
                             constraints: isPortrait
                                 ? BoxConstraints(
                                     maxHeight: screenHeight * 0.0582,
@@ -400,7 +399,7 @@ class ViewGrid {
             ),
           ),
         ),
-        if (!premiumUser) AdNative("medium"),
+        if (!premiumUser) const AdNative("medium"),
       ],
     );
   }

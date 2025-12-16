@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../data/theme.dart';
 
 class StyleDarkMode extends StatelessWidget {
@@ -7,26 +8,28 @@ class StyleDarkMode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
+    final bool darkMode =
+        context.select((UserTheme theme) => theme.darkModeStatus);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Icon(
           darkMode ? Icons.nights_stay_outlined : Icons.wb_sunny_outlined,
-          size: 30,
+          size: 32,
           color: Theme.of(context).primaryColor,
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 45,
+          height: 35,
           child: Switch(
+            activeColor: Colors.grey[500],
             value: darkMode,
             onChanged: (_) =>
                 Provider.of<UserTheme>(context, listen: false).toggleDarkMode(),
           ),
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 5),
       ],
     );
   }

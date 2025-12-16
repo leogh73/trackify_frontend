@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/data/tracking_functions.dart';
+import 'package:trackify/widgets/dialog_toast.dart';
 
 import '../data/classes.dart';
-import '../data/../data/preferences.dart';
+import '../data/preferences.dart';
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
 import '../data/status.dart';
@@ -11,8 +13,8 @@ import '../data/services.dart';
 import '../screens/tracking_detail.dart';
 
 import '../widgets/ad_interstitial.dart';
-import '../widgets/check_tracking.dart';
-import '../widgets/options_tracking.dart';
+import '../widgets/tracking_check.dart';
+import '../widgets/tracking_options.dart';
 import '../widgets/view_card.dart';
 import '../widgets/view_grid.dart';
 import '../widgets/view_row.dart';
@@ -40,13 +42,16 @@ class _TrackingItemState extends State<TrackingItem> {
   }
 
   seeTrackingDetail(premiumUser) {
-    if (!premiumUser) interstitialAd.showInterstitialAd();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => TrackingDetail(widget.tracking),
       ),
     );
+    if (!premiumUser) {
+      interstitialAd.showInterstitialAd();
+      ShowDialog.goPremiumDialog(context);
+    }
     Provider.of<Status>(context, listen: false).resetEndOfEventsStatus();
   }
 
@@ -75,35 +80,37 @@ class _TrackingItemState extends State<TrackingItem> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final dynamic providerData = widget.tracking.archived!
         ? Provider.of<ArchivedTrackings>(context)
         : Provider.of<ActiveTrackings>(context);
-    final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context).trackings;
     final bool selectionMode = providerData.selectionModeStatus;
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    final String chosenView = context
+        .select((UserPreferences userPreferences) => userPreferences.startList);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final String chosenView = Provider.of<UserPreferences>(context).startList;
     final Map<String, dynamic> trackingWidget = {
       "row": ViewRow(),
       "card": ViewCard(),
       "grid": ViewGrid(),
     };
-    final serviceLogo = Image.network(
+    final Image serviceLogo = Image.network(
         Provider.of<Services>(context, listen: false)
             .servicesData[widget.tracking.service]['logoUrl']);
     return widget.tracking.checkError == null
-        ? CheckTracking(widget.tracking)
+        ? TrackingCheck(widget.tracking)
         : widget.tracking.checkError == true
             ? trackingWidget[chosenView].widget(
                 context,
                 serviceLogo,
                 widget.tracking,
+                "",
                 () => clickItem(selectionMode, premiumUser),
                 () => toggleSelectionMode(selectionMode),
                 screenWidth,
@@ -113,8 +120,10 @@ class _TrackingItemState extends State<TrackingItem> {
                   child: IconButton(
                     icon: const Icon(Icons.sync),
                     onPressed: () {
-                      if (!premiumUser && trackingsList.length > 1)
+                      if (!premiumUser && trackingsList.length > 1) {
                         interstitialAd.showInterstitialAd();
+                        ShowDialog.goPremiumDialog(context);
+                      }
                       setState(() {
                         widget.tracking.checkError = null;
                       });
@@ -126,7 +135,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 isPortrait,
                 premiumUser,
                 fullHD,
-                OptionsTracking(
+                TrackingOptions(
                   tracking: widget.tracking,
                   menu: true,
                   action: '',
@@ -137,6 +146,12 @@ class _TrackingItemState extends State<TrackingItem> {
                 context,
                 serviceLogo,
                 widget.tracking,
+                TrackingFunctions.daysInTransit(
+                  context,
+                  widget.tracking.events[0]["date"]!,
+                  widget.tracking.events[widget.tracking.events.length - 1]
+                      ["date"]!,
+                ),
                 () => clickItem(selectionMode, premiumUser),
                 () => toggleSelectionMode(selectionMode),
                 screenWidth,
@@ -157,7 +172,7 @@ class _TrackingItemState extends State<TrackingItem> {
                 isPortrait,
                 premiumUser,
                 fullHD,
-                OptionsTracking(
+                TrackingOptions(
                   tracking: widget.tracking,
                   menu: true,
                   action: '',

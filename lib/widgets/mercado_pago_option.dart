@@ -7,7 +7,7 @@ import '../data/http_connection.dart';
 import '../data/preferences.dart';
 import '../data/theme.dart';
 
-import '../screens/mercado_pago.dart';
+import '../screens/premium.dart';
 import '../screens/mercado_pago_check.dart';
 import '../screens/mercado_pago_detail.dart';
 
@@ -24,7 +24,7 @@ class MercadoPagoOption extends StatefulWidget {
   final Map<String, String> deviceData;
   final Map<String, dynamic> paymentData;
   final BuildContext context;
-  MercadoPagoOption(
+  const MercadoPagoOption(
       this.premiumUser,
       this.adInterstitial,
       this.title,
@@ -50,24 +50,25 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
     });
   }
 
-  Future<void> optionHandler() async {
-    if (widget.buttonTitle == "VERIFICAR" &&
+  Future<void> optionHandler(Map<int, dynamic> texts) async {
+    final BuildContext ctx = context;
+    if (widget.buttonTitle == texts[104] &&
         widget.paymentData['status'] == "could not be checked") {
       DialogError.show(context, 21, "");
       return;
     }
-    if (widget.buttonTitle == "INGRESAR") {
+    if (widget.buttonTitle == texts[107]) {
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => MercadoPagoInput()));
+          .push(MaterialPageRoute(builder: (_) => const MercadoPagoInput()));
       return;
     }
-    if (widget.buttonTitle == "VER") {
+    if (widget.buttonTitle == texts[110]) {
       if (widget.paymentData["operationId"] == null) {
         DialogError.show(context, 18, "");
         return;
       }
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => PaymentDetail()));
+          .push(MaterialPageRoute(builder: (_) => const PaymentDetail()));
       return;
     }
     onProcessToggle();
@@ -81,21 +82,24 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
     }
     final Response response = await HttpConnection.requestHandler(
         "/api/mercadopago/checkDeviceId/", body);
+    if (!ctx.mounted) {
+      return;
+    }
     final Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, context);
+        HttpConnection.responseHandler(response, ctx);
     if (response.statusCode == 200) {
       if (responseData['result'] == "payment not found") {
-        DialogError.show(context, 16, "");
+        DialogError.show(ctx, 16, "");
       } else {
         if (responseData['result']['isValid'] == false) {
-          DialogError.show(context, 20, "");
+          DialogError.show(ctx, 20, "");
         }
-        Provider.of<UserPreferences>(context, listen: false)
+        Provider.of<UserPreferences>(ctx, listen: false)
             .setPaymentData(responseData['result']);
       }
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.show(context, 21, "");
+        DialogError.show(ctx, 21, "");
       }
     }
     onProcessToggle();
@@ -103,24 +107,27 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
+    final MaterialColor mainColor =
+        context.select((UserTheme theme) => theme.startColor);
     final Widget button = SizedBox(
       width: 175,
       child: ElevatedButton(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(widget.buttonIcon),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             screenText(widget.buttonTitle, fullHD),
           ],
-          mainAxisAlignment: MainAxisAlignment.center,
         ),
-        onPressed: optionHandler,
+        onPressed: () => optionHandler(texts),
       ),
     );
     final Widget title = Padding(
@@ -140,20 +147,20 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
       ),
     );
     return ConstrainedBox(
-      constraints: new BoxConstraints(maxHeight: isPortrait ? 147 : 100),
+      constraints: BoxConstraints(maxHeight: isPortrait ? 147 : 100),
       child: Container(
         padding: const EdgeInsets.only(left: 20, right: 20),
         child: onProcess
             ? Padding(
                 padding: EdgeInsets.only(top: isPortrait ? 6 : 15),
-                child: Center(child: CircularProgressIndicator()),
+                child: const Center(child: CircularProgressIndicator()),
               )
             : isPortrait
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       title,
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Text(
                         widget.description,
                         textAlign: TextAlign.center,
@@ -161,7 +168,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
                           fontSize: fullHD ? 17 : 16,
                         ),
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       button,
                     ],
                   )
@@ -169,11 +176,11 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       title,
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
+                          SizedBox(
                             width: screenWidth * .6,
                             child: Text(
                               widget.description,
@@ -182,7 +189,7 @@ class _MercadoPagoOptionState extends State<MercadoPagoOption> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Column(children: [button]),
                         ],
                       ),

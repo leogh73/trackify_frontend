@@ -27,7 +27,7 @@ class AdInterstitial {
     if (!isLoaded || _interstitialAd == null) return;
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) {
-        print('$ad onAdShowedFullScreenContent.');
+        // print('$ad onAdShowedFullScreenContent.');
       },
       onAdDismissedFullScreenContent: (InterstitialAd ad) {
         // print('$ad onAdDismissedFullScreenContent.');

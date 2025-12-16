@@ -23,6 +23,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
     bool isPortrait,
     double screenWidth,
     Map<String, dynamic> paymentData,
+    Map<int, dynamic> texts,
   ) {
     const Map<String, IconData> statusIcon = {
       "approved": Icons.check,
@@ -33,19 +34,18 @@ class _PaymentDetailState extends State<PaymentDetail> {
       "could not be checked": Icons.warning_amber,
     };
     Map<String, String> statusText = {
-      "approved": "Aprobado",
-      "pending": "Pendiente",
-      "rejected": "Rechazado",
-      "authorized": paymentData["paymentType"] == "simple"
-          ? "Autorizado (no acreditado)"
-          : "Autorizada",
-      "paused": "Pausada",
-      "cancelled": "Cancelado",
-      "in_process": "En proceso",
-      "in_mediation": "En mediación",
-      "refunded": "Reembolsado",
-      "charged_back": "Contracargo",
-      "could not be checked": "No se pudo verificar"
+      "approved": texts[74]!,
+      "pending": texts[75]!,
+      "rejected": texts[76]!,
+      "authorized":
+          paymentData["paymentType"] == "simple" ? texts[77]! : texts[78]!,
+      "paused": texts[79]!,
+      "cancelled": texts[80]!,
+      "in_process": texts[81]!,
+      "in_mediation": texts[82]!,
+      "refunded": texts[83]!,
+      "charged_back": texts[84]!,
+      "could not be checked": texts[85]!
     };
     final List<List<dynamic>> dataList = [
       [
@@ -59,19 +59,17 @@ class _PaymentDetailState extends State<PaymentDetail> {
         Icons.description_outlined,
       ],
       [
-        "Operación",
-        "Estado",
-        "Tipo de pago",
-        "Fecha",
-        paymentData["paymentType"] == "simple"
-            ? "Días restantes"
-            : "Día de cobro",
-        "Válido"
+        texts[86]!,
+        texts[87]!,
+        texts[88]!,
+        texts[89]!,
+        paymentData["paymentType"] == "simple" ? texts[90]! : texts[91]!,
+        texts[92]!
       ],
       [
         paymentData["operationId"].toString(),
         statusText[paymentData["status"]],
-        paymentData["paymentType"] == "simple" ? "Simple" : "Suscripción",
+        paymentData["paymentType"] == "simple" ? "Simple" : texts[93],
         paymentData["dateCreated"],
         paymentData["paymentType"] == "simple"
             ? paymentData["daysRemaining"].toString()
@@ -90,7 +88,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
             children: [
               Column(
                 children: dataList[0]
-                    .map((d) => Container(
+                    .map((d) => SizedBox(
                         height: 45,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,31 +98,35 @@ class _PaymentDetailState extends State<PaymentDetail> {
               ),
               Column(
                 children: dataList[1]
-                    .map((d) => Container(
+                    .map((d) => SizedBox(
                         height: 45,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(d,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 17))
+                            Text(
+                              d,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17),
+                            )
                           ],
                         )))
                     .toList(),
               ),
-              Container(
+              SizedBox(
                 width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.25,
                 child: Column(
                   children: dataList[2]
-                      .map((d) => Container(
+                      .map((d) => SizedBox(
                           height: 45,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(d,
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      overflow: TextOverflow.ellipsis))
+                              Text(
+                                d,
+                                style: const TextStyle(
+                                    fontSize: 17,
+                                    overflow: TextOverflow.ellipsis),
+                              )
                             ],
                           )))
                       .toList(),
@@ -145,19 +147,23 @@ class _PaymentDetailState extends State<PaymentDetail> {
 
   Future<void> cancelSubscription() async {
     onProcessToggle();
+    final BuildContext ctx = context;
     final String userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
+        Provider.of<UserPreferences>(ctx, listen: false).userId;
     Object body = {'userId': userId};
     final Response response = await HttpConnection.requestHandler(
         "/api/mercadopago/cancelSubscription/", body);
+    if (!ctx.mounted) {
+      return;
+    }
     final Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, context);
+        HttpConnection.responseHandler(response, ctx);
     if (response.statusCode == 200) {
-      Provider.of<UserPreferences>(context, listen: false)
+      Provider.of<UserPreferences>(ctx, listen: false)
           .setPaymentData(responseData['paymentData']);
     } else {
       if (responseData['serverError'] == null) {
-        DialogError.show(context, 21, "");
+        DialogError.show(ctx, 21, "");
       }
     }
     onProcessToggle();
@@ -165,18 +171,20 @@ class _PaymentDetailState extends State<PaymentDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final Map<String, dynamic> paymentData = context.select(
+        (UserPreferences userPreferences) => userPreferences.paymentData);
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
-    final Map<String, dynamic> paymentData =
-        Provider.of<UserPreferences>(context).paymentData;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Widget divider = Container(
-        padding: EdgeInsets.only(right: 20, left: 20),
+        padding: const EdgeInsets.only(right: 20, left: 20),
         child: Divider(color: Theme.of(context).primaryColor, thickness: .3));
     final Widget separator = SizedBox(height: isPortrait ? 10 : 15);
     final List<Widget> subscriptionOptions = paymentData['isValid'] == true &&
@@ -186,17 +194,20 @@ class _PaymentDetailState extends State<PaymentDetail> {
             divider,
             separator,
             Padding(
-              padding:
-                  isPortrait ? EdgeInsets.all(0) : EdgeInsets.only(bottom: 20),
+              padding: isPortrait
+                  ? const EdgeInsets.all(0)
+                  : const EdgeInsets.only(bottom: 20),
               child: SizedBox(
                 width: isPortrait ? 232 : 200,
                 child: ElevatedButton(
+                  onPressed: cancelSubscription,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.cancel_outlined),
-                      SizedBox(width: 20),
+                      const Icon(Icons.cancel_outlined),
+                      const SizedBox(width: 20),
                       Text(
-                        "CANCELAR",
+                        texts[94]!,
                         maxLines: 5,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -204,9 +215,7 @@ class _PaymentDetailState extends State<PaymentDetail> {
                         ),
                       ),
                     ],
-                    mainAxisAlignment: MainAxisAlignment.center,
                   ),
-                  onPressed: cancelSubscription,
                 ),
               ),
             ),
@@ -214,22 +223,22 @@ class _PaymentDetailState extends State<PaymentDetail> {
         : [];
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Detalle de pago"),
+        title: Text(texts[95]!),
         titleSpacing: 1.0,
-        actions: [],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         child: onProcess
-            ? Container(
+            ? SizedBox(
                 height: isPortrait ? screenHeight * 0.45 : screenHeight * 0.7,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 20),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 20),
                       Text(
-                        'Cancelando...',
+                        texts[179]!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
@@ -243,14 +252,15 @@ class _PaymentDetailState extends State<PaymentDetail> {
             : Column(
                 children: [
                   if (!premiumUser)
-                    Padding(
-                      child: AdNative("small"),
+                    const Padding(
                       padding: EdgeInsets.only(top: 5, bottom: 5),
+                      child: AdNative("small"),
                     ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      paymentDetail(isPortrait, screenWidth, paymentData),
+                      paymentDetail(
+                          isPortrait, screenWidth, paymentData, texts),
                     ],
                   ),
                   ...subscriptionOptions,

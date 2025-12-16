@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/screens/search.dart';
 
 import '../data/classes.dart';
 import '../data/../data/preferences.dart';
 import '../data/trackings_archived.dart';
 
-import '../widgets/options_tracking.dart';
+import '../widgets/tracking_options.dart';
 import '../widgets/tracking_list.dart';
 import '../widgets/ad_banner.dart';
 
 class Archived extends StatelessWidget {
   const Archived({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    final bool selectionMode =
-        Provider.of<ArchivedTrackings>(context).selectionModeStatus;
-    final List<ItemTracking> selection =
-        Provider.of<ArchivedTrackings>(context).selectionElements;
-    final List<ItemTracking> trackings =
-        Provider.of<ArchivedTrackings>(context).trackings;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final bool selectionMode = context.select(
+        (ArchivedTrackings archivedTrackings) =>
+            archivedTrackings.selectionMode);
+    final List<ItemTracking> selection = context.select(
+        (ArchivedTrackings archivedTrackings) =>
+            archivedTrackings.selectionElements);
+    final List<ItemTracking> trackingsList = context.select(
+        (ArchivedTrackings archivedTrackings) => archivedTrackings.trackings);
     return Scaffold(
       appBar: selectionMode
           ? AppBar(
@@ -32,12 +38,12 @@ class Archived extends StatelessWidget {
                         .toggleSelectionMode();
                   }),
               title: Text(
-                '${selection.length}/${trackings.length}',
+                '${selection.length}/${trackingsList.length}',
                 style: const TextStyle(fontSize: 19),
               ),
               actions: <Widget>[
                 if (selection.isNotEmpty)
-                  OptionsTracking(
+                  TrackingOptions(
                     tracking: ItemTracking(
                       code: '',
                       service: '',
@@ -60,14 +66,27 @@ class Archived extends StatelessWidget {
             )
           : AppBar(
               titleSpacing: 1.0,
-              title: const Text(
-                'Archivados',
-                style: TextStyle(fontSize: 19),
+              title: Text(
+                texts[8]!,
+                style: const TextStyle(fontSize: 19),
               ),
-              actions: const <Widget>[],
+              actions: <Widget>[
+                IconButton(
+                  tooltip: texts[6],
+                  icon: const Icon(Icons.search),
+                  iconSize: 27,
+                  onPressed: () => {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const Search("archived"),
+                      ),
+                    ),
+                  },
+                ),
+              ],
             ),
       body: Center(
-        child: TrackingList(trackings),
+        child: TrackingList(trackingsList),
       ),
       bottomNavigationBar: premiumUser ? null : const AdBanner(),
     );

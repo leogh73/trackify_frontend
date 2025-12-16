@@ -31,10 +31,12 @@ class DriveContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final List<dynamic> backupsData =
-        Provider.of<Status>(context).googleUserData;
+        context.select((Status status) => status.googleUserData);
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -51,11 +53,13 @@ class DriveContent extends StatelessWidget {
                   children: [
                     if (text.isNotEmpty) screenText(text, fullHD),
                     Padding(
-                      padding: EdgeInsets.only(top: 20, bottom: 5),
+                      padding: const EdgeInsets.only(top: 20, bottom: 5),
                       child: SizedBox(
                         width: isLoggedIn ? 260 : 172,
                         child: ElevatedButton(
+                          onPressed: createUpdate,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               isLoggedIn
                                   ? const Icon(Icons.cloud_upload)
@@ -63,36 +67,34 @@ class DriveContent extends StatelessWidget {
                               const SizedBox(width: 15),
                               screenText(button, fullHD),
                             ],
-                            mainAxisAlignment: MainAxisAlignment.center,
                           ),
-                          onPressed: createUpdate,
                         ),
                       ),
                     ),
                     if (isLoggedIn)
                       Padding(
-                        padding: EdgeInsets.only(top: 5),
+                        padding: const EdgeInsets.only(top: 5),
                         child: SizedBox(
                           width: 260,
                           child: ElevatedButton(
+                            onPressed: restoreBackup,
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 isLoggedIn
                                     ? const Icon(Icons.cloud_download)
                                     : const Icon(Icons.login),
                                 const SizedBox(width: 15),
-                                screenText('RESTAURAR RESPALDO', fullHD),
+                                screenText(texts[169]!, fullHD),
                               ],
-                              mainAxisAlignment: MainAxisAlignment.center,
                             ),
-                            onPressed: restoreBackup,
                           ),
                         ),
                       ),
                     if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
+                      const Padding(
                         padding: EdgeInsets.only(bottom: 8),
+                        child: AdNative("medium"),
                       ),
                   ],
                 )
@@ -102,19 +104,21 @@ class DriveContent extends StatelessWidget {
                     if (text.isNotEmpty)
                       Expanded(
                         child: Padding(
+                          padding: const EdgeInsets.all(10),
                           child: screenText(text, fullHD),
-                          padding: EdgeInsets.all(10),
                         ),
                       ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(top: 20, bottom: 5),
+                          padding: const EdgeInsets.only(top: 20, bottom: 5),
                           child: SizedBox(
                             width: 260,
                             child: ElevatedButton(
+                              onPressed: createUpdate,
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   isLoggedIn
                                       ? const Icon(Icons.cloud_upload)
@@ -122,38 +126,36 @@ class DriveContent extends StatelessWidget {
                                   const SizedBox(width: 15),
                                   screenText(button, fullHD),
                                 ],
-                                mainAxisAlignment: MainAxisAlignment.center,
                               ),
-                              onPressed: createUpdate,
                             ),
                           ),
                         ),
                         if (isLoggedIn)
                           Padding(
-                            padding: EdgeInsets.only(top: 5, bottom: 10),
+                            padding: const EdgeInsets.only(top: 5, bottom: 10),
                             child: SizedBox(
                               width: 260,
                               child: ElevatedButton(
+                                onPressed: restoreBackup,
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     isLoggedIn
                                         ? const Icon(Icons.cloud_download)
                                         : const Icon(Icons.login),
                                     const SizedBox(width: 15),
-                                    screenText('RESTAURAR RESPALDO', fullHD),
+                                    screenText(texts[169]!, fullHD),
                                   ],
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                 ),
-                                onPressed: restoreBackup,
                               ),
                             ),
                           ),
                       ],
                     ),
                     if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
+                      const Padding(
                         padding: EdgeInsets.only(bottom: 8),
+                        child: AdNative("medium"),
                       ),
                   ],
                 ),

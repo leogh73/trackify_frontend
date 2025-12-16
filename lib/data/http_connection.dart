@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs_lite.dart' as lite;
 import 'dart:async';
 import 'package:http/http.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
@@ -13,12 +14,12 @@ class HttpConnection {
     try {
       response = await Client()
           .post(Uri.parse("${dotenv.env['API_URL_1']}$route"), body: body)
-          .timeout(const Duration(seconds: 9));
+          .timeout(const Duration(seconds: 12));
     } catch (e) {
       try {
         response = await Client()
             .post(Uri.parse("${dotenv.env['API_URL_2']}$route"), body: body)
-            .timeout(const Duration(seconds: 9));
+            .timeout(const Duration(seconds: 12));
       } catch (e) {
         response = Response(
           e is TimeoutException
@@ -41,5 +42,20 @@ class HttpConnection {
           : DialogError.show(context, 1, "");
     }
     return responseData;
+  }
+
+  static Future<void> customTabsLaunchUrl(
+      String url, BuildContext context) async {
+    try {
+      await lite.launchUrl(
+        Uri.parse(url),
+        options: lite.LaunchOptions(
+          barColor: Theme.of(context).primaryColor,
+          barFixingEnabled: false,
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }

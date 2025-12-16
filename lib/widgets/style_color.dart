@@ -7,30 +7,30 @@ class StyleColor extends StatefulWidget {
   const StyleColor({Key? key}) : super(key: key);
 
   @override
-  _StyleColorState createState() => _StyleColorState();
+  StyleColorState createState() => StyleColorState();
 }
 
-class _StyleColorState extends State<StyleColor> {
+class StyleColorState extends State<StyleColor> {
   late MaterialColor startColor;
 
   List<ModelGridItem> grid = [];
   final List<MaterialColor> colors = [
     Colors.teal,
     Colors.indigo,
-    Colors.green,
     Colors.pink,
     Colors.blue,
-    Colors.red,
     Colors.purple,
-    Colors.deepOrange,
-    Colors.deepPurple,
     Colors.blueGrey,
+    Colors.deepOrange,
+    Colors.green,
+    Colors.brown,
     Colors.amber,
-    Colors.lime,
     Colors.cyan,
-    Colors.yellow,
+    Colors.orange,
     Colors.grey,
-    Colors.lightBlue
+    Colors.deepPurple,
+    Colors.red,
+    Colors.lightBlue,
   ];
 
   @override
@@ -45,8 +45,6 @@ class _StyleColorState extends State<StyleColor> {
 
   @override
   Widget build(BuildContext context) {
-    // final chosenColor =
-    //     Provider.of<EstiloColorInicial>(context, listen: false);
     final screenWidth = MediaQuery.of(context).size.width;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -60,14 +58,13 @@ class _StyleColorState extends State<StyleColor> {
                 ? (screenWidth * 0.65) * 0.98
                 : (screenWidth * 0.345) * 0.965,
             child: GridView.count(
-              // shrinkWrap: true,
               padding: const EdgeInsets.only(right: 5, left: 5),
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
               crossAxisCount: 4,
               children: List.generate(
                 grid.length,
-                (index) => InkWell(
+                (index) => GestureDetector(
                   onTap: () {
                     setState(() {
                       for (var gridItem in grid) {

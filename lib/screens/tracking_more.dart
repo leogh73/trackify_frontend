@@ -11,15 +11,17 @@ class TrackingMore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: const Text("Más datos"),
+        title: Text(texts[123]!),
       ),
       body: moreDataList.isEmpty
           ? Center(
@@ -27,20 +29,20 @@ class TrackingMore extends StatelessWidget {
                 child: Column(
                   children: [
                     if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
+                      const Padding(
                         padding: EdgeInsets.only(top: 10, bottom: 60),
+                        child: AdNative("medium"),
                       ),
                     Center(
                       child: Text(
-                        'No hay más datos',
-                        style: TextStyle(fontSize: 24),
+                        texts[124]!,
+                        style: const TextStyle(fontSize: 24),
                       ),
                     ),
                     if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
+                      const Padding(
                         padding: EdgeInsets.only(top: 60, bottom: 10),
+                        child: AdNative("medium"),
                       )
                   ],
                 ),
@@ -52,9 +54,9 @@ class TrackingMore extends StatelessWidget {
                 child: Column(
                   children: [
                     if (!premiumUser)
-                      Padding(
-                        child: AdNative("medium"),
+                      const Padding(
                         padding: EdgeInsets.only(bottom: 8),
+                        child: AdNative("medium"),
                       ),
                     ...moreDataList
                         .map(
@@ -114,9 +116,9 @@ class TrackingMore extends StatelessWidget {
                                 ),
                               ),
                               if (!premiumUser)
-                                Padding(
-                                  child: AdNative("medium"),
+                                const Padding(
                                   padding: EdgeInsets.only(bottom: 8),
+                                  child: AdNative("medium"),
                                 ),
                             ],
                           ),

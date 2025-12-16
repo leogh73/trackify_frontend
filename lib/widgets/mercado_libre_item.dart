@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/../data/preferences.dart';
-import '../screens/form_add_edit.dart';
+import '../data/preferences.dart';
+import '../data/services.dart';
+
+import '../screens/form_add.dart';
+
 import '../widgets/ad_native.dart';
 import '../widgets/mercado_libre_check.dart';
 
@@ -11,16 +14,18 @@ class MercadoLibreItem extends StatefulWidget {
   const MercadoLibreItem(this.itemML, {Key? key}) : super(key: key);
 
   @override
-  _MercadoLibreItemState createState() => _MercadoLibreItemState();
+  MercadoLibreItemState createState() => MercadoLibreItemState();
 }
 
-class _MercadoLibreItemState extends State<MercadoLibreItem> {
+class MercadoLibreItemState extends State<MercadoLibreItem> {
   bool _expand = false;
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -80,11 +85,14 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                           size: 26,
                         ),
                         onPressed: () {
+                          if (widget.itemML.code.startsWith("MEL", 0)) {
+                            Provider.of<Services>(context, listen: false)
+                                .loadService("Mercado Libre", context);
+                          }
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => FormAddEdit(
-                                rename: false,
-                                mercadoLibre: true,
+                              builder: (_) => FormAdd(
+                                storeName: "Mercado Libre",
                                 shippingId: widget.itemML.shippingId,
                                 title: widget.itemML.title,
                                 code: widget.itemML.code,
@@ -111,7 +119,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                             child: Column(
                               children: [
                                 Text(
-                                  'Elementos:',
+                                  texts[173]!,
                                   style: TextStyle(
                                       color: Theme.of(context).primaryColor,
                                       fontSize: fullHD ? 16 : 15),
@@ -146,7 +154,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                             child: Column(
                               children: [
                                 Text(
-                                  'Origen:',
+                                  texts[174]!,
                                   style: TextStyle(
                                       color: Theme.of(context).primaryColor,
                                       fontSize: fullHD ? 16 : 15),
@@ -182,7 +190,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                             child: Column(
                               children: [
                                 Text(
-                                  'Destinatario:',
+                                  texts[175]!,
                                   style: TextStyle(
                                       color: Theme.of(context).primaryColor,
                                       fontSize: fullHD ? 16 : 15),
@@ -229,7 +237,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                       Column(
                                         children: [
                                           Text(
-                                            'Ultimo chequeo:',
+                                            texts[176]!,
                                             style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -274,7 +282,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                       Column(
                                         children: [
                                           Text(
-                                            'Inicio:',
+                                            texts[177]!,
                                             style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -320,7 +328,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                         Column(
                                           children: [
                                             Text(
-                                              'Código:',
+                                              texts[178]!,
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .primaryColor,
@@ -336,7 +344,6 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                           width: screenWidth * 0.315,
                                           padding: const EdgeInsets.only(
                                               top: 2, bottom: 2),
-                                          // width: 158,
                                           child: Text(
                                             widget.itemML.code,
                                             overflow: TextOverflow.ellipsis,
@@ -373,7 +380,7 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
                                     padding: const EdgeInsets.only(right: 7),
                                     // alignment: Alignment.centerLeft,
                                     child: Text(
-                                      'Código:',
+                                      texts[178]!,
                                       style: TextStyle(
                                           color: Theme.of(context).primaryColor,
                                           fontSize: fullHD ? 16 : 15),
@@ -404,9 +411,9 @@ class _MercadoLibreItemState extends State<MercadoLibreItem> {
         ),
       ),
       if (!premiumUser)
-        Padding(
-          child: AdNative("small"),
+        const Padding(
           padding: EdgeInsets.only(bottom: 8),
+          child: AdNative("small"),
         ),
     ]);
   }

@@ -27,7 +27,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
   bool restoringBackup = false;
 
   List<Map<String, dynamic>> loadFetchedData(response, bool login) {
-    Map<String, dynamic> googleData = json.decode(response.body);
+    final Map<String, dynamic> googleData = json.decode(response.body);
     if (googleData['backups'].isNotEmpty) {
       Provider.of<Status>(context, listen: false)
           .loadGoogleBackups(googleData['backups'], login);
@@ -38,34 +38,43 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
   }
 
   Future checkDriveAccount() async {
-    String _userId =
+    final BuildContext ctx = context;
+    final String userId =
         Provider.of<UserPreferences>(context, listen: false).userId;
-    Object body = {
-      'userId': _userId,
+    final Object body = {
+      'userId': userId,
     };
-    Response response =
+    final Response response =
         await HttpConnection.requestHandler('/api/googledrive/consult', body);
     if (response.statusCode == 200) {
       return loadFetchedData(response, true);
     } else {
-      Provider.of<UserPreferences>(context, listen: false)
+      if (!ctx.mounted) {
+        return;
+      }
+      Provider.of<UserPreferences>(ctx, listen: false)
           .toggleGDErrorStatus(true);
-      Map<String, dynamic> responseData =
-          HttpConnection.responseHandler(response, context);
-      if (responseData['serverError'] == null)
-        DialogError.show(context, 12, "");
+      final Map<String, dynamic> responseData =
+          HttpConnection.responseHandler(response, ctx);
+      if (responseData['serverError'] == null) {
+        DialogError.show(ctx, 12, "");
+      }
     }
   }
 
   Future createUpdateBackup() async {
-    Provider.of<Status>(context, listen: false).toggleGoogleProcess(true);
-    Response response =
+    final BuildContext ctx = context;
+    Provider.of<Status>(ctx, listen: false).toggleGoogleProcess(true);
+    final Response response =
         await TrackingFunctions.updateCreateDriveBackup(false, context);
-    Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, context);
+    if (!ctx.mounted) {
+      return;
+    }
+    final Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, ctx);
     if (response.statusCode == 200) {
       final List<dynamic> backupsData =
-          Provider.of<Status>(context, listen: false).googleUserData;
+          Provider.of<Status>(ctx, listen: false).googleUserData;
       if (backupsData.isEmpty) {
         backupsData.insert(0, responseData);
       } else {
@@ -74,16 +83,16 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
       if (backupsData.length == 1) {
         backupsData.insert(1, {'date': null, 'currentDevice': false});
       }
-      Provider.of<Status>(context, listen: false)
+      Provider.of<Status>(ctx, listen: false)
           .loadGoogleBackups(backupsData, false);
     } else {
-      Provider.of<UserPreferences>(context, listen: false)
+      Provider.of<UserPreferences>(ctx, listen: false)
           .toggleGDErrorStatus(true);
       if (responseData['serverError'] == null) {
-        DialogError.show(context, 12, "");
+        DialogError.show(ctx, 12, "");
       }
     }
-    Provider.of<Status>(context, listen: false).toggleGoogleProcess(false);
+    Provider.of<Status>(ctx, listen: false).toggleGoogleProcess(false);
   }
 
   @override
@@ -93,7 +102,8 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
     Provider.of<Status>(context, listen: false).cleanSelectedBackup();
   }
 
-  void restoreDialog(bool fullHD, String selectedBackup) {
+  void restoreDialog(
+      bool fullHD, String selectedBackup, Map<int, dynamic> texts) {
     ShowDialog.restoreDriveBackup(
       context,
       selectedBackup,
@@ -119,11 +129,11 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
           : [
               Container(
                   padding: const EdgeInsets.only(top: 5),
-                  child: Icon(Icons.error_outline, size: 55)),
+                  child: const Icon(Icons.error_outline, size: 55)),
               Container(
                 padding: const EdgeInsets.all(15),
                 child: Text(
-                  '¿Confirma restaurar respaldo encontrado? Se borrarán todos los datos actuales y la aplicación se reiniciará.',
+                  texts[154]!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fullHD ? 16 : 15,
@@ -135,18 +145,27 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
         setState(() {
           restoringBackup = true;
         });
-        await StoredData().restoreBackupData(context, selectedBackup);
-        Phoenix.rebirth(context);
+        final BuildContext ctx = context;
+        await StoredData().restoreBackupData(ctx, selectedBackup);
+        if (!ctx.mounted) {
+          return;
+        }
+        Phoenix.rebirth(ctx);
       },
+      texts,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool onGoogleProcess = Provider.of<Status>(context).onProcessStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool onGoogleProcess =
+        context.select((Status status) => status.onProcessStatus);
     final List<dynamic> backupData =
-        Provider.of<Status>(context).googleUserData;
-    final String selectedBackup = Provider.of<Status>(context).selectedBackup;
+        context.select((Status status) => status.googleUserData);
+    final String selectedBackup =
+        context.select((Status status) => status.selectedBackup);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -168,7 +187,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
                         ),
                       ),
                       Text(
-                        'En proceso...',
+                        texts[155]!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
@@ -181,16 +200,14 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
               : DriveContent(
                   context,
                   true,
-                  backupData.isEmpty
-                      ? "Se creará un respaldo automáticamente, pero si lo desea, puede crear uno ahora."
-                      : "Se actualizará el respaldo de éste dispositivo automáticamente, pero si lo desea, puede actualizarlo manualmente o restaurar otro respaldo de su cuenta.",
+                  backupData.isEmpty ? texts[156]! : texts[157]!,
                   backupData.isEmpty || backupData[0]['date'] == null
-                      ? "CREAR RESPALDO"
-                      : "ACTUALIZAR RESPALDO",
+                      ? texts[158]!
+                      : texts[159]!,
                   () => createUpdateBackup(),
                   backupData.isEmpty || selectedBackup.isEmpty
                       ? null
-                      : () => restoreDialog(fullHD, selectedBackup),
+                      : () => restoreDialog(fullHD, selectedBackup, texts),
                 );
         } else {
           return Center(
@@ -206,7 +223,7 @@ class _GoogleDriveAccountState extends State<GoogleDriveAccount> {
                   ),
                 ),
                 Text(
-                  'Consultando...',
+                  texts[160]!,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,

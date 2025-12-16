@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/data/preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
-import '../data/status.dart';
 import '../screens/claim.dart';
+import '../screens/premium.dart';
 import '../widgets/show_message_again.dart';
+import '../data/status.dart';
 
 class ShowDialog {
   static bool fullHD(BuildContext context) {
@@ -24,6 +26,7 @@ class ShowDialog {
     BuildContext context,
     List<Widget> contentWidgets,
     List<Map<String, dynamic>> buttonsWidgets,
+    Map<int, dynamic> texts,
   ) {
     List<Widget> buttonsList = buttonsWidgets
         .map((button) => Row(
@@ -34,6 +37,7 @@ class ShowDialog {
                   width: button["width"].toDouble(),
                   padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: ElevatedButton(
+                    onPressed: button['function'],
                     child: Text(
                       button['text'],
                       textAlign: TextAlign.center,
@@ -41,7 +45,6 @@ class ShowDialog {
                         fontSize: fullHD(context) ? 16 : 15,
                       ),
                     ),
-                    onPressed: button['function'],
                   ),
                 )
               ],
@@ -59,14 +62,14 @@ class ShowDialog {
             ),
           ),
           contentPadding: const EdgeInsets.all(10),
-          content: Container(
+          content: SizedBox(
             width: 250,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ...contentWidgets,
-                if (showAgain) ShowMessageAgain(messageType),
+                if (showAgain) const ShowPaymentMessageAgain(),
                 if (serviceError.isNotEmpty)
                   Container(
                     height: 55,
@@ -74,7 +77,7 @@ class ShowDialog {
                     padding: const EdgeInsets.only(top: 8, bottom: 8),
                     child: ElevatedButton(
                       child: Text(
-                        "Reclamar",
+                        texts[193]!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: fullHD(dialogContext) ? 16 : 15,
@@ -85,7 +88,7 @@ class ShowDialog {
                         Navigator.push(
                           dialogContext,
                           MaterialPageRoute(
-                            builder: (_) => Claim(serviceError),
+                            builder: (_) => ServiceClaim(serviceError),
                           ),
                         );
                       },
@@ -98,7 +101,7 @@ class ShowDialog {
                     padding: const EdgeInsets.only(top: 8, bottom: 8),
                     child: ElevatedButton(
                       child: Text(
-                        "Cerrar",
+                        texts[233]!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: fullHD(dialogContext) ? 16 : 15,
@@ -120,7 +123,7 @@ class ShowDialog {
   }
 
   static void actionConfirmation(BuildContext context, String action,
-      String buttonText, VoidCallback buttonFunction) {
+      String buttonText, VoidCallback buttonFunction, Map<int, dynamic> texts) {
     show(
       false,
       false,
@@ -129,11 +132,9 @@ class ShowDialog {
       context,
       [
         Container(
-          padding: EdgeInsets.only(top: 6, bottom: 8),
+          padding: const EdgeInsets.only(top: 6, bottom: 8),
           child: Text(
-            action != "archivar"
-                ? "¿Confirma $action?"
-                : "¿Confirma archivar? Ésta acción no puede deshacerse.",
+            action != texts[190] ? "¿${texts[234]} $action?" : texts[235]!,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
@@ -142,16 +143,17 @@ class ShowDialog {
       [
         {
           "width": 110,
-          "text": "Cancelar",
+          "text": texts[18]!,
           "function": () => Navigator.pop(context),
         },
         {"width": 110, "text": buttonText, "function": buttonFunction},
       ],
+      texts,
     );
   }
 
-  static void styleDialog(
-      BuildContext context, bool isPortrait, Widget widget) {
+  static void styleDialog(BuildContext context, bool isPortrait, Widget widget,
+      Map<int, dynamic> texts) {
     show(
       false,
       false,
@@ -162,14 +164,16 @@ class ShowDialog {
       [
         {
           "width": 110,
-          "text": "Aceptar",
+          "text": texts[233],
           "function": () => Navigator.pop(context),
         }
       ],
+      texts,
     );
   }
 
-  static void error(BuildContext context, String message, String service) {
+  static void error(BuildContext context, String message, String service,
+      Map<int, dynamic> texts) {
     show(
       true,
       false,
@@ -179,7 +183,7 @@ class ShowDialog {
       [
         Container(
             padding: const EdgeInsets.only(top: 5),
-            child: Icon(Icons.error_outline, size: 55)),
+            child: const Icon(Icons.error_outline, size: 55)),
         Container(
           padding: const EdgeInsets.all(15),
           child: Text(
@@ -192,14 +196,12 @@ class ShowDialog {
         )
       ],
       [],
+      texts,
     );
   }
 
-  static void showMessage(
-    BuildContext context,
-    String message,
-    String type,
-  ) {
+  static void showMessage(BuildContext context, String message, String type,
+      Map<int, dynamic> texts) {
     show(
       true,
       true,
@@ -209,24 +211,26 @@ class ShowDialog {
       [
         Container(
           padding: const EdgeInsets.only(top: 5),
-          child: Icon(Icons.error_outline, size: 55),
+          child: const Icon(Icons.error_outline, size: 55),
         ),
         Container(
           padding: const EdgeInsets.all(15),
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
             ),
           ),
         )
       ],
       [],
+      texts,
     );
   }
 
-  static void waiting(BuildContext context, String message) {
+  static void waiting(
+      BuildContext context, String message, Map<int, dynamic> texts) {
     show(
       false,
       false,
@@ -252,35 +256,7 @@ class ShowDialog {
         ),
       ],
       [],
-    );
-  }
-
-  static void loading(BuildContext context) {
-    show(
-      false,
-      false,
-      "",
-      '',
-      context,
-      [
-        Container(
-          padding: const EdgeInsets.only(top: 10, bottom: 25),
-          child: const SizedBox(
-            height: 40,
-            width: 40,
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        Text(
-          'Cargando servicios...',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontSize: fullHD(context) ? 16 : 15,
-          ),
-        ),
-      ],
-      [],
+      texts,
     );
   }
 
@@ -301,10 +277,61 @@ class ShowDialog {
     }
   }
 
-  static void aboutThisApp(BuildContext context, bool premiumUser) {
-    final bool fHD = fullHD(context);
+  static void goPremiumDialog(BuildContext context) {
+    final Map<int, dynamic> texts =
+        Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
+    show(
+      true,
+      false,
+      "",
+      '',
+      context,
+      [
+        Container(
+          padding: const EdgeInsets.only(top: 5),
+          child: const Icon(Icons.workspace_premium, size: 55),
+        ),
+        Container(
+          padding: const EdgeInsets.all(15),
+          child: Text(
+            texts[150],
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 110,
+          child: ElevatedButton(
+            child: Text(
+              texts[251]!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fullHD(context) ? 16 : 15,
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const Premium(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+      [],
+      texts,
+    );
+  }
 
-    List<Widget> textsData = [
+  static void aboutThisApp(
+      BuildContext context, bool premiumUser, Map<int, dynamic> texts) {
+    final bool fHD = fullHD(context);
+    final List<Widget> textsData = [
       Text(
         "TrackeAR",
         textAlign: TextAlign.center,
@@ -314,14 +341,14 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.2.0 ${premiumUser ? 'Premium ' : ''}",
+        "Versión 1.3.0 ${premiumUser ? 'Premium ' : ''}",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
         ),
       ),
     ];
-    List<Widget> contentWidgets = textsData
+    final List<Widget> contentWidgets = textsData
         .map((widget) => Container(
               width: 245,
               padding: const EdgeInsets.only(bottom: 10, top: 10),
@@ -329,17 +356,17 @@ class ShowDialog {
             ))
         .toList();
 
-    List<Map<String, dynamic>> linksData = [
+    final List<Map<String, dynamic>> linksData = [
       {
-        "text": "Política de privacidad",
+        "text": texts[236],
         "onTap": launchPrivacyPolicy,
       },
       {
-        "text": "Califíquenos",
+        "text": texts[237],
         "onTap": launchPlayStore,
       },
       {
-        "text": "Licencias",
+        "text": texts[238],
         "onTap": () => {
               Navigator.pop(context),
               showLicensePage(
@@ -353,7 +380,7 @@ class ShowDialog {
       },
     ];
 
-    List<Widget> linksWidgets = linksData
+    final List<Widget> linksWidgets = linksData
         .map(
           (link) => Container(
             width: 245,
@@ -392,16 +419,18 @@ class ShowDialog {
       [
         {
           "width": 110,
-          "text": "Cerrar",
+          "text": texts[233],
           "function": () => {
                 Navigator.pop(context),
               },
         }
       ],
+      texts,
     );
   }
 
-  static void deleteDriveBackup(BuildContext context, String backupId) {
+  static void deleteDriveBackup(
+      BuildContext context, String backupId, Map<int, dynamic> texts) {
     show(
       false,
       false,
@@ -411,11 +440,11 @@ class ShowDialog {
       [
         Container(
             padding: const EdgeInsets.only(top: 5),
-            child: Icon(Icons.error_outline, size: 55)),
+            child: const Icon(Icons.error_outline, size: 55)),
         Container(
           padding: const EdgeInsets.all(15),
           child: Text(
-            '¿Desea eliminar éste respaldo? Ésta acción no puede deshacerse.',
+            texts[239]!,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: fullHD(context) ? 16 : 15,
@@ -439,15 +468,16 @@ class ShowDialog {
               },
         },
       ],
+      texts,
     );
   }
 
   static void restoreDriveBackup(
-    BuildContext context,
-    String selectedBackup,
-    List<Widget> content,
-    VoidCallback restoreFunction,
-  ) {
+      BuildContext context,
+      String selectedBackup,
+      List<Widget> content,
+      VoidCallback restoreFunction,
+      Map<int, dynamic> texts) {
     show(
       false,
       false,
@@ -458,15 +488,16 @@ class ShowDialog {
       [
         {
           "width": 110,
-          "text": "Cancelar",
+          "text": texts[26],
           "function": () => Navigator.pop(context),
         },
         {
           "width": 110,
-          "text": "Eliminar",
+          "text": texts[191],
           "function": restoreFunction,
         },
       ],
+      texts,
     );
   }
 }

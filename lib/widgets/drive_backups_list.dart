@@ -13,6 +13,8 @@ class DriveBackupsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     return backupsData.isEmpty
@@ -20,14 +22,14 @@ class DriveBackupsList extends StatelessWidget {
             child: isPortrait
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.cloud_off, size: 60),
-                      SizedBox(width: 20, height: 20),
+                    children: [
+                      const Icon(Icons.cloud_off, size: 60),
+                      const SizedBox(width: 20, height: 20),
                       Padding(
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         child: Text(
-                          'No se encontraron respaldos en su cuenta.',
-                          style: TextStyle(fontSize: 20),
+                          texts[161]!,
+                          style: const TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -35,14 +37,14 @@ class DriveBackupsList extends StatelessWidget {
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.cloud_off, size: 60),
-                      SizedBox(width: 40, height: 20),
+                    children: [
+                      const Icon(Icons.cloud_off, size: 60),
+                      const SizedBox(width: 40, height: 20),
                       Padding(
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         child: Text(
-                          'No se encontraron respaldos en su cuenta.',
-                          style: TextStyle(fontSize: 20),
+                          texts[161]!,
+                          style: const TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -70,8 +72,10 @@ class BackupItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -91,9 +95,7 @@ class BackupItem extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Text(
-                          index == 0
-                              ? 'No se encontraron respaldos de éste dispositivo.'
-                              : 'No se encontraron otros respaldos en su cuenta.',
+                          index == 0 ? texts[162]! : texts[161]!,
                           style: const TextStyle(fontSize: 20),
                         ),
                       ),
@@ -117,9 +119,7 @@ class BackupItem extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: Text(
-                              index == 0
-                                  ? 'No se encontraron respaldos de éste dispositivo.'
-                                  : 'No se encontraron otros respaldos en su cuenta.',
+                              index == 0 ? texts[162]! : texts[161]!,
                               style: const TextStyle(fontSize: 20),
                             ),
                           ),
@@ -147,10 +147,6 @@ class BackupItem extends StatelessWidget {
                     SizedBox(
                       width: screenWidth * 0.16,
                       child: Container(
-                        child: const Icon(
-                          Icons.cloud_done,
-                          size: 35,
-                        ),
                         padding: isPortrait
                             ? const EdgeInsets.only(
                                 left: 25,
@@ -158,6 +154,7 @@ class BackupItem extends StatelessWidget {
                             : const EdgeInsets.only(
                                 left: 10,
                               ),
+                        child: const Icon(Icons.cloud_done, size: 35),
                       ),
                     ),
                     Container(
@@ -173,8 +170,8 @@ class BackupItem extends StatelessWidget {
                             padding: const EdgeInsets.only(bottom: 6),
                             child: Text(
                               backup['currentDevice']
-                                  ? "Respaldo de éste dispositivo"
-                                  : "Otro respaldo",
+                                  ? texts[163]!
+                                  : texts[164]!,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                               style: TextStyle(
@@ -184,7 +181,7 @@ class BackupItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Nombre de dispositivo: ${backup['deviceModel']}",
+                            "${texts[165]} ${backup['deviceModel']}",
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: TextStyle(
@@ -192,7 +189,7 @@ class BackupItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Fecha: ${backup['date']}",
+                            "${texts[166]} ${backup['date']}",
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: TextStyle(
@@ -200,7 +197,7 @@ class BackupItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Activos: ${backup['activeTrackings']}",
+                            "${texts[167]} ${backup['activeTrackings']}",
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: TextStyle(
@@ -208,7 +205,7 @@ class BackupItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "Archivados: ${backup['archivedTrackings']}",
+                            "${texts[168]} ${backup['archivedTrackings']}",
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: TextStyle(
@@ -233,8 +230,8 @@ class BackupItem extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_forever, size: 32),
-                      onPressed: () =>
-                          ShowDialog.deleteDriveBackup(context, backup['id']),
+                      onPressed: () => ShowDialog.deleteDriveBackup(
+                          context, backup['id'], texts),
                     ),
                   ],
                 ),
@@ -248,9 +245,9 @@ class BackupItem extends StatelessWidget {
                   ),
                 ),
               if (!premiumUser)
-                Padding(
-                  child: AdNative("medium"),
+                const Padding(
                   padding: EdgeInsets.only(bottom: 8),
+                  child: AdNative("medium"),
                 ),
             ],
           );

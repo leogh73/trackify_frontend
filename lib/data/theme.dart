@@ -18,15 +18,15 @@ class UserTheme with ChangeNotifier {
   MaterialColor get startColor => _startColor;
 
   void updateDatabase(String type, dynamic value) async {
-    UserData _storedPreferences = [...await storedData.loadUserData()][0];
-    late UserData _newPreferences;
+    UserData storedPreferences = [...await storedData.loadUserData()][0];
+    late UserData newPreferences;
     if (type == "color") {
-      _newPreferences = _storedPreferences.edit(color: value);
+      newPreferences = storedPreferences.edit(color: value);
     }
     if (type == "darkMode") {
-      _newPreferences = _storedPreferences.edit(darkMode: value);
+      newPreferences = storedPreferences.edit(darkMode: value);
     }
-    storedData.updatePreferences(_newPreferences);
+    storedData.updatePreferences(newPreferences);
   }
 
   void loadNewColor(MaterialColor newStartColor) {
@@ -47,38 +47,38 @@ class UserTheme with ChangeNotifier {
   static Map<String, MaterialColor> getColor = {
     "teal": Colors.teal,
     "indigo": Colors.indigo,
-    "green": Colors.green,
     "pink": Colors.pink,
     "blue": Colors.blue,
-    "red": Colors.red,
     "purple": Colors.purple,
-    "deepOrange": Colors.deepOrange,
-    "deepPurple": Colors.deepPurple,
     "blueGrey": Colors.blueGrey,
+    "deepPurple": Colors.deepOrange,
+    "green": Colors.green,
+    "brown": Colors.brown,
     "amber": Colors.amber,
-    "lime": Colors.lime,
     "cyan": Colors.cyan,
-    "yellow": Colors.yellow,
+    "orange": Colors.orange,
     "grey": Colors.grey,
+    "deepOrange": Colors.deepPurple,
+    "red": Colors.red,
     "lightBlue": Colors.lightBlue,
   };
 
   static Map<MaterialColor, String> setColor = {
     Colors.teal: "teal",
     Colors.indigo: "indigo",
-    Colors.green: 'green',
     Colors.pink: 'pink',
     Colors.blue: 'blue',
-    Colors.red: 'red',
     Colors.purple: 'purple',
-    Colors.deepOrange: 'deepOrange',
-    Colors.deepPurple: 'deepPurple',
     Colors.blueGrey: 'blueGrey',
+    Colors.deepOrange: 'deepOrange',
+    Colors.green: 'green',
+    Colors.brown: 'brown',
     Colors.amber: 'amber',
-    Colors.lime: 'lime',
     Colors.cyan: 'cyan',
-    Colors.yellow: 'yellow',
+    Colors.orange: 'orange',
     Colors.grey: 'grey',
+    Colors.deepPurple: 'deepPurple',
+    Colors.red: 'red',
     Colors.lightBlue: 'lightBlue',
   };
 }

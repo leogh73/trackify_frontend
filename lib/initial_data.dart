@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -27,22 +27,6 @@ class Init {
       sound: true,
     );
 
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'high_importance_channel',
-        'High Importance Notifications',
-        description: 'This channel is used for important notifications.',
-        importance: Importance.max,
-      );
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-          FlutterLocalNotificationsPlugin();
-
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
-    }
-
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
@@ -57,21 +41,23 @@ class Init {
   }
 
   static Future<UserData> loadNewUserData() async {
-    UserData startPreferences = UserData(
+    final String defaultLocale = Platform.localeName.split("_")[0];
+    final Map<String, String> languages = {"en": "english", "es": "español"};
+    final UserData startPreferences = UserData(
       id: 0,
       userId: '',
+      language: languages[defaultLocale] ?? "english",
       color: "teal",
       view: "row",
+      sortTrackingsBy: 205,
       darkMode: false,
-      searchHistory: [],
       meLiStatus: false,
+      lastSync: DateTime.now().toString(),
       googleDriveStatus: false,
-      statusMessage: '',
-      showAgainStatusMessage: true,
       showAgainPaymentError: true,
       servicesData: {},
     );
-    String? firebaseToken = await firebaseMessagingNotifications();
+    final String? firebaseToken = await firebaseMessagingNotifications();
     if (firebaseToken == "BLACKLISTED") return startPreferences;
     Response response = await HttpConnection.requestHandler(
         '/api/user/initialize/', {'token': firebaseToken});
@@ -85,11 +71,26 @@ class Init {
   }
 
   static Future<Map<String, dynamic>> startUserCheck(String userId) async {
-    Response response = await HttpConnection.requestHandler(
+    final Response response = await HttpConnection.requestHandler(
         '/api/user/initialize/', {'userId': userId});
-    Map<String, dynamic> mercadoPagoData =
-        json.decode(response.body)['mercadoPagoData'] ?? {'isValid': false};
-    return mercadoPagoData;
+    Map<String, dynamic> paymentData = {'isValid': false};
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      if (responseData['mercadoPagoData'] != null) {
+        paymentData = responseData["mercadoPagoData"];
+      }
+      if (responseData['paypalData'] != null) {
+        paymentData = responseData["paypalData"];
+      }
+    }
+    return paymentData;
+  }
+
+  static String setSyncDate(UserData userPreferences) {
+    final String newDate = DateTime.now().toString();
+    final UserData newPreferences = userPreferences.edit(lastSync: newDate);
+    storedData.updatePreferences(newPreferences);
+    return newDate;
   }
 
   static Future<StartData> loadStartData() async {
@@ -99,79 +100,80 @@ class Init {
     }
 
     List<ItemTracking> activeTrackings = await storedData.loadActiveTrackings();
-    List<ItemTracking> archTrackings = await storedData.loadArchivedTrackings();
+    List<ItemTracking> archivedTrackings =
+        await storedData.loadArchivedTrackings();
 
     String userId = userPreferences[0].userId;
+    String language = userPreferences[0].language;
     MaterialColor startColor = UserTheme.getColor[userPreferences[0].color]!;
     String startView = userPreferences[0].view;
+    int sortTrackingsBy = userPreferences[0].sortTrackingsBy;
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
+    String lastSyncDate =
+        userPreferences[0].lastSync ?? setSyncDate([...userPreferences][0]);
     bool driveStatus = userPreferences[0].googleDriveStatus;
-    String statusMessage = userPreferences[0].statusMessage;
-    bool showAgainStatusMessage = userPreferences[0].showAgainStatusMessage;
-    bool showAgainPaymentError =
-        userPreferences[0].showAgainPaymentError ?? true;
+    bool showAgainPaymentError = userPreferences[0].showAgainPaymentError!;
     Map<String, dynamic> servicesData = userPreferences[0].servicesData ?? {};
-    Map<String, dynamic> mercadoPago = userPreferences.isEmpty
+
+    Map<String, dynamic> paymentData = userPreferences.isEmpty
         ? {'isValid': false}
         : await startUserCheck(userId);
-
-    List<String> searchHistory = [...userPreferences[0].searchHistory.reversed];
 
     List<ItemTracking> startActiveTrackings =
         activeTrackings.isEmpty ? [] : [...activeTrackings.reversed];
 
     List<ItemTracking> startArchivedTrackings =
-        archTrackings.isEmpty ? [] : [...archTrackings.reversed];
+        archivedTrackings.isEmpty ? [] : [...archivedTrackings.reversed];
 
     return StartData(
       userId,
+      language,
       startColor,
       startView,
+      sortTrackingsBy,
       startThemeDarkMode,
       meliStatus,
       driveStatus,
-      statusMessage,
-      showAgainStatusMessage,
       showAgainPaymentError,
       servicesData,
-      mercadoPago,
-      searchHistory,
+      paymentData,
       startActiveTrackings,
       startArchivedTrackings,
+      lastSyncDate,
     );
   }
 }
 
 class StartData {
   String userId;
+  String language;
   MaterialColor startColor;
   String startView;
+  int sortTrackingsBy;
   bool darkMode;
   bool mercadoLibre;
   bool googleDrive;
-  String statusMessage;
-  bool showAgainStatusMessage;
   bool showAgainPaymentError;
   Map<String, dynamic> servicesData;
-  Map<String, dynamic> mercadoPago;
-  List<String> searchHistory;
+  Map<String, dynamic> paymentData;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
+  String lastSyncDate;
   StartData(
     this.userId,
+    this.language,
     this.startColor,
     this.startView,
+    this.sortTrackingsBy,
     this.darkMode,
     this.mercadoLibre,
     this.googleDrive,
-    this.statusMessage,
-    this.showAgainStatusMessage,
     this.showAgainPaymentError,
     this.servicesData,
-    this.mercadoPago,
-    this.searchHistory,
+    this.paymentData,
     this.activeTrackings,
     this.archivedTrackings,
+    this.lastSyncDate,
   );
 }

@@ -56,28 +56,32 @@ class _FormContactState extends State<FormContact> {
     super.dispose();
   }
 
-  void sendRequest(fullHD) async {
+  void sendRequest(bool fullHD, Map<int, dynamic> texts) async {
     late String uuid;
     try {
       uuid = await _deviceUuidPlugin.getUUID() ?? '';
     } catch (e) {
-      print("Error getting UUID: $e");
+      // print("Error getting UUID: $e");
+    }
+    if (!mounted) {
+      return;
     }
     if (formKey.currentState?.validate() == false) {
       DialogError.show(context, 3, "");
+      return;
     } else {
-      ShowDialog.waiting(context, "Enviando...");
+      ShowDialog.waiting(context, texts[20]!, texts);
       String requestEmail = 'Sin datos';
       if (email.text.isNotEmpty) requestEmail = email.text;
-      String userId =
+      final String userId =
           Provider.of<UserPreferences>(context, listen: false).userId;
-      Object body = {
+      final Object body = {
         'userId': userId,
         'uuid': uuid,
         'message': message.text,
         'email': requestEmail,
       };
-      Response response =
+      final Response response =
           await HttpConnection.requestHandler('/api/user/contact/', body);
       setState(() {
         index = 4;
@@ -85,15 +89,20 @@ class _FormContactState extends State<FormContact> {
         if (response.statusCode == 403) index = 2;
         if (response.statusCode == 400) index = 3;
       });
+      if (!mounted) {
+        return;
+      }
       Navigator.pop(context);
       final List<ItemTracking> trackingsList =
           Provider.of<ActiveTrackings>(context, listen: false).trackings;
-      if (!premiumUser && trackingsList.isNotEmpty)
+      if (!premiumUser && trackingsList.isNotEmpty) {
         interstitialAd.showInterstitialAd();
+        ShowDialog.goPremiumDialog(context);
+      }
     }
   }
 
-  Widget requestForm(bool fullHD) {
+  Widget requestForm(bool fullHD, Map<int, dynamic> texts) {
     final MaterialColor mainColor =
         Provider.of<UserTheme>(context, listen: false).startColor;
     final List<ItemTracking> trackingsList =
@@ -104,8 +113,8 @@ class _FormContactState extends State<FormContact> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            child: premiumUser ? null : AdNative("small"),
-            padding: EdgeInsets.only(top: 10, bottom: 10),
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: premiumUser ? null : const AdNative("small"),
           ),
           Form(
             key: formKey,
@@ -117,7 +126,7 @@ class _FormContactState extends State<FormContact> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Si tienes dudas, sugerencias o recomendaciones, puedes utlizar el siguiente formulario para contactarnos. De ser necesario, nos pondremos en contacto y te responderemos a la brevedad.",
+                        texts[21]!,
                         maxLines: 10,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -130,9 +139,8 @@ class _FormContactState extends State<FormContact> {
                     padding: const EdgeInsets.only(top: 10),
                     child: TextFormField(
                       maxLines: 3,
-                      // focusNode: FocusNode(),
                       decoration: InputDecoration(
-                          hintText: "Escriba su mensaje",
+                          hintText: texts[22],
                           border: OutlineInputBorder(
                               borderSide: BorderSide(
                             width: 1,
@@ -143,7 +151,7 @@ class _FormContactState extends State<FormContact> {
                       autofocus: false,
                       validator: (value) {
                         if (value == null || value.length < 3) {
-                          return 'Ingrese un mensage';
+                          return texts[23];
                         }
                         return null;
                       },
@@ -152,16 +160,16 @@ class _FormContactState extends State<FormContact> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: TextFormField(
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 5),
-                        labelText: "Email de contacto",
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(top: 5),
+                        labelText: texts[24],
                       ),
                       controller: email,
                       textInputAction: TextInputAction.next,
                       autofocus: false,
                       validator: (value) {
                         if (value == null || !value.contains("@")) {
-                          return 'Ingrese un correo electrónico';
+                          return texts[25];
                         }
                         return null;
                       },
@@ -177,37 +185,43 @@ class _FormContactState extends State<FormContact> {
                           SizedBox(
                             width: 120,
                             child: ElevatedButton(
-                                child: const Text(
-                                  'Cancelar',
-                                  style: TextStyle(fontSize: 17),
+                                child: Text(
+                                  texts[26]!,
+                                  style: const TextStyle(fontSize: 17),
                                 ),
-                                onPressed: () => {
-                                      Navigator.pop(context),
-                                      if (!premiumUser &&
-                                          trackingsList.isNotEmpty)
-                                        interstitialAd.showInterstitialAd(),
-                                    }),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  if (!premiumUser &&
+                                      trackingsList.isNotEmpty) {
+                                    interstitialAd.showInterstitialAd();
+                                    ShowDialog.goPremiumDialog(context);
+                                  }
+                                }),
                           ),
                           const SizedBox(width: 10),
                           SizedBox(
                             width: 120,
                             child: ElevatedButton(
-                                child: const Text(
-                                  "Enviar",
-                                  style: TextStyle(fontSize: 17),
+                                child: Text(
+                                  texts[27]!,
+                                  style: const TextStyle(fontSize: 17),
                                 ),
-                                onPressed: () => {
-                                      sendRequest(fullHD),
-                                      if (!premiumUser &&
-                                          trackingsList.isNotEmpty)
-                                        interstitialAd.showInterstitialAd(),
-                                    }),
+                                onPressed: () {
+                                  sendRequest(fullHD, texts);
+                                  if (!premiumUser &&
+                                      trackingsList.isNotEmpty) {
+                                    interstitialAd.showInterstitialAd();
+                                    ShowDialog.goPremiumDialog(context);
+                                  }
+                                }),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(width: 50, height: 10),
+                  if (!premiumUser && trackingsList.isNotEmpty)
+                    const AdNative("medium"),
+                  if (premiumUser) const SizedBox(width: 50, height: 10),
                 ],
               ),
             ),
@@ -217,7 +231,8 @@ class _FormContactState extends State<FormContact> {
     );
   }
 
-  Widget sendResult(String text1, String text2, bool success) {
+  Widget sendResult(
+      String text1, String text2, bool success, Map<int, dynamic> texts) {
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     return Column(
@@ -226,35 +241,37 @@ class _FormContactState extends State<FormContact> {
         Icon(success ? Icons.done_all : Icons.error_outline, size: 80),
         if (success)
           Padding(
+            padding: const EdgeInsets.all(20),
             child: Text(
               text1,
-              style: TextStyle(fontSize: 22),
+              style: const TextStyle(fontSize: 22),
               textAlign: TextAlign.center,
             ),
-            padding: EdgeInsets.all(20),
           ),
         Padding(
+          padding: const EdgeInsets.all(20),
           child: Text(
             text2,
-            style: TextStyle(fontSize: 22),
+            style: const TextStyle(fontSize: 22),
             textAlign: TextAlign.center,
           ),
-          padding: EdgeInsets.all(20),
         ),
         SizedBox(
           width: 120,
           child: ElevatedButton(
-            child: const Text(
-              'Aceptar',
-              style: TextStyle(fontSize: 17),
+            child: Text(
+              texts[28]!,
+              style: const TextStyle(fontSize: 17),
             ),
             onPressed: () {
-              if (!premiumUser && trackingsList.isNotEmpty)
+              if (!premiumUser && trackingsList.isNotEmpty) {
                 interstitialAd.showInterstitialAd();
+              }
               Navigator.pop(context);
-              if (index == 3)
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => Claim('')));
+              if (index == 3) {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ServiceClaim("")));
+              }
             },
           ),
         ),
@@ -270,47 +287,33 @@ class _FormContactState extends State<FormContact> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumStatus =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    if (premiumStatus != premiumUser) {
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    if (premiumUser != premiumUser) {
       togglePremiumStatus();
     }
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final Map<int, Widget> results = {
-      0: requestForm(fullHD),
-      1: sendResult(
-        'Su mensaje fue enviado correctamente.',
-        'Muchas gracias por su tiempo. Nos pondremos en contacto de ser necesario.',
-        true,
-      ),
-      2: sendResult(
-        '',
-        'Ocurrió un error al enviar los datos. El correo electrónico ingresado no es válido . Verifique y vuelva a intentarlo.',
-        false,
-      ),
-      3: sendResult(
-        '',
-        'El formulario de contacto no es para hacer reclamos ni preguntas sobre servicios. La información que le proveemos, es la que informa la empresa de transporte. Si tiene problemas con un envío o quiere hacer consultas, debe comunicarse con dicha empresa.',
-        false,
-      ),
-      4: sendResult(
-        '',
-        'Ocurrió un error al enviar los datos. Reintente más tarde. Disculpe las molestias ocasionadas.',
-        false,
-      )
+      0: requestForm(fullHD, texts),
+      1: sendResult(texts[29]!, texts[30]!, true, texts),
+      2: sendResult('', texts[31]!, false, texts),
+      3: sendResult('', texts[32]!, false, texts),
+      4: sendResult('', texts[33]!, false, texts)
     };
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 1.0,
-        title: const Text('Contáctanos'),
+        title: Text(texts[34]!),
         actions: [
           if (index == 0)
             IconButton(
               icon: const Icon(Icons.send),
               iconSize: 26,
-              onPressed: () => sendRequest(fullHD),
+              onPressed: () => sendRequest(fullHD, texts),
             ),
         ],
       ),

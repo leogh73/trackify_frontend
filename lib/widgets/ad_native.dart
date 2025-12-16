@@ -35,14 +35,14 @@ class _AdNativeState extends State<AdNative> {
       factoryId: 'adFactoryExample',
       listener: NativeAdListener(
         onAdLoaded: (ad) {
-          print("NATIVE_AD_SHOWED");
+          // print("NATIVE_AD_SHOWED");
           // print('$NativeAd loaded.');
           setState(() {
             _isLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
-          print("NATIVE_AD_FAILED_$error");
+          // print("NATIVE_AD_FAILED_$error");
           // print('$NativeAd failedToLoad: $error');
           ad.dispose();
         },
@@ -69,10 +69,10 @@ class _AdNativeState extends State<AdNative> {
   Widget build(BuildContext context) {
     return _isLoaded
         ? Container(
-            child: AdWidget(ad: _nativeAd!),
             alignment: Alignment.center,
-            padding: EdgeInsets.only(right: 3, left: 3),
+            padding: const EdgeInsets.only(right: 3, left: 3),
             height: widget.size == "small" ? 90 : 180,
+            child: AdWidget(ad: _nativeAd!),
           )
         : const SizedBox();
   }

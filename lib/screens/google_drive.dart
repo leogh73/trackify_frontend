@@ -17,8 +17,7 @@ import '../data/../data/preferences.dart';
 import '../data/status.dart';
 
 class GoogleDrive extends StatefulWidget {
-  final AdInterstitial adInterstitial;
-  GoogleDrive(this.adInterstitial, {Key? key}) : super(key: key);
+  const GoogleDrive({Key? key}) : super(key: key);
 
   @override
   State<GoogleDrive> createState() => _GoogleDriveState();
@@ -27,17 +26,29 @@ class GoogleDrive extends StatefulWidget {
 class _GoogleDriveState extends State<GoogleDrive> {
   late bool isLoggedIn = false;
 
-  Future googleAccount(String action, BuildContext context) async {
-    GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+  AdInterstitial adInterstitial = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    adInterstitial.createInterstitialAd();
+  }
+
+  Future googleAccount(String action) async {
+    final BuildContext ctx = context;
+    GoogleSignIn googleSignIn = GoogleSignIn(scopes: [
       "https://www.googleapis.com/auth/drive.appdata",
       'https://www.googleapis.com/auth/drive.file'
     ]);
     GoogleSignInAccount? userAccount;
     if (action == "login") {
-      userAccount = await _googleSignIn.signIn();
+      userAccount = await googleSignIn.signIn();
       if (userAccount != null) {
-        Provider.of<UserPreferences>(context, listen: false).initializeGoogle(
-          context,
+        if (!ctx.mounted) {
+          return;
+        }
+        Provider.of<UserPreferences>(ctx, listen: false).initializeGoogle(
+          ctx,
           userAccount.serverAuthCode!,
           userAccount.email,
         );
@@ -48,11 +59,14 @@ class _GoogleDriveState extends State<GoogleDrive> {
         return;
       }
     } else {
-      userAccount = await _googleSignIn.signOut();
+      userAccount = await googleSignIn.signOut();
       setState(() {
         isLoggedIn = false;
       });
-      Provider.of<UserPreferences>(context, listen: false)
+      if (!ctx.mounted) {
+        return;
+      }
+      Provider.of<UserPreferences>(ctx, listen: false)
           .toggleGoogleStatus(false);
     }
   }
@@ -74,21 +88,23 @@ class _GoogleDriveState extends State<GoogleDrive> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context).trackings;
-    final bool driveStatus = Provider.of<UserPreferences>(context).gdStatus;
-    final String driveEmail = Provider.of<Status>(context).googleEmail;
-    final bool errorCheckDrive =
-        Provider.of<UserPreferences>(context).errorOperationGD;
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    final bool driveStatus = context
+        .select((UserPreferences userPreferences) => userPreferences.gdStatus);
+    final bool errorCheckDrive = context.select(
+        (UserPreferences userPreferences) => userPreferences.errorOperationGD);
+    final String driveEmail =
+        context.select((Status status) => status.googleEmail);
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    String description =
-        "Puede usar su cuenta de Google Drive para crear una copia de seguridad de sus seguimientos y preferencias, por cada dispositivo donde instale la aplicación. Luego podrá restaurar éstos datos si cambia de dispositivo, o reinstala la aplicación.";
     return Scaffold(
       appBar: AppBar(
         title: const Text("Google Drive"),
@@ -105,11 +121,10 @@ class _GoogleDriveState extends State<GoogleDrive> {
                 ? const Icon(Icons.logout)
                 : const Icon(Icons.login),
             onPressed: () {
-              if (!premiumUser && trackingsList.isNotEmpty)
-                widget.adInterstitial.showInterstitialAd();
-              driveStatus
-                  ? googleAccount('logout', context)
-                  : googleAccount('login', context);
+              if (!premiumUser && trackingsList.isNotEmpty) {
+                adInterstitial.showInterstitialAd();
+              }
+              driveStatus ? googleAccount('logout') : googleAccount('login');
             },
           ),
         ],
@@ -120,8 +135,8 @@ class _GoogleDriveState extends State<GoogleDrive> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                child: premiumUser ? null : AdNative("small"),
-                padding: EdgeInsets.only(top: 10, bottom: 60),
+                padding: const EdgeInsets.only(top: 10, bottom: 60),
+                child: premiumUser ? null : const AdNative("small"),
               ),
               if (isPortrait && !driveStatus)
                 Container(
@@ -132,7 +147,7 @@ class _GoogleDriveState extends State<GoogleDrive> {
                     children: [
                       const Icon(Icons.cloud_queue, size: 80),
                       Text(
-                        description,
+                        texts[35]!,
                         maxLines: 7,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -149,14 +164,14 @@ class _GoogleDriveState extends State<GoogleDrive> {
                   child: Row(
                     children: [
                       Container(
-                        child: const Icon(Icons.cloud_queue, size: 80),
                         padding: const EdgeInsets.only(right: 10),
+                        child: const Icon(Icons.cloud_queue, size: 80),
                       ),
                       const SizedBox(width: 25),
                       Expanded(
                         child: Container(
-                          child: screenText(description, fullHD),
                           padding: const EdgeInsets.only(right: 20),
+                          child: screenText(texts[35]!, fullHD),
                         ),
                       ),
                     ],
@@ -167,32 +182,33 @@ class _GoogleDriveState extends State<GoogleDrive> {
                       ? DriveContent(
                           context,
                           false,
-                          'Error de consulta a GoogleDrive',
-                          'REINTENTAR',
+                          texts[36]!,
+                          texts[37]!,
                           () => Provider.of<UserPreferences>(context,
                                   listen: false)
                               .toggleGDErrorStatus(false),
                           null,
                         )
-                      : GoogleDriveAccount()
+                      : const GoogleDriveAccount()
                   : DriveContent(
                       context,
                       false,
                       '',
-                      'INGRESAR',
+                      texts[38]!,
                       () {
-                        if (!premiumUser && trackingsList.isNotEmpty)
-                          widget.adInterstitial.showInterstitialAd();
-                        googleAccount("login", context);
+                        if (!premiumUser && trackingsList.isNotEmpty) {
+                          adInterstitial.showInterstitialAd();
+                        }
+                        googleAccount("login");
                       },
                       null,
                     ),
               if (!premiumUser && trackingsList.isNotEmpty)
-                Padding(
-                  child: AdNative("medium"),
+                const Padding(
                   padding: EdgeInsets.only(top: 8, bottom: 8),
+                  child: AdNative("medium"),
                 ),
-              SizedBox(width: 50, height: 180),
+              const SizedBox(width: 50, height: 180),
             ],
           ),
         ),

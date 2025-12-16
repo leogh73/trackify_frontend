@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
+import 'package:trackify/widgets/dialog_toast.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
@@ -13,9 +14,23 @@ import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/mercado_libre_check.dart';
 
-class MercadoLibre extends StatelessWidget {
-  final AdInterstitial adInterstitial;
-  MercadoLibre(this.adInterstitial, {Key? key}) : super(key: key);
+class MercadoLibre extends StatefulWidget {
+  const MercadoLibre({Key? key}) : super(key: key);
+
+  @override
+  State<MercadoLibre> createState() => _MercadoLibreState();
+}
+
+class _MercadoLibreState extends State<MercadoLibre> {
+  late bool isLoggedIn = false;
+
+  AdInterstitial adInterstitial = AdInterstitial();
+
+  @override
+  void initState() {
+    super.initState();
+    adInterstitial.createInterstitialAd();
+  }
 
   Text screenText(String text) {
     return Text(
@@ -40,10 +55,10 @@ class MercadoLibre extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              child: premiumUser ? null : AdNative("small"),
-              padding: EdgeInsets.only(top: 10, bottom: 80),
+              padding: const EdgeInsets.only(top: 10, bottom: 80),
+              child: premiumUser ? null : const AdNative("small"),
             ),
-            Container(
+            SizedBox(
               height: 170,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -51,17 +66,17 @@ class MercadoLibre extends StatelessWidget {
                   screenText(text1),
                   screenText(text2),
                   ElevatedButton(
-                    child: screenText(button),
                     onPressed: function,
+                    child: screenText(button),
                   )
                 ],
               ),
             ),
-            SizedBox(width: 10, height: 80),
+            const SizedBox(width: 10, height: 80),
             if (!premiumUser && trackingsList.isNotEmpty)
               Padding(
-                child: premiumUser ? null : AdNative("medium"),
-                padding: EdgeInsets.only(top: 10, bottom: 10),
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: premiumUser ? null : const AdNative("medium"),
               ),
           ],
         ),
@@ -71,13 +86,16 @@ class MercadoLibre extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
-    final bool errorMeLiCheck =
-        Provider.of<UserPreferences>(context).errorMeLiCheck;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final bool meLiStatus = context.select(
+        (UserPreferences userPreferences) => userPreferences.meLiStatus);
+    final bool errorMeLiCheck = context.select(
+        (UserPreferences userPreferences) => userPreferences.errorMeLiCheck);
     final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context).trackings;
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -90,8 +108,9 @@ class MercadoLibre extends StatelessWidget {
                   ? const Icon(Icons.logout)
                   : const Icon(Icons.login),
               onPressed: () {
-                if (!premiumUser && trackingsList.isNotEmpty)
+                if (!premiumUser && trackingsList.isNotEmpty) {
                   adInterstitial.showInterstitialAd();
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -109,12 +128,12 @@ class MercadoLibre extends StatelessWidget {
                   height: 46,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.shopping_cart, size: 24),
+                      children: [
+                        const Icon(Icons.shopping_cart, size: 24),
                         Padding(
-                          padding: EdgeInsets.only(left: 16),
-                          child:
-                              Text('COMPRAS', style: TextStyle(fontSize: 14)),
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(texts[66]!,
+                              style: const TextStyle(fontSize: 14)),
                         ),
                       ])),
               Container(
@@ -122,11 +141,12 @@ class MercadoLibre extends StatelessWidget {
                   height: 46,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.local_shipping_outlined, size: 24),
+                      children: [
+                        const Icon(Icons.local_shipping_outlined, size: 24),
                         Padding(
-                          padding: EdgeInsets.only(left: 16),
-                          child: Text('VENTAS', style: TextStyle(fontSize: 14)),
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(texts[67]!,
+                              style: const TextStyle(fontSize: 14)),
                         ),
                       ])),
             ],
@@ -136,9 +156,9 @@ class MercadoLibre extends StatelessWidget {
             ? errorMeLiCheck
                 ? mercadoLibreScreen(
                     context,
-                    'Información no disponible',
-                    'Error de consulta a MercadoLibre',
-                    'REINTENTAR',
+                    texts[62]!,
+                    texts[63]!,
+                    texts[64]!,
                     () => Provider.of<UserPreferences>(context, listen: false)
                         .toggleMeLiErrorStatus(false),
                     premiumUser,
@@ -152,18 +172,20 @@ class MercadoLibre extends StatelessWidget {
                   )
             : mercadoLibreScreen(
                 context,
-                'Información no disponible',
-                'No ha ingresado a MercadoLibre',
-                'INGRESAR',
+                texts[62]!,
+                texts[65]!,
+                texts[38]!,
                 () {
-                  if (!premiumUser && trackingsList.isNotEmpty)
-                    adInterstitial.showInterstitialAd();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => MercadoLibreSite("login", context),
                     ),
                   );
+                  if (!premiumUser && trackingsList.isNotEmpty) {
+                    adInterstitial.showInterstitialAd();
+                    ShowDialog.goPremiumDialog(context);
+                  }
                 },
                 premiumUser,
                 trackingsList,
@@ -181,10 +203,10 @@ class MercadoLibreSite extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MercadoLibreSiteState createState() => _MercadoLibreSiteState();
+  MercadoLibreSiteState createState() => MercadoLibreSiteState();
 }
 
-class _MercadoLibreSiteState extends State<MercadoLibreSite> {
+class MercadoLibreSiteState extends State<MercadoLibreSite> {
   late final WebViewController _controller;
   String currentUrl = '';
 
@@ -262,9 +284,10 @@ class _MercadoLibreSiteState extends State<MercadoLibreSite> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    final bool meLiStatus = Provider.of<UserPreferences>(context).meLiStatus;
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final bool meLiStatus = context.select(
+        (UserPreferences userPreferences) => userPreferences.meLiStatus);
     return Scaffold(
       appBar: AppBar(
         title: meLiStatus

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
@@ -47,17 +46,17 @@ class StoredData {
   static const String activeTrackings = "Main Trackings";
   var _activeTrackings = intMapStoreFactory.store(activeTrackings);
 
-  void newMainTracking(ItemTracking newTracking) async {
+  void newActiveTracking(ItemTracking newTracking) async {
     _activeTrackings
         .record(newTracking.idSB!)
         .add(await _db, newTracking.toMap());
   }
 
-  void updateMainTracking(ItemTracking tracking) async {
+  void updateActiveTracking(ItemTracking tracking) async {
     _activeTrackings.record(tracking.idSB!).update(await _db, tracking.toMap());
   }
 
-  void removeMainTracking(ItemTracking tracking) async {
+  void removeActiveTracking(ItemTracking tracking) async {
     _activeTrackings.record(tracking.idSB!).delete(await _db);
   }
 
@@ -138,6 +137,9 @@ class StoredData {
     };
     Response response =
         await HttpConnection.requestHandler('/api/googledrive/restore/', body);
+    if (!context.mounted) {
+      return;
+    }
     Map<String, dynamic> backupData =
         HttpConnection.responseHandler(response, context);
     if (backupData['serverError'] != null) return;
@@ -155,7 +157,7 @@ class StoredData {
             .map((t) => ItemTracking.fromMap(t['idSB'], t))
             .toList();
     for (ItemTracking tracking in activeTrackings) {
-      StoredData().newMainTracking(tracking);
+      StoredData().newActiveTracking(tracking);
     }
     List<ItemTracking> archivedTrackings =
         (backupData['archivedTrackings'] as List<dynamic>)

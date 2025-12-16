@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/classes.dart';
+import '../data/tracking_functions.dart';
+
 import '../widgets/ad_native.dart';
 
 class ViewCard {
@@ -8,6 +11,7 @@ class ViewCard {
     BuildContext context,
     Image serviceLogo,
     ItemTracking tracking,
+    String daysInTransit,
     VoidCallback onTap,
     VoidCallback onLongPress,
     double screenWidth,
@@ -27,7 +31,6 @@ class ViewCard {
           child: InkWell(
             onTap: onTap,
             onLongPress: onLongPress,
-            splashColor: Theme.of(context).primaryColor,
             child: Container(
               decoration: BoxDecoration(
                 border:
@@ -95,8 +98,8 @@ class ViewCard {
                         if (tracking.archived == true)
                           Container(
                             width: 38,
-                            child: const Icon(Icons.archive),
                             alignment: Alignment.center,
+                            child: const Icon(Icons.archive),
                           ),
                         if (!tracking.archived! && tracking.checkError!) button,
                         if (selectionMode && tracking.selected!)
@@ -153,7 +156,8 @@ class ViewCard {
                           child: tracking.checkError!
                               ? const Text("Sin datos")
                               : Text(
-                                  tracking.lastEvent!,
+                                  TrackingFunctions.formatEventDate(
+                                      context, tracking.lastEvent!, false),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
                                   style: TextStyle(
@@ -258,14 +262,14 @@ class ViewCard {
                               children: [
                                 Row(
                                   children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 7),
-                                      child: Icon(Icons.add_circle_outline),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 7),
+                                      child: Icon(MdiIcons.calendarClock),
                                     ),
                                     Column(
                                       children: [
                                         Text(
-                                          'Inicio:',
+                                          'Días en tránsito:',
                                           style: TextStyle(
                                               color: Theme.of(context)
                                                   .primaryColor,
@@ -284,7 +288,7 @@ class ViewCard {
                                       child: tracking.checkError!
                                           ? const Text("Sin datos")
                                           : Text(
-                                              tracking.startCheck!,
+                                              daysInTransit,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: fullHD ? 16 : 15,
@@ -356,7 +360,7 @@ class ViewCard {
           ),
         ),
         if (!premiumUser)
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(bottom: 10),
             child: AdNative("medium"),
           ),

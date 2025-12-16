@@ -16,10 +16,11 @@ class MercadoLibreCheck extends StatefulWidget {
   const MercadoLibreCheck(this.checkInput, {Key? key}) : super(key: key);
 
   @override
-  _MercadoLibreCheckState createState() => _MercadoLibreCheckState();
+  MercadoLibreCheckState createState() => MercadoLibreCheckState();
 }
 
-class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
+class MercadoLibreCheckState extends State<MercadoLibreCheck>
+    with AutomaticKeepAliveClientMixin<MercadoLibreCheck> {
   late ScrollController _controller;
 
   _scrollListener() {
@@ -76,10 +77,14 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
       'shippingIds': json.encode(shippingCheck),
       'httpHeaders': json.encode(httpHeaders)
     };
+    final BuildContext ctx = context;
     Response response =
         await HttpConnection.requestHandler('/api/mercadolibre/loadmore', body);
-    Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, context);
+    if (!ctx.mounted) {
+      return;
+    }
+    final Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, ctx);
     if (response.statusCode == 200) {
       List<MeLiItemData> meliItems = processMLData(responseData['items']);
       setState(() {
@@ -89,21 +94,25 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
         loadMore = false;
       });
     } else {
-      if (responseData['serverError'] == null) DialogError.show(context, 9, "");
+      if (responseData['serverError'] == null) DialogError.show(ctx, 9, "");
     }
   }
 
   Future checkData(String checkInput) async {
-    String _userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
-    Object body = {
-      'userId': _userId,
+    final BuildContext ctx = context;
+    final String userId =
+        Provider.of<UserPreferences>(ctx, listen: false).userId;
+    final Object body = {
+      'userId': userId,
       'consultType': checkInput,
     };
-    Response response =
+    final Response response =
         await HttpConnection.requestHandler('/api/mercadolibre/consult', body);
-    Map<String, dynamic> responseData =
-        HttpConnection.responseHandler(response, context);
+    if (!ctx.mounted) {
+      return;
+    }
+    final Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, ctx);
     if (response.statusCode == 200) {
       List<MeLiItemData> meliItems =
           processMLData(responseData['shippingsData']);
@@ -114,10 +123,10 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
       });
       return meliItems;
     } else {
-      Provider.of<UserPreferences>(context, listen: false)
+      Provider.of<UserPreferences>(ctx, listen: false)
           .toggleMeLiErrorStatus(true);
       if (responseData['serverError'] == null) {
-        DialogError.show(context, 9, "");
+        DialogError.show(ctx, 9, "");
       }
     }
   }
@@ -148,8 +157,11 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    super.build(context);
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
@@ -163,20 +175,22 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                     child: Column(
                       children: [
                         if (!premiumUser)
-                          Padding(
-                            child: AdNative("medium"),
+                          const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 30),
+                            child: AdNative("medium"),
                           ),
                         const Icon(Icons.local_shipping_outlined, size: 80),
                         const SizedBox(width: 30, height: 30),
                         Text(
-                          "No hay ${widget.checkInput == 'buyer' ? 'compras' : 'ventas'}",
+                          widget.checkInput == 'buyer'
+                              ? texts[170]!
+                              : texts[171]!,
                           style: const TextStyle(fontSize: 24),
                         ),
                         if (!premiumUser)
-                          Padding(
-                            child: AdNative("medium"),
+                          const Padding(
                             padding: EdgeInsets.only(top: 30, bottom: 10),
+                            child: AdNative("medium"),
                           )
                       ],
                     ),
@@ -194,8 +208,10 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                             return Column(children: [
                               if (index == 0)
                                 Padding(
-                                  child: premiumUser ? null : AdNative("small"),
-                                  padding: EdgeInsets.only(bottom: 8),
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: premiumUser
+                                      ? null
+                                      : const AdNative("small"),
                                 ),
                               MercadoLibreItem(itemsList[index]),
                             ]);
@@ -208,7 +224,7 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 8, top: 8),
                           child: Text(
-                            'No hay más datos',
+                            texts[172]!,
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: 14),
@@ -241,7 +257,7 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
                 ),
               ),
               Text(
-                'Consultando...',
+                texts[160]!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
@@ -254,6 +270,9 @@ class _MercadoLibreCheckState extends State<MercadoLibreCheck> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 List<MeLiItemData> processMLData(fetchedData) {

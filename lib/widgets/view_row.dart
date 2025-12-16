@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../data/tracking_functions.dart';
 import '../data/classes.dart';
+
 import '../widgets/ad_native.dart';
 
 class ViewRow {
@@ -7,6 +11,7 @@ class ViewRow {
     BuildContext context,
     Image serviceLogo,
     ItemTracking tracking,
+    String daysInTransit,
     VoidCallback onTap,
     VoidCallback onLongPress,
     double screenWidth,
@@ -26,7 +31,6 @@ class ViewRow {
           child: InkWell(
             onTap: onTap,
             onLongPress: onLongPress,
-            splashColor: Theme.of(context).primaryColor,
             child: Container(
               decoration: BoxDecoration(
                 border:
@@ -159,7 +163,8 @@ class ViewRow {
                                   padding:
                                       const EdgeInsets.only(top: 4, bottom: 2),
                                   child: Text(
-                                    tracking.lastEvent!,
+                                    TrackingFunctions.formatEventDate(
+                                        context, tracking.lastEvent!, false),
                                     style:
                                         TextStyle(fontSize: fullHD ? 16 : 15),
                                   ),
@@ -226,15 +231,15 @@ class ViewRow {
                                       Row(
                                         // mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(right: 7),
-                                            child:
-                                                Icon(Icons.add_circle_outline),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 7),
+                                            child: Icon(MdiIcons.calendarClock),
                                           ),
                                           Column(
                                             children: [
                                               Text(
-                                                'Inicio:',
+                                                'Días en tránsito:',
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
@@ -244,24 +249,26 @@ class ViewRow {
                                           ),
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            width: isPortrait
-                                                ? screenWidth * 0.441
-                                                : screenWidth * 0.275,
-                                            padding: const EdgeInsets.only(
-                                                top: 2, bottom: 2),
-                                            // width: 158,
-                                            child: Text(
-                                              tracking.startCheck!,
+                                      Container(
+                                        width: isPortrait
+                                            ? screenWidth * 0.441
+                                            : screenWidth * 0.275,
+                                        padding: const EdgeInsets.only(
+                                            top: 2, bottom: 2),
+                                        child: // width: 158,
+                                            Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              daysInTransit,
                                               overflow: TextOverflow.clip,
                                               style: TextStyle(
                                                 fontSize: fullHD ? 16 : 15,
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -370,9 +377,9 @@ class ViewRow {
           ),
         ),
         if (!premiumUser)
-          Padding(
-            child: AdNative("small"),
+          const Padding(
             padding: EdgeInsets.only(bottom: 8),
+            child: AdNative("small"),
           ),
       ],
     );

@@ -8,8 +8,8 @@ import '../data/classes.dart';
 import '../data/preferences.dart';
 import '../initial_data.dart';
 
+import '../data/http_connection.dart';
 import '../widgets/dialog_error.dart';
-import 'http_connection.dart';
 
 class ActiveTrackings extends ChangeNotifier {
   StoredData storedData = StoredData();
@@ -19,22 +19,21 @@ class ActiveTrackings extends ChangeNotifier {
     _trackings = [...startData.activeTrackings];
   }
 
-  List<ItemTracking> get trackings => [..._trackings];
+  List<ItemTracking> get trackings => _trackings;
 
-  void addTracking(Tracking tracking) {
-    if (tracking.title.isEmpty) {
-      tracking.title = tracking.code;
+  void addTracking(Map<String, dynamic> trackingData) {
+    if (trackingData["title"].isEmpty) {
+      trackingData["title"] = trackingData["code"];
     }
     ItemTracking newTracking = ItemTracking(
-      idSB: tracking.id,
+      idSB: trackingData["id"],
       idMDB: null,
-      title: tracking.title,
-      code: tracking.code,
-      service: tracking.service,
+      title: trackingData["title"],
+      code: trackingData["code"],
+      service: trackingData["service"],
       events: [],
       moreData: [],
       lastEvent: "Not checked yet",
-      checkError: null,
       selected: false,
       archived: false,
     );
@@ -43,7 +42,7 @@ class ActiveTrackings extends ChangeNotifier {
   }
 
   void loadStartData(BuildContext context, ItemTracking tracking,
-      Map<String, dynamic> itemData) {
+      Map<String, dynamic> itemData) async {
     int trackingIndex =
         _trackings.indexWhere((element) => element.idSB == tracking.idSB);
     _trackings[trackingIndex].events = (itemData['events'] as List)
@@ -56,8 +55,15 @@ class ActiveTrackings extends ChangeNotifier {
     _trackings[trackingIndex].startCheck = dateAndTime;
     _trackings[trackingIndex].lastCheck = dateAndTime;
     _trackings[trackingIndex].idMDB = itemData['trackingId'];
-    notifyListeners();
-    storedData.newMainTracking(_trackings[trackingIndex]);
+    final int chosenSort = Provider.of<UserPreferences>(context, listen: false)
+        .sortTrackingsOption;
+    final Map<int, dynamic> texts =
+        Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
+    if (texts[chosenSort] != texts[205]) {
+      Provider.of<UserPreferences>(context, listen: false)
+          .sortTrackingsList(texts[chosenSort]!, context, true);
+    }
+    storedData.newActiveTracking(_trackings[trackingIndex]);
   }
 
   void retryErrorTracking(int trackingId) {
@@ -69,52 +75,39 @@ class ActiveTrackings extends ChangeNotifier {
   Future<bool> removeTracking(List<ItemTracking> trackingList,
       BuildContext context, bool startError) async {
     if (!startError) {
-      String _userId =
+      final String userId =
           Provider.of<UserPreferences>(context, listen: false).userId;
-      Object body = {
-        'userId': _userId,
+      final Object body = {
+        'userId': userId,
         'trackingIds': json.encode(trackingList.map((t) => t.idMDB).toList())
       };
-      Response response = await HttpConnection.requestHandler(
-          '/api/user/$_userId/remove/', body);
+      final Response response = await HttpConnection.requestHandler(
+          '/api/user/$userId/remove/', body);
       if (response.statusCode == 500) {
-        DialogError.show(context, 21, "");
+        if (context.mounted) {
+          DialogError.show(context, 21, "");
+        }
         return false;
       }
     }
     for (var tracking in trackingList) {
       _trackings.remove(tracking);
       if (tracking.checkError == false) {
-        storedData.removeMainTracking(tracking);
+        storedData.removeActiveTracking(tracking);
       }
     }
     notifyListeners();
     return true;
   }
 
-  Future<bool> renameTracking(
-      BuildContext context, ItemTracking editedTracking) async {
-    String _userId =
-        Provider.of<UserPreferences>(context, listen: false).userId;
-    Object body = {
-      'userId': _userId,
-      'trackingId': editedTracking.idMDB,
-      'newTitle': editedTracking.title,
-    };
-    Response response =
-        await HttpConnection.requestHandler('/api/user/$_userId/rename/', body);
-    if (response.statusCode == 500) {
-      DialogError.show(context, 21, "");
-      return false;
-    }
-    int index = _trackings.indexWhere((seg) => seg.idSB == editedTracking.idSB);
-    _trackings[index].title = editedTracking.title;
-    if (editedTracking.title == null) {
-      _trackings[index].title = _trackings[index].code;
-    }
-    storedData.updateMainTracking(_trackings[index]);
+  void updateRenamedTracking(ItemTracking editedTracking) async {
+    final int index =
+        trackings.indexWhere((seg) => seg.idSB == editedTracking.idSB);
+    _trackings[index].title = editedTracking.title!.isEmpty
+        ? _trackings[index].code
+        : editedTracking.title;
+    storedData.updateActiveTracking(_trackings[index]);
     notifyListeners();
-    return true;
   }
 
   late ItemTracking _loadedTracking;
@@ -170,8 +163,15 @@ class ActiveTrackings extends ChangeNotifier {
 
   Future<bool> removeSelection(BuildContext context) async {
     bool success = await removeTracking(_selection, context, false);
-    _selection.clear();
-    notifyListeners();
     return success;
+  }
+
+  void clearSelection() {
+    _selection.clear();
+  }
+
+  void sortedTrackings(List<ItemTracking> newList) {
+    _trackings = [...newList];
+    notifyListeners();
   }
 }

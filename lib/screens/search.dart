@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trackify/data/trackings_active.dart';
+import 'package:trackify/data/trackings_archived.dart';
 
-import '../data/../data/preferences.dart';
+import '../data/classes.dart';
+import '../data/preferences.dart';
 import '../data/status.dart';
 
-import '../widgets/search_list.dart';
 import '../widgets/ad_banner.dart';
+import '../widgets/tracking_list.dart';
 
 class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+  final String screenName;
+  const Search(this.screenName, {Key? key}) : super(key: key);
 
   @override
   State<Search> createState() => _SearchState();
@@ -25,8 +29,18 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final List<ItemTracking> trackingsList = widget.screenName == "active"
+        ? context.read<ActiveTrackings>().trackings
+        : context.read<ArchivedTrackings>().trackings;
+    final String searchInput =
+        context.select((Status status) => status.getSearchInput);
+    final List<ItemTracking> searchResults = searchInput.isEmpty
+        ? trackingsList
+        : context.select((Status status) => status.searchResult);
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0.0,
@@ -34,62 +48,45 @@ class _SearchState extends State<Search> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
-            Provider.of<Status>(context, listen: false).toggleResultList(false);
           },
         ),
-        title: SearchField(_controller),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               _controller.clear();
-              Provider.of<Status>(context, listen: false)
-                  .toggleResultList(false);
+              Provider.of<Status>(context, listen: false).clearSearchResults();
             },
           ),
         ],
+        title: TextFormField(
+          decoration: InputDecoration(
+            hintText: texts[121]!,
+          ),
+          controller: _controller,
+          textInputAction: TextInputAction.search,
+          style: const TextStyle(color: Colors.white),
+          autofocus: true,
+          cursorColor: Colors.white54,
+          onChanged: (_) {
+            if (trackingsList.isEmpty) {
+              return;
+            }
+            Provider.of<Status>(context, listen: false)
+                .search(context, _controller.text, trackingsList);
+          },
+        ),
       ),
-      body: const SearchList(),
+      body: searchResults.isEmpty
+          ? Center(
+              child: Text(
+                trackingsList.isEmpty ? texts[243]! : texts[200]!,
+                style: const TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : TrackingList(searchResults),
       bottomNavigationBar: premiumUser ? null : const AdBanner(),
-    );
-  }
-}
-
-class SearchField extends StatelessWidget {
-  final TextEditingController _controller;
-  const SearchField(this._controller, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      decoration: const InputDecoration(
-        hintText: 'Buscar...',
-      ),
-      controller: _controller,
-      textInputAction: TextInputAction.search,
-      style: const TextStyle(color: Colors.white),
-      autofocus: true,
-      cursorColor: Colors.white54,
-      validator: (value) {
-        if (value == null) {
-          return 'Ingrese un código de seguimiento válido';
-        }
-        return null;
-      },
-      onChanged: (_) {
-        if (_controller.text.isEmpty) {
-          Provider.of<Status>(context, listen: false).toggleResultList(false);
-        } else {
-          Provider.of<Status>(context, listen: false).toggleResultList(true);
-          Provider.of<Status>(context, listen: false)
-              .search(context, _controller.text);
-        }
-      },
-      onFieldSubmitted: (_) {
-        if (_controller.text.isNotEmpty)
-          Provider.of<Status>(context, listen: false)
-              .addSearch(_controller.text);
-      },
     );
   }
 }

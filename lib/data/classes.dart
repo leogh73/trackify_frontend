@@ -1,17 +1,3 @@
-class Tracking {
-  final int id;
-  String title;
-  final String code;
-  final String service;
-
-  Tracking({
-    required this.id,
-    required this.title,
-    required this.code,
-    required this.service,
-  });
-}
-
 class ItemTracking {
   int? idSB;
   String? idMDB;
@@ -120,47 +106,46 @@ class ItemTracking {
 class UserData {
   int id;
   String userId;
+  String language;
   String color;
   String view;
+  int sortTrackingsBy;
   bool darkMode;
-  List<String> searchHistory;
   bool meLiStatus;
+  String? lastSync;
   bool googleDriveStatus;
-  String statusMessage;
-  bool showAgainStatusMessage;
-  bool? showAgainPaymentError;
   Map<String, dynamic>? servicesData;
+  bool? showAgainPaymentError;
 
   UserData({
     required this.id,
     required this.userId,
+    required this.language,
     required this.color,
     required this.view,
+    required this.sortTrackingsBy,
     required this.darkMode,
-    required this.searchHistory,
     required this.meLiStatus,
+    required this.lastSync,
     required this.googleDriveStatus,
-    required this.statusMessage,
-    required this.showAgainStatusMessage,
-    required this.showAgainPaymentError,
     required this.servicesData,
+    required this.showAgainPaymentError,
   });
 
   factory UserData.fromMap(int id, Map<String, dynamic> map) {
     return UserData(
       id: id,
       userId: map['userId'],
+      language: map['language'] ?? "español",
       color: map['color'],
       view: map['view'],
+      sortTrackingsBy: map['sortTrackingsBy'] ?? 205,
       darkMode: map['darkMode'],
-      searchHistory:
-          (map['searchHistory'] as List).map((e) => e as String).toList(),
       meLiStatus: map['meLiStatus'],
+      lastSync: map['lastSync'],
       googleDriveStatus: map['googleDriveStatus'],
-      statusMessage: map['statusMessage'] ?? '',
-      showAgainStatusMessage: map['showAgainStatusMessage'] ?? true,
+      servicesData: map['servicesData'] ?? {},
       showAgainPaymentError: map['showAgainPaymentError'] ?? true,
-      servicesData: map['servicesData'] == null ? {} : map['servicesData'],
     );
   }
 
@@ -168,48 +153,47 @@ class UserData {
     return {
       'id': id,
       'userId': userId,
+      'language': language,
       'color': color,
       'view': view,
+      'sortTrackingsBy': sortTrackingsBy,
       'darkMode': darkMode,
-      'searchHistory': searchHistory,
       'meLiStatus': meLiStatus,
+      'lastSync': lastSync,
       'googleDriveStatus': googleDriveStatus,
-      'statusMessage': statusMessage,
-      'showAgainStatusMessage': showAgainStatusMessage,
-      'showAgainPaymentError': showAgainPaymentError,
       'servicesData': servicesData,
+      'showAgainPaymentError': showAgainPaymentError,
     };
   }
 
   edit({
     int? id,
     String? userId,
+    String? language,
     String? color,
     String? view,
+    int? sortTrackingsBy,
     bool? darkMode,
-    List<String>? searchHistory,
     bool? meLiStatus,
+    String? lastSync,
     bool? googleDriveStatus,
-    String? statusMessage,
-    bool? showAgainStatusMessage,
-    bool? showAgainPaymentError,
     Map<String, dynamic>? servicesData,
+    bool? showAgainPaymentError,
   }) {
     return UserData(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      language: language ?? this.language,
       color: color ?? this.color,
       view: view ?? this.view,
+      sortTrackingsBy: sortTrackingsBy ?? this.sortTrackingsBy,
       darkMode: darkMode ?? this.darkMode,
-      searchHistory: searchHistory ?? this.searchHistory,
       meLiStatus: meLiStatus ?? this.meLiStatus,
+      lastSync: lastSync ?? this.lastSync,
       googleDriveStatus: googleDriveStatus ?? this.googleDriveStatus,
-      statusMessage: statusMessage ?? this.statusMessage,
-      showAgainStatusMessage:
-          showAgainStatusMessage ?? this.showAgainStatusMessage,
+      servicesData: servicesData ?? this.servicesData,
       showAgainPaymentError:
           showAgainPaymentError ?? this.showAgainPaymentError,
-      servicesData: servicesData ?? this.servicesData,
     );
   }
 }

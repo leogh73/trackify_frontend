@@ -7,8 +7,10 @@ import "package:flutter_dotenv/flutter_dotenv.dart";
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:trackify/widgets/dialog_toast.dart';
 
 import 'initial_data.dart';
+import 'database.dart';
 
 import 'data/classes.dart';
 import 'data/preferences.dart';
@@ -18,7 +20,9 @@ import 'data/status.dart';
 import 'data/tracking_functions.dart';
 import 'data/trackings_active.dart';
 import 'data/trackings_archived.dart';
+
 import 'screens/main_screen.dart';
+
 import 'widgets/ad_interstitial.dart';
 
 void main() async {
@@ -73,12 +77,13 @@ class TrackeAR extends StatelessWidget {
                       ArchivedTrackings(snapshot.data as StartData),
                 ),
               ],
-              child: App(),
+              child: const App(),
             );
           } else {
             return Material(
+              color: Colors.grey[100],
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -90,9 +95,9 @@ class TrackeAR extends StatelessWidget {
                         child: Image.asset('assets/icon/icon.png'),
                       ),
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(15),
-                      child: const CircularProgressIndicator(),
+                      child: CircularProgressIndicator(color: Colors.teal),
                     ),
                   ],
                 ),
@@ -111,13 +116,13 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
+class _AppState extends State<App> {
   final GlobalKey<NavigatorState> navKey = GlobalKey();
   final AdInterstitial? interstitialAd = AdInterstitial();
   late Map<String, dynamic> servicesData;
   bool isPremium = false;
 
-  void firebaseSettings(context) async {
+  void firebaseSettings(context) {
     FirebaseMessaging.instance
         .getInitialMessage()
         .then((RemoteMessage? message) {
@@ -142,8 +147,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void listenToAppStateChanges() {
     AppStateEventNotifier.startListening();
     AppStateEventNotifier.appStateStream.forEach(
-      (state) {
+      (state) async {
         if (state == AppState.foreground) {
+          List<ItemTracking> trackingsList =
+              await StoredData().loadActiveTrackings();
+          if (!isPremium && trackingsList.isNotEmpty) {
+            interstitialAd?.showInterstitialAd();
+            ShowDialog.goPremiumDialog(navKey.currentContext!);
+          }
           Future.delayed(
             const Duration(seconds: 2),
             () => TrackingFunctions.syncronizeUserData(navKey.currentContext!),
@@ -156,22 +167,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     firebaseSettings(context);
     listenToAppStateChanges();
     interstitialAd?.createInterstitialAd();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      List<ItemTracking> trackingsList =
-          Provider.of<ActiveTrackings>(context, listen: false).trackings;
-      if (!isPremium && trackingsList.isNotEmpty) {
-        interstitialAd?.showInterstitialAd();
-      }
-    }
   }
 
   void togglePremiumStatus() {
@@ -182,43 +180,116 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     if (premiumUser != isPremium) togglePremiumStatus();
-    final MaterialColor mainColor = Provider.of<UserTheme>(context).startColor;
-    final bool darkMode = Provider.of<UserTheme>(context).darkModeStatus;
+    final MaterialColor mainColor =
+        context.select((UserTheme theme) => theme.startColor);
+    final bool darkMode =
+        context.select((UserTheme theme) => theme.darkModeStatus);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool fullHD =
+        screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: mainColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
     );
-
     return MaterialApp(
-      title: 'TrackeAR',
+      title: texts[1]!,
       navigatorKey: navKey,
       theme: ThemeData(
-        floatingActionButtonTheme:
-            FloatingActionButtonThemeData(backgroundColor: mainColor),
-        switchTheme: const SwitchThemeData(),
-        primarySwatch: mainColor,
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
+        appBarTheme: AppBarTheme(
+          backgroundColor: mainColor,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle:
+              TextStyle(color: Colors.white, fontSize: fullHD ? 19 : 17),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: mainColor,
+          foregroundColor: Colors.white,
+          splashColor: Colors.white,
+        ),
         iconTheme: IconThemeData(color: mainColor),
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
         disabledColor: Colors.grey[700],
+        dropdownMenuTheme: DropdownMenuThemeData(
+          textStyle: TextStyle(color: Colors.grey[100]),
+        ),
+        popupMenuTheme: PopupMenuThemeData(
+          color: Colors.grey[100],
+          elevation: 2,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        ),
+        dialogBackgroundColor: Colors.grey[100],
+        scaffoldBackgroundColor: Colors.grey[100],
+        drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[100]),
+        tabBarTheme: TabBarTheme(
+          dividerHeight: 0,
+          indicator: const UnderlineTabIndicator(
+            insets: EdgeInsets.only(bottom: 0.5),
+            borderSide: BorderSide(color: Colors.white, width: 2),
+          ),
+          labelPadding: EdgeInsets.zero,
+          labelColor: Colors.white,
+          unselectedLabelColor: mainColor.shade100,
+        ),
+        primaryColor: mainColor,
+        colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
       ),
       darkTheme: ThemeData(
-        floatingActionButtonTheme:
-            FloatingActionButtonThemeData(backgroundColor: mainColor),
-        primarySwatch: mainColor,
-        primaryColor: mainColor,
-        brightness: Brightness.dark,
+        textTheme: const TextTheme(
+            bodyMedium: TextStyle(color: Colors.grey),
+            bodyLarge: TextStyle(color: Colors.grey)),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white10,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle:
+              TextStyle(color: Colors.white, fontSize: fullHD ? 19 : 17),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: mainColor,
+          foregroundColor: Colors.white,
+          splashColor: Colors.white,
+        ),
         iconTheme: IconThemeData(color: mainColor),
         elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
-        disabledColor: Colors.grey[700],
+        dropdownMenuTheme: DropdownMenuThemeData(
+          textStyle: TextStyle(color: Colors.grey[800]),
+        ),
+        disabledColor: Colors.white12,
+        popupMenuTheme: PopupMenuThemeData(
+          color: Colors.grey[800],
+          elevation: 2,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        ),
+        dialogBackgroundColor: Colors.grey[850],
+        scaffoldBackgroundColor: Colors.grey[850],
+        drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[850]),
+        tabBarTheme: const TabBarTheme(
+          dividerHeight: 0,
+          indicator: UnderlineTabIndicator(
+            insets: EdgeInsets.only(bottom: 0.5),
+            borderSide: BorderSide(color: Colors.white, width: 2),
+          ),
+          labelPadding: EdgeInsets.zero,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white38,
+        ),
+        primaryColor: mainColor,
+        colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
-      home: MainScreen(),
+      home: const MainScreen(),
+      // home: const FormAdd(storeName: ""),
     );
   }
 }

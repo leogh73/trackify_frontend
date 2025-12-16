@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/widgets/tracking_item.dart';
+import 'package:trackify/widgets/tracking_sort.dart';
 import '../widgets/ad_native.dart';
 
 import '../data/../data/preferences.dart';
@@ -10,51 +12,46 @@ import '../data/status.dart';
 import 'ad_interstitial.dart';
 
 class TrackingList extends StatefulWidget {
-  final List<ItemTracking> trackingsData;
-  const TrackingList(this.trackingsData, {Key? key}) : super(key: key);
+  final List<ItemTracking> trackings;
+  const TrackingList(this.trackings, {Key? key}) : super(key: key);
 
   @override
   State<TrackingList> createState() => _TrackingListState();
 }
 
 class _TrackingListState extends State<TrackingList> {
-  late ScrollController _controller;
+  late ScrollController _scrollController;
   AdInterstitial interstitialAd = AdInterstitial();
-
-  scrollListener() {
-    if (_controller.offset == _controller.position.maxScrollExtent &&
-        !_controller.position.outOfRange) {
-      Provider.of<Status>(context, listen: false).toggleListEndStatus(true);
-    } else {
-      Provider.of<Status>(context, listen: false).toggleListEndStatus(false);
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    _controller = ScrollController();
-    _controller.addListener(scrollListener);
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          (_scrollController.position.maxScrollExtent - 50.0)) {
+        Provider.of<Status>(context, listen: false).toggleListEndStatus(true);
+      } else {
+        Provider.of<Status>(context, listen: false).toggleListEndStatus(false);
+      }
+    });
     interstitialAd.createInterstitialAd();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _controller.addListener(scrollListener);
-  }
-
-  @override
   void dispose() {
-    _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool premiumUser =
-        Provider.of<UserPreferences>(context).premiumStatus;
-    final String chosenView = Provider.of<UserPreferences>(context).startList;
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool premiumUser = context.select(
+        (UserPreferences userPreferences) => userPreferences.premiumStatus);
+    final String chosenView =
+        Provider.of<UserPreferences>(context, listen: false).startList;
     final PageStorageKey<String> listKey = PageStorageKey<String>(chosenView);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isPortrait =
@@ -63,7 +60,7 @@ class _TrackingListState extends State<TrackingList> {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final bool landscapeFullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1919;
-    return widget.trackingsData.length == 0
+    return widget.trackings.isEmpty
         ? Center(
             child: SingleChildScrollView(
               child: Column(
@@ -71,61 +68,75 @@ class _TrackingListState extends State<TrackingList> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    child: premiumUser ? null : AdNative("small"),
-                    padding: EdgeInsets.only(top: 10, bottom: 60),
+                    padding: const EdgeInsets.only(top: 10, bottom: 60),
+                    child: premiumUser ? null : const AdNative("small"),
                   ),
-                  Icon(Icons.local_shipping_outlined, size: 80),
-                  SizedBox(width: 30, height: 30),
+                  Icon(MdiIcons.packageVariantClosed, size: 80),
+                  const SizedBox(width: 30, height: 30),
                   Text(
-                    'No hay seguimientos',
-                    style: TextStyle(fontSize: 24),
+                    texts[203]!,
+                    style: const TextStyle(fontSize: 24),
                   ),
-                  SizedBox(width: 10, height: 160),
+                  const SizedBox(width: 10, height: 160),
                 ],
               ),
             ),
           )
-        : chosenView == "grid"
-            ? GridView.count(
-                key: listKey,
-                childAspectRatio: premiumUser
-                    ? isPortrait
-                        ? portraitfullHD
-                            ? 2 / 2.370
-                            : 2 / 2.512
-                        : landscapeFullHD
-                            ? 2 / 1.655
-                            : 2 / 2.308
-                    : isPortrait
-                        ? portraitfullHD
-                            ? 2 / 4.210
-                            : 2 / 4.522
-                        : landscapeFullHD
-                            ? 2 / 2.925
-                            : 2 / 4.175,
-                padding: const EdgeInsets.all(4),
-                crossAxisCount: isPortrait ? 2 : 3,
-                children: List.generate(
-                  widget.trackingsData.length,
-                  (index) => TrackingItem(widget.trackingsData[index]),
-                ),
-              )
-            : ListView.builder(
-                key: listKey,
-                padding: const EdgeInsets.only(top: 8, right: 2, left: 2),
-                controller: _controller,
-                itemCount: widget.trackingsData.length,
-                itemBuilder: (context, index) => Column(
-                  children: [
-                    if (index == 0 && !premiumUser)
-                      if (!premiumUser)
-                        Padding(
-                          padding: EdgeInsets.only(top: 10, bottom: 10),
-                          child: AdNative("small"),
+        : Column(
+            children: [
+              TrackingSort(widget.trackings[0].archived == false),
+              Expanded(
+                child: chosenView == "grid"
+                    ? GridView.count(
+                        key: listKey,
+                        controller: _scrollController,
+                        childAspectRatio: premiumUser
+                            ? isPortrait
+                                ? portraitfullHD
+                                    ? 2 / 2.370
+                                    : 2 / 2.512
+                                : landscapeFullHD
+                                    ? 2 / 1.655
+                                    : 2 / 2.308
+                            : isPortrait
+                                ? portraitfullHD
+                                    ? 2 / 4.210
+                                    : 2 / 4.522
+                                : landscapeFullHD
+                                    ? 2 / 2.925
+                                    : 2 / 4.175,
+                        padding: const EdgeInsets.all(4),
+                        crossAxisCount: isPortrait ? 2 : 3,
+                        children: List.generate(
+                          widget.trackings.length,
+                          (index) => TrackingItem(
+                            widget.trackings[index],
+                            key: Key(widget.trackings[index].idSB.toString()),
+                          ),
                         ),
-                    TrackingItem(widget.trackingsData[index])
-                  ],
-                ),
-              );
+                      )
+                    : ListView.builder(
+                        key: listKey,
+                        padding:
+                            const EdgeInsets.only(top: 8, right: 2, left: 2),
+                        controller: _scrollController,
+                        itemCount: widget.trackings.length,
+                        itemBuilder: (context, index) => Column(
+                          children: [
+                            if (index == 0 && !premiumUser)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 10, bottom: 10),
+                                child: AdNative("small"),
+                              ),
+                            TrackingItem(
+                              widget.trackings[index],
+                              key: Key(widget.trackings[index].idSB.toString()),
+                            )
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          );
   }
 }
