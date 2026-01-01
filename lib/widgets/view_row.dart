@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/tracking_functions.dart';
 import '../data/classes.dart';
@@ -9,7 +8,10 @@ import '../widgets/ad_native.dart';
 class ViewRow {
   Widget widget(
     BuildContext context,
+    Map<int, dynamic> texts,
     Image serviceLogo,
+    Color? backgroundColor,
+    IconData statusIcon,
     ItemTracking tracking,
     String daysInTransit,
     VoidCallback onTap,
@@ -38,7 +40,7 @@ class ViewRow {
                 borderRadius: const BorderRadius.all(
                   Radius.circular(12.0),
                 ),
-                color: tracking.selected! ? Colors.black12 : null,
+                color: tracking.selected! ? Colors.black12 : backgroundColor,
               ),
               padding: isPortrait
                   ? selectionMode
@@ -50,7 +52,7 @@ class ViewRow {
                       ? const EdgeInsets.only(
                           right: 7, left: 7, top: 8, bottom: 8)
                       : const EdgeInsets.only(
-                          right: 2, left: 7, top: 8, bottom: 8),
+                          right: 1, left: 7, top: 8, bottom: 8),
               child: Column(
                 children: [
                   Container(
@@ -67,7 +69,7 @@ class ViewRow {
                       children: [
                         Container(
                           // alignment: Alignment.bottomCenter,
-                          width: isPortrait ? 82 : 110,
+                          width: isPortrait ? 75 : 110,
                           padding: const EdgeInsets.only(right: 8, left: 4),
                           height: 35,
                           child: serviceLogo,
@@ -75,24 +77,16 @@ class ViewRow {
                         Container(
                           padding: const EdgeInsets.only(left: 6, right: 8),
                           width: isPortrait
-                              ? selectionMode && tracking.archived == true
+                              ? selectionMode
                                   ? screenWidth - 226
-                                  : !selectionMode && tracking.archived == false
-                                      ? screenWidth - 187
-                                      : !selectionMode
-                                          ? screenWidth - 226
-                                          : screenWidth - 187
-                              : selectionMode && tracking.archived == true
+                                  : screenWidth - 221
+                              : selectionMode
                                   ? screenWidth - 256
-                                  : !selectionMode && tracking.archived == false
-                                      ? screenWidth - 219
-                                      : !selectionMode
-                                          ? screenWidth - 254
-                                          : screenWidth - 220,
+                                  : screenWidth - 255,
                           alignment: Alignment.center,
                           child: Text(
                             title,
-                            maxLines: 3,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: fullHD ? 16 : 15,
@@ -100,11 +94,11 @@ class ViewRow {
                             ),
                           ),
                         ),
-                        if (tracking.archived == true)
-                          const SizedBox(
-                            width: 38,
-                            child: Icon(Icons.archive),
-                          ),
+                        Container(
+                          width: 38,
+                          alignment: Alignment.center,
+                          child: Icon(statusIcon, size: 28),
+                        ),
                         if (!tracking.archived! && tracking.checkError!) button,
                         if (!tracking.checkError!) button,
                         if (selectionMode && tracking.selected!)
@@ -122,7 +116,7 @@ class ViewRow {
                         if (!selectionMode)
                           SizedBox(
                             // padding: EdgeInsets.only(top: 6),
-                            width: 38,
+                            width: 41,
                             child: optionsButton,
                           ),
                       ],
@@ -143,7 +137,7 @@ class ViewRow {
                                 child: Column(
                                   children: [
                                     Text(
-                                      'Ultimo movimiento:',
+                                      texts[252],
                                       style: TextStyle(
                                           color: Theme.of(context).primaryColor,
                                           fontSize: fullHD ? 16 : 15),
@@ -163,8 +157,8 @@ class ViewRow {
                                   padding:
                                       const EdgeInsets.only(top: 4, bottom: 2),
                                   child: Text(
-                                    TrackingFunctions.formatEventDate(
-                                        context, tracking.lastEvent!, false),
+                                    TrackingFunctions.formatEventDetail(
+                                        tracking.events[0]),
                                     style:
                                         TextStyle(fontSize: fullHD ? 16 : 15),
                                   ),
@@ -173,7 +167,7 @@ class ViewRow {
                             ],
                           ),
                           Container(
-                            padding: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.only(top: 8, bottom: 8),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -184,16 +178,15 @@ class ViewRow {
                                   child: Column(
                                     children: [
                                       Row(
-                                        // mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           const Padding(
                                             padding: EdgeInsets.only(right: 7),
-                                            child: Icon(Icons.check),
+                                            child: Icon(Icons.calendar_month),
                                           ),
                                           Column(
                                             children: [
                                               Text(
-                                                'Ultimo chequeo:',
+                                                texts[89],
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
@@ -208,9 +201,10 @@ class ViewRow {
                                           Container(
                                             padding: const EdgeInsets.only(
                                                 top: 2, bottom: 2),
-                                            // width: 158,
                                             child: Text(
-                                              tracking.lastCheck!,
+                                              TrackingFunctions.formatEventDate(
+                                                  context,
+                                                  tracking.events[0]["date"]!),
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: fullHD ? 16 : 15,
@@ -229,17 +223,15 @@ class ViewRow {
                                   child: Column(
                                     children: [
                                       Row(
-                                        // mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(right: 7),
-                                            child: Icon(MdiIcons.calendarClock),
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 7),
+                                            child: Icon(Icons.access_time),
                                           ),
                                           Column(
                                             children: [
                                               Text(
-                                                'Días en tránsito:',
+                                                texts[258],
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
@@ -249,125 +241,27 @@ class ViewRow {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        width: isPortrait
-                                            ? screenWidth * 0.441
-                                            : screenWidth * 0.275,
-                                        padding: const EdgeInsets.only(
-                                            top: 2, bottom: 2),
-                                        child: // width: 158,
-                                            Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              daysInTransit,
-                                              overflow: TextOverflow.clip,
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 2, bottom: 2),
+                                            child: Text(
+                                              tracking.events[0]["time"]!,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: fullHD ? 16 : 15,
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                if (!isPortrait)
-                                  SizedBox(
-                                    width: screenWidth * 0.325,
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 7),
-                                              child: Icon(Icons.short_text),
-                                            ),
-                                            Column(
-                                              children: [
-                                                Text(
-                                                  'Código:',
-                                                  style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                      fontSize:
-                                                          fullHD ? 16 : 15),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              width: screenWidth * 0.315,
-                                              padding: const EdgeInsets.only(
-                                                  top: 2, bottom: 2),
-                                              // width: 158,
-                                              child: Text(
-                                                tracking.code,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: fullHD ? 16 : 15,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                               ],
                             ),
                           ),
-                          if (isPortrait)
-                            Container(
-                              padding: const EdgeInsets.only(top: 4, bottom: 2),
-                              width: isPortrait
-                                  ? screenWidth * 0.965
-                                  : screenWidth * 0.325,
-                              child: Row(
-                                // mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 4, bottom: 4, right: 7),
-                                    child: Icon(Icons.short_text),
-                                  ),
-                                  Column(
-                                    children: [
-                                      Container(
-                                        padding:
-                                            const EdgeInsets.only(right: 7),
-                                        // alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Código:',
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(
-                                        top: 4, bottom: 4),
-                                    // width: 158,
-                                    child: Text(
-                                      tracking.code,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: fullHD ? 16 : 15,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                         ],
                       ),
                     ),

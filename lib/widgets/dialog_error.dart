@@ -32,6 +32,8 @@ class DialogError {
       20: texts[144]!,
       21: texts[145]!,
       22: texts[242]!,
+      23: texts[269]!,
+      24: texts[274]!,
     };
 
     ShowDialog.error(

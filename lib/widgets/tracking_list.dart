@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/tracking_item.dart';
-import 'package:trackify/widgets/tracking_sort.dart';
-import '../widgets/ad_native.dart';
 
 import '../data/../data/preferences.dart';
 import '../data/classes.dart';
 import '../data/status.dart';
 
-import 'ad_interstitial.dart';
+import '../widgets/ad_interstitial.dart';
+import '../widgets/ad_native.dart';
+import '../widgets/tracking_item.dart';
+import '../widgets/tracking_sort.dart';
 
 class TrackingList extends StatefulWidget {
   final List<ItemTracking> trackings;
@@ -50,8 +50,8 @@ class _TrackingListState extends State<TrackingList> {
         (UserPreferences userPreferences) => userPreferences.selectedLanguage);
     final bool premiumUser = context.select(
         (UserPreferences userPreferences) => userPreferences.premiumStatus);
-    final String chosenView =
-        Provider.of<UserPreferences>(context, listen: false).startList;
+    final String chosenView = context
+        .select((UserPreferences userPreferences) => userPreferences.startList);
     final PageStorageKey<String> listKey = PageStorageKey<String>(chosenView);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isPortrait =
@@ -93,18 +93,18 @@ class _TrackingListState extends State<TrackingList> {
                         childAspectRatio: premiumUser
                             ? isPortrait
                                 ? portraitfullHD
-                                    ? 2 / 2.370
-                                    : 2 / 2.512
+                                    ? 2 / 2.990
+                                    : 2 / 3.312
                                 : landscapeFullHD
-                                    ? 2 / 1.655
-                                    : 2 / 2.308
+                                    ? 2 / 2.010
+                                    : 2 / 2.803
                             : isPortrait
                                 ? portraitfullHD
-                                    ? 2 / 4.210
+                                    ? 2 / 4.602
                                     : 2 / 4.522
                                 : landscapeFullHD
-                                    ? 2 / 2.925
-                                    : 2 / 4.175,
+                                    ? 2 / 3.115
+                                    : 2 / 4.548,
                         padding: const EdgeInsets.all(4),
                         crossAxisCount: isPortrait ? 2 : 3,
                         children: List.generate(

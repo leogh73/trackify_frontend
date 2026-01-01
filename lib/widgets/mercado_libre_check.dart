@@ -94,7 +94,9 @@ class MercadoLibreCheckState extends State<MercadoLibreCheck>
         loadMore = false;
       });
     } else {
-      if (responseData['serverError'] == null) DialogError.show(ctx, 9, "");
+      if (responseData['serverError'] == null) {
+        DialogError.show(ctx, 9, "");
+      }
     }
   }
 
@@ -123,10 +125,16 @@ class MercadoLibreCheckState extends State<MercadoLibreCheck>
       });
       return meliItems;
     } else {
-      Provider.of<UserPreferences>(ctx, listen: false)
-          .toggleMeLiErrorStatus(true);
-      if (responseData['serverError'] == null) {
-        DialogError.show(ctx, 9, "");
+      if (responseData['error'] == "no auth data") {
+        Provider.of<UserPreferences>(ctx, listen: false)
+            .toggleMeLiStatus(false);
+        DialogError.show(ctx, 24, "");
+      } else {
+        Provider.of<UserPreferences>(ctx, listen: false)
+            .toggleMeLiErrorStatus(true);
+        if (responseData['serverError'] == null) {
+          DialogError.show(ctx, 9, "");
+        }
       }
     }
   }

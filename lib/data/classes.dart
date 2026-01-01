@@ -7,6 +7,11 @@ class ItemTracking {
   List<Map<String, String>> events;
   List<Map<String, dynamic>>? moreData;
   String? lastEvent;
+  bool? active;
+  String? status;
+  String? url;
+  bool? animate;
+  String? serviceLogoUrl;
   String? lastCheck;
   String? startCheck;
   bool? checkError;
@@ -22,6 +27,10 @@ class ItemTracking {
     required this.events,
     required this.moreData,
     this.lastEvent,
+    this.active,
+    this.status,
+    this.url,
+    this.animate,
     this.lastCheck,
     this.startCheck,
     this.checkError,
@@ -43,6 +52,10 @@ class ItemTracking {
       moreData: (map['moreData'] as List)
           .map((e) => Map<String, dynamic>.from(e))
           .toList(),
+      active: map['active'] ?? false,
+      status: map['status'] ?? 'in transit',
+      url: map['url'] ?? "",
+      animate: map['animate'] ?? false,
       lastCheck: map['lastCheck'],
       startCheck: map['startCheck'],
       checkError: map['checkError'],
@@ -61,6 +74,9 @@ class ItemTracking {
       'lastEvent': lastEvent,
       'events': events,
       'moreData': moreData,
+      'active': active,
+      'status': status,
+      'url': url,
       'lastCheck': lastCheck,
       'startCheck': startCheck,
       'checkError': checkError,
@@ -78,6 +94,9 @@ class ItemTracking {
     String? lastEvent,
     List<Map<String, String>>? events,
     List<Map<String, dynamic>>? moreData,
+    bool? active,
+    String? status,
+    String? url,
     String? lastCheck,
     String? startCheck,
     bool? search,
@@ -94,6 +113,9 @@ class ItemTracking {
       lastEvent: lastEvent ?? this.lastEvent,
       events: events ?? this.events,
       moreData: moreData ?? this.moreData,
+      active: active ?? this.active,
+      status: status ?? this.status,
+      url: url ?? this.url,
       lastCheck: lastCheck ?? this.lastCheck,
       startCheck: startCheck ?? this.startCheck,
       checkError: checkError ?? this.checkError,

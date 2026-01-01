@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:trackify/data/trackings_active.dart';
 
+import '../data/classes.dart';
 import '../data/preferences.dart';
+import '../data/services.dart';
 import '../data/theme.dart';
+
+import '../screens/form_add.dart';
+import '../screens/main_screen.dart';
 
 class TrackingSort extends StatefulWidget {
   final bool activeTrackings;
@@ -33,6 +39,8 @@ class _TrackingSortState extends State<TrackingSort> {
   Widget build(BuildContext context) {
     final Map<int, dynamic> texts = context.select(
         (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final List<ItemTracking> trackingsList =
+        context.watch<ActiveTrackings>().trackings;
     final List<String> menuOptions =
         Provider.of<UserPreferences>(context, listen: false)
             .sortOptionsList(texts);
@@ -51,8 +59,8 @@ class _TrackingSortState extends State<TrackingSort> {
       child: Column(
         children: [
           SizedBox(
-            height: 24,
-            width: isPortrait ? screenWidth * .77 : screenWidth * .35,
+            height: 30,
+            width: screenWidth * .77,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -132,6 +140,74 @@ class _TrackingSortState extends State<TrackingSort> {
                         ));
                   }).toList(),
                 ),
+                if (!isPortrait && trackingsList.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: screenWidth * .35,
+                          height: 30,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Provider.of<Services>(context, listen: false)
+                                      .clearStartService();
+                                  Provider.of<Services>(context, listen: false)
+                                      .clearFilteredList();
+                                  Provider.of<Services>(context, listen: false)
+                                      .clearDetectedServices();
+                                  Provider.of<Services>(context, listen: false)
+                                      .toggleIsExpanded(false);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const FormAdd(
+                                        storeName: "",
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(MdiIcons.packageVariantClosedPlus),
+                                    const SizedBox(width: 7),
+                                    Text(
+                                      texts[19]!,
+                                      style:
+                                          TextStyle(fontSize: fullHD ? 17 : 16),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () =>
+                                    CodeHandlerMain.scanBarcode(context, texts),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(MdiIcons.barcodeScan),
+                                    const SizedBox(width: 7),
+                                    Text(
+                                      texts[244]!,
+                                      style:
+                                          TextStyle(fontSize: fullHD ? 17 : 16),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

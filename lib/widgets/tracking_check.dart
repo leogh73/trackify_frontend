@@ -38,32 +38,37 @@ class TrackingCheckState extends State<TrackingCheck> {
       'title': widget.tracking.title,
       'service': widget.tracking.service,
       'code': widget.tracking.code.trim(),
+      'language': texts[0],
     };
     final Response response =
         await HttpConnection.requestHandler('/api/user/$userId/add', body);
+
     if (!ctx.mounted) {
       return;
     }
     final Map<String, dynamic> responseData =
         HttpConnection.responseHandler(response, ctx);
+
     if (response.statusCode == 200) {
       Provider.of<ActiveTrackings>(ctx, listen: false)
           .loadStartData(ctx, widget.tracking, responseData);
       widget.tracking.checkError = false;
       GlobalToast.displayToast(ctx, texts[240]!);
     } else {
-      if (responseData["serverError"] == null) {
-        if (responseData['error'] == "No data") {
-          Provider.of<ActiveTrackings>(ctx, listen: false)
-              .removeTracking([widget.tracking], ctx, true);
-          DialogError.show(ctx, 4, widget.tracking.service);
-          return;
-        } else {
-          responseData['error']['body'] == "Service timeout"
-              ? DialogError.show(ctx, 6, widget.tracking.service)
-              : DialogError.show(ctx, 2, "");
-        }
+      if (responseData["serverError"] != null) {
+        return;
       }
+      if (responseData['error'] is String) {
+        Provider.of<ActiveTrackings>(ctx, listen: false)
+            .removeTracking([widget.tracking], ctx, true);
+        responseData['error'] == "No data"
+            ? DialogError.show(ctx, 4, widget.tracking.service)
+            : DialogError.show(ctx, 1, "");
+        return;
+      }
+      responseData['error']['body'] == "Service timeout"
+          ? DialogError.show(ctx, 6, widget.tracking.service)
+          : DialogError.show(ctx, 2, "");
       widget.tracking.checkError = true;
     }
     return widget.tracking;

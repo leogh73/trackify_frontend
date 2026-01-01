@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/data/tracking_functions.dart';
-import 'package:trackify/data/trackings_archived.dart';
 
 import '../database.dart';
 import '../initial_data.dart';
 
 import '../data/classes.dart';
 import '../data/http_connection.dart';
+import '../data/tracking_functions.dart';
 import '../data/trackings_active.dart';
+import '../data/trackings_archived.dart';
 
-import 'languages.dart';
+import './languages.dart';
 
 import '../widgets/dialog_error.dart';
+import '../widgets/dialog_toast.dart';
 
 class UserPreferences with ChangeNotifier {
   StoredData storedData = StoredData();
@@ -80,6 +81,65 @@ class UserPreferences with ChangeNotifier {
 
   int get sortTrackingsOption => sortTrackingsNumber;
 
+  List<ItemTracking> sortTrackings(
+      String chosenSort, List<ItemTracking> trackingsList) {
+    if (trackingsList.isEmpty) {
+      return [];
+    }
+
+    if (chosenSort == selectedLanguage[207]) {
+      trackingsList.sort((t1, t2) => t1.service.compareTo(t2.service));
+      return trackingsList;
+    }
+
+    if (chosenSort == selectedLanguage[272]) {
+      trackingsList.sort((t1, t2) => t1.status!.compareTo(t2.status!));
+      return trackingsList;
+    }
+
+    trackingsList.sort((t1, t2) {
+      List<int> date1Splitted = [];
+      List<int> time1Splitted = [];
+      List<int> date2Splitted = [];
+      List<int> time2Splitted = [];
+
+      if (chosenSort == selectedLanguage[206]) {
+        date1Splitted = TrackingFunctions.parseDate(t1.events[0]["date"]!);
+        time1Splitted = TrackingFunctions.parseTime(t1.events[0]["time"]!);
+        date2Splitted = TrackingFunctions.parseDate(t2.events[0]["date"]!);
+        time2Splitted = TrackingFunctions.parseTime(t2.events[0]["time"]!);
+      }
+      if (chosenSort == selectedLanguage[205]) {
+        date1Splitted =
+            TrackingFunctions.parseDate(t1.startCheck!.split(" - ")[0]);
+        time1Splitted =
+            TrackingFunctions.parseTime(t1.startCheck!.split(" - ")[1]);
+        date2Splitted =
+            TrackingFunctions.parseDate(t2.startCheck!.split(" - ")[0]);
+        time2Splitted =
+            TrackingFunctions.parseTime(t2.startCheck!.split(" - ")[1]);
+      }
+      DateTime date1 = DateTime(
+        date1Splitted[2],
+        date1Splitted[1],
+        date1Splitted[0],
+        time1Splitted[0],
+        time1Splitted[1],
+        time1Splitted.length == 3 ? time1Splitted[2] : 00,
+      );
+      DateTime date2 = DateTime(
+        date2Splitted[2],
+        date2Splitted[1],
+        date2Splitted[0],
+        time2Splitted[0],
+        time2Splitted[1],
+        time2Splitted.length == 3 ? time2Splitted[2] : 00,
+      );
+      return date2.compareTo(date1);
+    });
+    return trackingsList;
+  }
+
   void sortTrackingsList(
       String chosenSort, BuildContext context, bool areActive) {
     int chosenValue = 0;
@@ -92,61 +152,8 @@ class UserPreferences with ChangeNotifier {
     if (chosenSort == selectedLanguage[207]) {
       chosenValue = 207;
     }
-
-    List<ItemTracking> sortTrackings(
-        String chosen, List<ItemTracking> trackingsList) {
-      if (trackingsList.isEmpty) {
-        return [];
-      }
-
-      if (chosenSort == selectedLanguage[207]) {
-        trackingsList.sort((t1, t2) => t1.service.compareTo(t2.service));
-        return trackingsList;
-      }
-
-      trackingsList.sort((t1, t2) {
-        List<int> date1Splitted = [];
-        List<int> time1Splitted = [];
-        List<int> date2Splitted = [];
-        List<int> time2Splitted = [];
-
-        if (chosenSort == selectedLanguage[206]) {
-          date1Splitted = TrackingFunctions.parseDate(
-              selectedLanguage[248], t1.events[0]["date"]!);
-          time1Splitted = TrackingFunctions.parseTime(t1.events[0]["time"]!);
-          date2Splitted = TrackingFunctions.parseDate(
-              selectedLanguage[248], t2.events[0]["date"]!);
-          time2Splitted = TrackingFunctions.parseTime(t2.events[0]["time"]!);
-        }
-        if (chosenSort == selectedLanguage[205]) {
-          date1Splitted = TrackingFunctions.parseDate(
-              selectedLanguage[248], t1.startCheck!.split(" - ")[0]);
-          time1Splitted =
-              TrackingFunctions.parseTime(t1.startCheck!.split(" - ")[1]);
-          date2Splitted = TrackingFunctions.parseDate(
-              selectedLanguage[248], t2.startCheck!.split(" - ")[0]);
-          time2Splitted =
-              TrackingFunctions.parseTime(t2.startCheck!.split(" - ")[1]);
-        }
-        DateTime date1 = DateTime(
-          date1Splitted[2],
-          date1Splitted[1],
-          date1Splitted[0],
-          time1Splitted[0],
-          time1Splitted[1],
-          time1Splitted.length == 3 ? time1Splitted[2] : 00,
-        );
-        DateTime date2 = DateTime(
-          date2Splitted[2],
-          date2Splitted[1],
-          date2Splitted[0],
-          time2Splitted[0],
-          time2Splitted[1],
-          time2Splitted.length == 3 ? time2Splitted[2] : 00,
-        );
-        return date2.compareTo(date1);
-      });
-      return trackingsList;
+    if (chosenSort == selectedLanguage[272]) {
+      chosenValue = 272;
     }
 
     if (areActive) {
@@ -196,9 +203,24 @@ class UserPreferences with ChangeNotifier {
     List<String> menuOptions = [
       selectedLanguage[205]!,
       selectedLanguage[206]!,
-      selectedLanguage[207]!
+      selectedLanguage[207]!,
+      selectedLanguage[272]!
     ];
     return menuOptions;
+  }
+
+  void checkPayment(BuildContext context, Map<String, dynamic> paymentData,
+      Map<int, dynamic> texts) {
+    final bool showPaymentErrorAgain =
+        Provider.of<UserPreferences>(context, listen: false)
+            .showAgainPaymentError;
+    if (paymentData["status"] == "could not be checked") {
+      if (showPaymentErrorAgain) {
+        ShowDialog.showMessage(context, texts[231]!, "payment", texts);
+      }
+    } else {
+      setShowPaymentErrorAgain(true);
+    }
   }
 
   String get uId => userId;

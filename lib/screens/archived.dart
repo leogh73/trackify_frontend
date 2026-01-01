@@ -25,8 +25,8 @@ class Archived extends StatelessWidget {
     final List<ItemTracking> selection = context.select(
         (ArchivedTrackings archivedTrackings) =>
             archivedTrackings.selectionElements);
-    final List<ItemTracking> trackingsList = context.select(
-        (ArchivedTrackings archivedTrackings) => archivedTrackings.trackings);
+    final List<ItemTracking> trackingsList =
+        context.watch<ArchivedTrackings>().trackings;
     return Scaffold(
       appBar: selectionMode
           ? AppBar(
@@ -51,7 +51,7 @@ class Archived extends StatelessWidget {
                       moreData: [],
                       archived: true,
                     ),
-                    menu: false,
+                    option: "iconButtons",
                     action: 'remove',
                     detail: false,
                   ),

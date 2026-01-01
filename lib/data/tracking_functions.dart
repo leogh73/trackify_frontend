@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:async';
@@ -26,11 +25,6 @@ class TrackingFunctions {
   static void searchUpdates(BuildContext context, ItemTracking tracking) async {
     Map<int, dynamic> texts =
         Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
-    // final bool completedStatus =
-    //     checkCompletedStatus(tracking.service, tracking.lastEvent!, texts);
-    // if (completedStatus) {
-    //   return GlobalToast.displayToast(context, texts[208]!);
-    // };
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
@@ -50,18 +44,29 @@ class TrackingFunctions {
     Provider.of<Status>(context, listen: false).toggleCheckingStatus();
     if (response.statusCode == 500) {
       if (responseData['result']?['error']['body'] == "Service timeout") {
-        return DialogError.show(context, 6, tracking.service);
+        DialogError.show(context, 6, tracking.service);
+        return;
       }
       return responseData['error'] == "No data"
           ? DialogError.show(context, 5, tracking.service)
           : DialogError.show(context, 8, tracking.service);
     }
-    int index = trackingsList.indexWhere((t) => t.idMDB == tracking.idMDB);
-    trackingCheckUpdate(context, index, responseData);
-    if (responseData['result']['events'].isEmpty) {
+    final int index =
+        trackingsList.indexWhere((t) => t.idMDB == tracking.idMDB);
+    Provider.of<ActiveTrackings>(context, listen: false)
+        .trackingDataUpdate(context, index, responseData);
+    Future.delayed(const Duration(seconds: 1), () {
+      BuildContext ctx = context;
+      if (ctx.mounted == false) {
+        return;
+      }
+      Provider.of<ActiveTrackings>(ctx, listen: false)
+          .toggleAnimate(trackingsList, index);
+    });
+    if (responseData['result']['events'].isEmpty &&
+        trackingsList[index].status == responseData["status"]) {
       GlobalToast.displayToast(context, texts[208]!);
     } else {
-      trackingDataUpdate(context, index, responseData['result']);
       GlobalToast.displayToast(context, texts[209]!);
     }
   }
@@ -70,16 +75,27 @@ class TrackingFunctions {
       bool foreground, RemoteMessage message, BuildContext context) {
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    final List<dynamic> response = json.decode(message.data['data']);
     final List<dynamic> responseData = [];
     late int index;
-    for (dynamic item in response) {
-      index = trackingsList.indexWhere((t) => t.idMDB == item['idMDB']);
-      if (index != -1 &&
-          item['result']['lastEvent'] != trackingsList[index].lastEvent) {
-        trackingCheckUpdate(context, index, item);
-        trackingDataUpdate(context, index, item['result']);
-        responseData.add(item);
+    if (message.data['data'].isEmpty) {
+      TrackingFunctions.syncronizeUserData(context, true);
+    } else {
+      final List<dynamic> response = json.decode(message.data['data']);
+      for (dynamic item in response) {
+        index = trackingsList.indexWhere((t) => t.idMDB == item['idMDB']);
+        if (index != -1) {
+          Provider.of<ActiveTrackings>(context, listen: false)
+              .trackingDataUpdate(context, index, item);
+          Future.delayed(const Duration(seconds: 1), () {
+            BuildContext ctx = context;
+            if (ctx.mounted == false) {
+              return;
+            }
+            Provider.of<ActiveTrackings>(ctx, listen: false)
+                .toggleAnimate(trackingsList, index);
+          });
+          responseData.add(item);
+        }
       }
     }
     if (!foreground && responseData.length == 1) {
@@ -91,64 +107,59 @@ class TrackingFunctions {
       Provider.of<Status>(context, listen: false)
           .showNotificationOverlay(notification.title!, notification.body!);
     }
-    Provider.of<Status>(context, listen: false).setNewSyncDate();
   }
 
-  static void trackingCheckUpdate(
-      BuildContext context, int index, Map<String, dynamic> itemDataTracking) {
-    final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    final String checkDate = itemDataTracking['checkDate'];
-    final String checkTime = itemDataTracking['checkTime'];
-    trackingsList[index].lastCheck = '$checkDate - $checkTime';
-  }
-
-  static void trackingDataUpdate(
-      BuildContext context, int index, Map<String, dynamic> itemData) {
-    final List<ItemTracking> trackingsList =
-        Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    final List<Map<String, String>> newEventList = trackingsList[index].events;
-    for (dynamic event in itemData['events'].reversed) {
-      newEventList.insert(0, Map<String, String>.from(event));
+  static List<Object> getTrackingEvents(
+      BuildContext context,
+      Map<int, dynamic> texts,
+      List<ItemTracking> activeTrackings,
+      bool mustSyncTrackings) {
+    if (activeTrackings.isEmpty) {
+      return [];
     }
-    trackingsList[index].events = newEventList;
-    trackingsList[index].lastEvent = itemData['lastEvent'];
-    if (itemData['moreData'] != null) {
-      for (Map<String, dynamic> element in itemData['moreData']) {
-        int dataIndex = trackingsList[index]
-            .moreData!
-            .indexWhere((d) => d["title"] == element["title"]);
-        trackingsList[index].moreData![dataIndex]['data'] = element["data"];
-      }
+    final List<Object> trackingEvents = activeTrackings.map((t) {
+      return {
+        'idMDB': t.idMDB,
+        'eventsList': t.events,
+        'status': t.status,
+      };
+    }).toList();
+    if (mustSyncTrackings) {
+      return trackingEvents;
     }
-    final StoredData storedData = StoredData();
-    storedData.updateActiveTracking(trackingsList[index]);
-  }
-
-  static void syncronizeUserData(BuildContext context) async {
-    final String lastSync =
-        Provider.of<Status>(context, listen: false).getLastSyncDate;
-    final DateTime lastSyncDate = DateTime.parse(lastSync);
+    final List<ItemTracking> sortedTrackings =
+        Provider.of<UserPreferences>(context, listen: false)
+            .sortTrackings(texts[206], activeTrackings);
+    final Map<String, dynamic> lastEvent = sortedTrackings[0].events[0];
+    final List<int> dateSplitted =
+        TrackingFunctions.parseDate(lastEvent["date"]);
+    final List<int> timeSplitted =
+        TrackingFunctions.parseTime(lastEvent["time"]);
+    final DateTime lastEventDate = DateTime(
+      dateSplitted[2],
+      dateSplitted[1],
+      dateSplitted[0],
+      timeSplitted[0],
+      timeSplitted[1],
+      timeSplitted.length == 3 ? timeSplitted[2] : 00,
+    );
     final DateTime currentDate = DateTime.now();
-    final int dateDifference = currentDate.difference(lastSyncDate).inHours;
-    if (dateDifference < 8) {
-      return;
-    }
+    final int timeDifference =
+        currentDate.difference(lastEventDate).inHours - 3;
+    return timeDifference > 12 ? trackingEvents : [];
+  }
+
+  static void syncronizeUserData(
+      BuildContext context, bool mustSyncTrackings) async {
     final Map<int, dynamic> texts =
         Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
-    final List<Object> lastEventsList = [];
-    if (trackingsList.isNotEmpty) {
-      for (ItemTracking tracking in trackingsList) {
-        if (tracking.idMDB != null) {
-          lastEventsList.add({
-            'idMDB': tracking.idMDB,
-            'eventDescription': tracking.lastEvent
-          });
-        }
-      }
-    }
+    final List<ItemTracking> activeTrackings = trackingsList
+        .where((t) => t.idMDB != null && t.active == true)
+        .toList();
+    List<Object> trackingEvents =
+        getTrackingEvents(context, texts, activeTrackings, mustSyncTrackings);
     final UserData storedUserData = (await StoredData().loadUserData())[0];
     if (!context.mounted) {
       return;
@@ -169,7 +180,7 @@ class TrackingFunctions {
     final Object body = {
       'userId': userId,
       'token': await FirebaseMessaging.instance.getToken(),
-      'lastEvents': json.encode(lastEventsList),
+      'trackingEvents': json.encode(trackingEvents),
       'payment': json.encode({
         'status': paymentData['status'] ?? '',
         'isValid': paymentData['isValid'] ?? '',
@@ -190,9 +201,14 @@ class TrackingFunctions {
       DialogError.show(context, 1, "");
       return;
     }
-    final Map<String, dynamic> responseData = json.decode(response.body);
-    if (responseData.isEmpty) return;
-
+    if (!context.mounted) {
+      return;
+    }
+    final Map<String, dynamic> responseData =
+        HttpConnection.responseHandler(response, context);
+    if (responseData.isEmpty) {
+      return;
+    }
     if (responseData['error'] == "user not found") {
       await StoredData().dropDatabase();
       if (!context.mounted) {
@@ -218,7 +234,8 @@ class TrackingFunctions {
       if (!context.mounted) {
         return;
       }
-      checkPayment(context, responseData['mercadoPago'], texts);
+      Provider.of<UserPreferences>(context, listen: false)
+          .checkPayment(context, responseData['mercadoPago'], texts);
     }
     if (responseData['driveStatus'] != null) {
       if (responseData['driveStatus'] == "Update required" ||
@@ -232,7 +249,6 @@ class TrackingFunctions {
     if (!context.mounted) {
       return;
     }
-    Provider.of<Status>(context, listen: false).setNewSyncDate();
     if (responseData['data'].isEmpty) {
       return;
     }
@@ -240,15 +256,25 @@ class TrackingFunctions {
     for (dynamic tDB in responseData['data']) {
       int index = trackingsList.indexWhere((seg) => seg.idMDB == tDB['id']);
       if (index != -1) {
-        trackingCheckUpdate(context, index, tDB);
-        trackingDataUpdate(context, index, tDB['result']);
+        Provider.of<ActiveTrackings>(context, listen: false)
+            .trackingDataUpdate(context, index, tDB);
+        Future.delayed(const Duration(seconds: 1), () {
+          BuildContext ctx = context;
+          if (ctx.mounted == false) {
+            return;
+          }
+          Provider.of<ActiveTrackings>(ctx, listen: false)
+              .toggleAnimate(trackingsList, index);
+        });
         String tracking = trackingsList[index].title!;
         updatedItems.add(tracking);
       }
     }
     if (updatedItems.isNotEmpty) {
       String message = '';
-      if (updatedItems.length == 1) message = updatedItems[0];
+      if (updatedItems.length == 1) {
+        message = updatedItems[0];
+      }
       if (updatedItems.length > 1) {
         message = texts[229]!;
       }
@@ -257,57 +283,30 @@ class TrackingFunctions {
     }
   }
 
-  static void checkPayment(BuildContext context,
-      Map<String, dynamic> paymentData, Map<int, dynamic> texts) {
-    final bool showPaymentErrorAgain =
-        Provider.of<UserPreferences>(context, listen: false)
-            .showAgainPaymentError;
-    if (paymentData["status"] == "could not be checked") {
-      if (showPaymentErrorAgain) {
-        ShowDialog.showMessage(context, texts[231]!, "payment", texts);
-      }
-    } else {
-      Provider.of<UserPreferences>(context, listen: false)
-          .setShowPaymentErrorAgain(true);
-    }
-  }
-
-  static String formatEventDate(
-      BuildContext context, String value, bool dateOnly) {
+  static String formatEventDate(BuildContext context, String value) {
     final Map<int, dynamic> texts =
         Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
-    String year = "";
-    String month = "";
-    String day = "";
-    final String lastEventDate = dateOnly ? value : value.split(" - ")[0];
-    if (lastEventDate.contains(" de ")) {
-      final List<String> splittedDate = lastEventDate.split(", ");
-      final List<String> splittedDayMonth = splittedDate[0].split(" de ");
-      year = splittedDate[1];
-      day = splittedDayMonth[0];
-      month = splittedDayMonth[1];
-    } else {
-      final List<String> splittedDate =
-          dateOnly ? value.split("/") : value.split(" - ")[0].split("/");
-      year = splittedDate[2];
-      month = texts[249][int.parse(splittedDate[1])];
-      day = splittedDate[0];
-    }
+    final List<String> splittedDate = value.split("/");
+    final String year = splittedDate[2];
+    final String month = texts[249][int.parse(splittedDate[1])];
+    final String day = splittedDate[0];
     final String formatedDate = "$day $month, $year";
-    if (dateOnly) {
-      return formatedDate;
+    return formatedDate;
+  }
+
+  static String formatEventDetail(Map<String, dynamic> event) {
+    final List<String> keysCollection =
+        event.keys.where((k) => k != "date" && k != "time").toList();
+    final List<String> eventData = [];
+    for (String key in keysCollection) {
+      eventData.add(event[key]);
     }
-    List<String> splittedLastEvent = value.split(" - ");
-    splittedLastEvent.replaceRange(0, 1, [formatedDate]);
-    final String formattedLastEvent = splittedLastEvent.join(" - ");
-    return formattedLastEvent;
+    return eventData.join(" - ");
   }
 
   static String daysInTransit(BuildContext context, String last, String first) {
-    Map<int, dynamic> texts =
-        Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
-    final List<int> lastDateSplitted = parseDate(texts[248], last);
-    final List<int> firstDateSplitted = parseDate(texts[248], first);
+    final List<int> lastDateSplitted = parseDate(last);
+    final List<int> firstDateSplitted = parseDate(first);
     DateTime lastDate = DateTime(
       lastDateSplitted.length == 3 ? lastDateSplitted[2] : DateTime.now().year,
       lastDateSplitted[1],
@@ -324,26 +323,13 @@ class TrackingFunctions {
     return daysDifference.toString();
   }
 
-  static List<int> parseDate(Map<String, int> language, String date) {
-    if (date.toLowerCase().contains(" de ")) {
-      final List<String> splittedDate =
-          date.toLowerCase().split(" de ").map((d) => d.toString()).toList();
-      final String yearString = splittedDate[1].split(", ")[1];
-      final String monthString = splittedDate[1].split(", ")[0];
-      final int monthNumber = language[monthString]!;
-      return [int.parse(splittedDate[0]), monthNumber, int.parse(yearString)];
-    }
+  static List<int> parseDate(String date) {
     return (date.contains("/") ? date.split("/") : date.split("-"))
         .map((t) => int.parse(t))
         .toList();
   }
 
   static List<int> parseTime(String time) {
-    if (time.contains("AM") || time.contains("PM")) {
-      final DateTime dateTime = DateFormat("hh:mm a").parse(time);
-      final String twentyFourHourTime = DateFormat("HH:mm").format(dateTime);
-      return twentyFourHourTime.split(":").map((t) => int.parse(t)).toList();
-    }
     return time.split(":").map((t) => int.parse(t)).toList();
   }
 

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../data/classes.dart';
 import '../data/services.dart';
-import '../data/tracking_functions.dart';
 import '../data/trackings_active.dart';
 import '../data/status.dart';
 import '../data/preferences.dart';
@@ -20,27 +19,8 @@ import '../widgets/style_options.dart';
 import '../widgets/tracking_list.dart';
 import '../widgets/tracking_options.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);
-
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(
-      const Duration(seconds: 3),
-      () {
-        if (!mounted) {
-          return;
-        }
-        TrackingFunctions.syncronizeUserData(context);
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +49,7 @@ class _MainScreenState extends State<MainScreen> {
     final List<String> languages = ["Español", "English"];
     final List<Widget> floatingActionButtons = [
       Padding(
-        padding: const EdgeInsets.only(right: 8, bottom: 4),
+        padding: const EdgeInsets.only(right: 10, bottom: 4),
         child: FloatingActionButton(
           onPressed: () => CodeHandlerMain.scanBarcode(context, texts),
           heroTag: "herotag1",
@@ -174,13 +154,13 @@ class _MainScreenState extends State<MainScreen> {
                       if (selection.isNotEmpty) ...[
                         TrackingOptions(
                           tracking: sampleTracking,
-                          menu: false,
+                          option: "iconButtons",
                           action: 'archive',
                           detail: false,
                         ),
                         TrackingOptions(
                           tracking: sampleTracking,
-                          menu: false,
+                          option: "iconButtons",
                           action: 'remove',
                           detail: false,
                         ),

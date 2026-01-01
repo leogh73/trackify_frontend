@@ -58,7 +58,9 @@ class Init {
       servicesData: {},
     );
     final String? firebaseToken = await firebaseMessagingNotifications();
-    if (firebaseToken == "BLACKLISTED") return startPreferences;
+    if (firebaseToken == "BLACKLISTED") {
+      return startPreferences;
+    }
     Response response = await HttpConnection.requestHandler(
         '/api/user/initialize/', {'token': firebaseToken});
     if (response.statusCode == 200) {
@@ -86,13 +88,6 @@ class Init {
     return paymentData;
   }
 
-  static String setSyncDate(UserData userPreferences) {
-    final String newDate = DateTime.now().toString();
-    final UserData newPreferences = userPreferences.edit(lastSync: newDate);
-    storedData.updatePreferences(newPreferences);
-    return newDate;
-  }
-
   static Future<StartData> loadStartData() async {
     List<UserData> userPreferences = await storedData.loadUserData();
     if (userPreferences.isEmpty) {
@@ -110,8 +105,6 @@ class Init {
     int sortTrackingsBy = userPreferences[0].sortTrackingsBy;
     bool startThemeDarkMode = userPreferences[0].darkMode;
     bool meliStatus = userPreferences[0].meLiStatus;
-    String lastSyncDate =
-        userPreferences[0].lastSync ?? setSyncDate([...userPreferences][0]);
     bool driveStatus = userPreferences[0].googleDriveStatus;
     bool showAgainPaymentError = userPreferences[0].showAgainPaymentError!;
     Map<String, dynamic> servicesData = userPreferences[0].servicesData ?? {};
@@ -140,7 +133,6 @@ class Init {
       paymentData,
       startActiveTrackings,
       startArchivedTrackings,
-      lastSyncDate,
     );
   }
 }
@@ -159,7 +151,6 @@ class StartData {
   Map<String, dynamic> paymentData;
   List<ItemTracking> activeTrackings;
   List<ItemTracking> archivedTrackings;
-  String lastSyncDate;
   StartData(
     this.userId,
     this.language,
@@ -174,6 +165,5 @@ class StartData {
     this.paymentData,
     this.activeTrackings,
     this.archivedTrackings,
-    this.lastSyncDate,
   );
 }

@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:trackify/widgets/dialog_toast.dart';
+import 'package:trackify/data/trackings_active.dart';
+import 'package:trackify/data/trackings_archived.dart';
+import 'package:trackify/widgets/tracking_buttons.dart';
+import 'package:trackify/widgets/tracking_claim.dart';
 
 import '../data/classes.dart';
-import '../data/../data/preferences.dart';
+import '../data/preferences.dart';
 import '../data/status.dart';
 import '../data/tracking_functions.dart';
 
-import '../screens/tracking_more.dart';
-
 import '../widgets/ad_interstitial.dart';
+import '../widgets/ad_native.dart';
 import '../widgets/ad_banner.dart';
-import '../widgets/tracking_options.dart';
+import '../widgets/dialog_toast.dart';
 import '../widgets/events_list.dart';
+import '../widgets/tracking_options.dart';
+import '../widgets/tracking_other_data.dart';
+import '../widgets/tracking_summary.dart';
+import '../widgets/tracking_url.dart';
 
 class TrackingDetail extends StatefulWidget {
   final ItemTracking? tracking;
@@ -23,12 +30,149 @@ class TrackingDetail extends StatefulWidget {
 }
 
 class _TrackingDetailState extends State<TrackingDetail> {
+  late ScrollController _controller;
   AdInterstitial interstitialAd = AdInterstitial();
+
+  _scrollListener() {
+    if (_controller.offset == _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      Provider.of<Status>(context, listen: false).toggleEventsEndStatus(true);
+    } else {
+      Provider.of<Status>(context, listen: false).toggleEventsEndStatus(false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     interstitialAd.createInterstitialAd();
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget trackingStats(
+    bool premiumUser,
+    bool isPortrait,
+    double screenWidth,
+    Map<int, dynamic> texts,
+  ) {
+    final ItemTracking trk = widget.tracking!;
+    final String startDate = trk.startCheck!.split(" - ")[0];
+    final String startTime = trk.startCheck!.split(" - ")[1];
+    final String formattedStart =
+        TrackingFunctions.formatEventDate(context, startDate);
+    final String formattedStartDate = "$formattedStart - $startTime";
+    final String checkDate = trk.lastCheck!.split(" - ")[0];
+    final String checkTime = trk.lastCheck!.split(" - ")[1];
+    final String formattedCheck =
+        TrackingFunctions.formatEventDate(context, checkDate);
+    final String formattedCheckDate = "$formattedCheck - $checkTime";
+    final List<List<dynamic>> dataList = [
+      [
+        MdiIcons.truckFast,
+        Icons.numbers,
+        MdiIcons.calendar,
+        MdiIcons.checkNetworkOutline,
+        MdiIcons.calendarClock,
+        MdiIcons.calendarMultipleCheck,
+        MdiIcons.informationBoxOutline
+      ],
+      [
+        texts[259]!,
+        texts[14]!,
+        texts[260]!,
+        texts[176]!,
+        texts[250],
+        texts[261]!,
+        texts[87]!
+      ],
+      [
+        trk.service,
+        trk.code,
+        formattedStartDate,
+        formattedCheckDate,
+        TrackingFunctions.daysInTransit(context, trk.events[0]["date"]!,
+            trk.events[trk.events.length - 1]["date"]!),
+        trk.events.length.toString(),
+        texts[262][trk.status],
+      ],
+    ];
+    const Widget smallAd = Padding(
+      padding: EdgeInsets.only(top: 4, bottom: 4),
+      child: AdNative("small"),
+    );
+    return Container(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        children: [
+          if (!premiumUser) smallAd,
+          SizedBox(
+            width: isPortrait ? screenWidth : screenWidth * 0.6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: dataList[0]
+                      .map((d) => SizedBox(
+                          height: 45,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [Icon(d, size: 24)],
+                          )))
+                      .toList(),
+                ),
+                Column(
+                  children: dataList[1]
+                      .map((d) => SizedBox(
+                          height: 45,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                d,
+                                maxLines: 2,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
+                              )
+                            ],
+                          )))
+                      .toList(),
+                ),
+                SizedBox(
+                  width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.25,
+                  child: Column(
+                    children: dataList[2]
+                        .map((d) => SizedBox(
+                            height: 45,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  d,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      overflow: TextOverflow.ellipsis),
+                                )
+                              ],
+                            )))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!premiumUser) smallAd,
+        ],
+      ),
+    );
   }
 
   @override
@@ -43,103 +187,118 @@ class _TrackingDetailState extends State<TrackingDetail> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool fullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
-    final String screenList = widget.tracking!.archived! ? "archived" : "main";
+    final ItemTracking? tracking = widget.tracking!.archived == true
+        ? context.select((ArchivedTrackings archivedTrackings) =>
+            archivedTrackings.trackings.firstWhere(
+                (t) => t.idMDB == widget.tracking!.idMDB,
+                orElse: () => ItemTracking(
+                    code: "", service: "", events: [], moreData: [])))
+        : context.select((ActiveTrackings activeTrackings) => activeTrackings
+            .trackings
+            .firstWhere((t) => t.idMDB == widget.tracking!.idMDB,
+                orElse: () =>
+                    ItemTracking(code: "", service: "", events: [], moreData: [])));
+    final String serviceName = tracking!.service;
+    final Widget divider = Divider(
+      color: Theme.of(context).primaryColor,
+      thickness: 1.5,
+      height: 1.5,
+    );
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) => () => Future.value(!checking),
+      canPop: !checking,
       child: Scaffold(
         appBar: AppBar(
           titleSpacing: 1.0,
           title: Text(
-            widget.tracking!.title!,
+            tracking.code.isEmpty ? texts[124]! : tracking.title,
             maxLines: 2,
             style: TextStyle(fontSize: fullHD ? 18 : 17),
           ),
           actions: [
-            TrackingOptions(
-              tracking: widget.tracking!,
-              menu: true,
-              action: '',
-              detail: true,
-            ),
-            if (screenList == "search")
-              PopupMenuButton<String>(
-                tooltip: texts[122],
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            if (tracking.code.isNotEmpty)
+              TrackingOptions(
+                tracking: tracking,
+                option: "iconButtons",
+                action: 'rename',
+                detail: true,
+              ),
+          ],
+        ),
+        body: tracking.code.isEmpty && tracking.events.isEmpty
+            ? Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (!premiumUser)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10, bottom: 60),
+                          child: AdNative("small"),
+                        ),
+                      Center(
+                        child: Text(
+                          texts[124]!,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      if (!premiumUser)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 60, bottom: 10),
+                          child: AdNative("small"),
+                        )
+                    ],
+                  ),
                 ),
-                elevation: 2,
-                onSelected: (String value) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TrackingMore(widget.tracking!.moreData!),
-                    ),
-                  );
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: texts[123],
-                    height: 35,
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 15),
-                          child: Icon(
-                            Icons.info,
-                            color: Theme.of(context).iconTheme.color,
+              )
+            : SingleChildScrollView(
+                controller: _controller,
+                child: Column(
+                  children: [
+                    if (checking)
+                      Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(
+                                top: 25, bottom: 20, right: 6),
+                            child: const SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.zero,
-                          child: Text(texts[123]!),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                          Text(
+                            texts[69]!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: fullHD ? 16 : 15,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 15,
+                            ),
+                            child: Divider(
+                              height: 1,
+                              color: Theme.of(context).primaryColor,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    TrackingSummary(tracking),
+                    divider,
+                    EventsList(tracking.events, serviceName),
+                    divider,
+                    TrackingOtherData(tracking.moreData!),
+                    divider,
+                    TrackingUrl(serviceName, tracking.code, tracking.url),
+                    divider,
+                    TrackingClaim(serviceName),
+                    divider,
+                    TrackingDetaiilButtons(tracking)
+                  ],
+                ),
               ),
-          ],
-        ),
-        body: Column(
-          children: [
-            if (checking)
-              Column(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.only(top: 25, bottom: 20, right: 6),
-                    child: const SizedBox(
-                      height: 40,
-                      width: 40,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                  Text(
-                    texts[69]!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: fullHD ? 16 : 15,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 15,
-                    ),
-                    child: Divider(
-                      height: 1,
-                      color: Theme.of(context).primaryColor,
-                      thickness: 1,
-                    ),
-                  ),
-                ],
-              ),
-            Expanded(
-              child:
-                  EventsList(widget.tracking!.events, widget.tracking!.service),
-            ),
-          ],
-        ),
         floatingActionButton: checking || endList
             ? null
             : FloatingActionButton(
@@ -149,7 +308,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                     interstitialAd.showInterstitialAd();
                     ShowDialog.goPremiumDialog(context);
                   }
-                  TrackingFunctions.searchUpdates(context, widget.tracking!);
+                  TrackingFunctions.searchUpdates(context, tracking);
                 },
                 child: const Icon(Icons.update, size: 29),
               ),
@@ -158,3 +317,38 @@ class _TrackingDetailState extends State<TrackingDetail> {
     );
   }
 }
+
+// class TrackingData {
+//   static Widget sectionTitle(BuildContext context, String title) {
+//     Widget divider = Expanded(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//         children: [
+//           Divider(
+//             color: Theme.of(context).primaryColor,
+//             thickness: 1.5,
+//             height: 3,
+//           ),
+//         ],
+//       ),
+//     );
+
+//     return SizedBox(
+//       height: 35,
+//       child: Column(children: <Widget>[
+//         divider,
+//         Padding(
+//           padding: const EdgeInsets.only(left: 12, right: 12),
+//           child: Text(
+//             title,
+//             style: TextStyle(
+//                 fontWeight: FontWeight.bold,
+//                 fontSize: 20,
+//                 color: Theme.of(context).primaryColor),
+//           ),
+//         ),
+//         divider,
+//       ]),
+//     );
+//   }
+// }

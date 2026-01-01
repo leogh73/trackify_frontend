@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:trackify/data/tracking_functions.dart';
+
 import '../data/classes.dart';
 import '../widgets/ad_native.dart';
 
 class ViewGrid {
   Widget widget(
     BuildContext context,
+    Map<int, dynamic> texts,
     Image serviceLogo,
+    Color? backgroundColor,
+    IconData statusIcon,
     ItemTracking tracking,
     String daysInTransit,
     VoidCallback onTap,
@@ -24,7 +29,6 @@ class ViewGrid {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final bool landscapeFullHD =
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1919;
-    final screenHeight = MediaQuery.of(context).size.height;
     return Column(
       children: [
         Padding(
@@ -41,7 +45,8 @@ class ViewGrid {
                     borderRadius: const BorderRadius.all(
                       Radius.circular(18.0),
                     ),
-                    color: tracking.selected! ? Colors.black12 : null,
+                    color:
+                        tracking.selected! ? Colors.black12 : backgroundColor,
                   ),
                   // margin: EdgeInsets.all(4),
                   padding: const EdgeInsets.only(
@@ -53,18 +58,12 @@ class ViewGrid {
                         direction: Axis.vertical,
                         children: [
                           Container(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            height: isPortrait
-                                ? 40
-                                : landscapeFullHD
-                                    ? 42
-                                    : 40,
+                            padding: const EdgeInsets.only(bottom: 4, top: 4),
+                            height: isPortrait ? 49 : 44,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Container(
-                                  padding:
-                                      EdgeInsets.only(top: isPortrait ? 9 : 7),
+                                SizedBox(
                                   width: !tracking.checkError!
                                       ? isPortrait
                                           ? screenWidth * 0.312
@@ -74,29 +73,22 @@ class ViewGrid {
                                           : landscapeFullHD
                                               ? screenWidth * 0.182
                                               : screenWidth * 0.122,
-                                  height: 30,
                                   child: Text(
                                     title,
+                                    maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: portraitFullHD ? 16 : 15,
+                                      fontSize: portraitFullHD ? 14 : 15,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                if (tracking.checkError! && !tracking.archived!)
-                                  Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child: button),
                                 if (!selectionMode)
                                   Column(
                                     children: [
                                       SizedBox(
-                                        // constraints: BoxConstraints(maxWidth: 22),
                                         width: 36,
                                         height: 36,
-                                        // padding: EdgeInsets.only(right: 5),
-                                        // height: isPortrait ? 30 : 30,
                                         child: optionsButton,
                                       ),
                                     ],
@@ -109,20 +101,12 @@ class ViewGrid {
                                         if (tracking.selected!)
                                           SizedBox(
                                             width: 36,
-                                            child: Padding(
-                                              padding: isPortrait
-                                                  ? const EdgeInsets.only(
-                                                      top: 3, right: 6)
-                                                  : const EdgeInsets.only(
-                                                      top: 5,
-                                                      right: 1,
-                                                      left: 6),
-                                              child: Icon(
-                                                Icons.check_box,
-                                                size: 32,
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                              ),
+                                            height: 36,
+                                            child: Icon(
+                                              Icons.check_box,
+                                              size: 32,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
                                             ),
                                           ),
                                         if (!tracking.selected!)
@@ -166,21 +150,21 @@ class ViewGrid {
                                           size: 20),
                                       if (isPortrait && !tracking.archived!)
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 7),
+                                          padding: const EdgeInsets.only(
+                                              top: 5, left: 7),
                                           child: Row(
                                             children: [
                                               SizedBox(
                                                 width: screenWidth * 0.247,
                                                 child: Text(
-                                                  'Ultimo movimiento:',
+                                                  texts[252],
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
                                                     fontSize: portraitFullHD
-                                                        ? 16
+                                                        ? 14
                                                         : 15,
                                                   ),
                                                 ),
@@ -197,14 +181,14 @@ class ViewGrid {
                                               SizedBox(
                                                 width: screenWidth * 0.232,
                                                 child: Text(
-                                                  'Ultimo movimiento:',
+                                                  texts[252],
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
                                                     fontSize: portraitFullHD
-                                                        ? 16
+                                                        ? 14
                                                         : 15,
                                                   ),
                                                 ),
@@ -221,14 +205,14 @@ class ViewGrid {
                                               SizedBox(
                                                 width: screenWidth * 0.249,
                                                 child: Text(
-                                                  'Ultimo movimiento:',
+                                                  texts[252],
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
                                                     fontSize: portraitFullHD
-                                                        ? 16
+                                                        ? 14
                                                         : 15,
                                                   ),
                                                 ),
@@ -253,14 +237,14 @@ class ViewGrid {
                                                     ? screenWidth * 0.208
                                                     : screenWidth * 0.189,
                                                 child: Text(
-                                                  'Ultimo movimiento:',
+                                                  texts[252],
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColor,
                                                     fontSize: portraitFullHD
-                                                        ? 16
+                                                        ? 14
                                                         : 15,
                                                   ),
                                                 ),
@@ -300,7 +284,7 @@ class ViewGrid {
                                               maxLines: 2,
                                               style: TextStyle(
                                                 fontSize:
-                                                    portraitFullHD ? 16 : 15,
+                                                    portraitFullHD ? 15 : 16,
                                               ),
                                             ),
                                     ),
@@ -311,7 +295,11 @@ class ViewGrid {
                                     children: [
                                       Row(
                                         children: [
-                                          const Icon(Icons.check, size: 20),
+                                          const Padding(
+                                            padding: EdgeInsets.only(
+                                                bottom: 5, right: 1),
+                                            child: Icon(Icons.calendar_month),
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 left: 7, bottom: 7),
@@ -322,14 +310,14 @@ class ViewGrid {
                                                       ? screenWidth * 0.302
                                                       : screenWidth * 0.214,
                                                   child: Text(
-                                                    'Ultimo chequeo:',
+                                                    texts[89],
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                       color: Theme.of(context)
                                                           .primaryColor,
                                                       fontSize: portraitFullHD
-                                                          ? 16
+                                                          ? 14
                                                           : 15,
                                                     ),
                                                   ),
@@ -340,33 +328,83 @@ class ViewGrid {
                                         ],
                                       ),
                                       Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        // mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          SizedBox(
-                                            width: isPortrait
-                                                ? screenWidth * 0.381
-                                                : screenWidth * 0.271,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 6, bottom: 6),
-                                              child: tracking.checkError!
-                                                  ? const Text("Sin datos")
-                                                  : Text(
-                                                      tracking.lastCheck!,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontSize: portraitFullHD
-                                                            ? 16
-                                                            : 15,
-                                                      ),
-                                                    ),
-                                            ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                maxLines: 2,
+                                                TrackingFunctions
+                                                    .formatEventDate(
+                                                        context,
+                                                        tracking.events[0]
+                                                            ["date"]!),
+                                                style: TextStyle(
+                                                    fontSize: fullHD ? 15 : 16),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Padding(
+                                              padding: EdgeInsets.only(
+                                                  bottom: 5, right: 1),
+                                              child: Icon(Icons.access_time),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 7, bottom: 7),
+                                              child: Column(
+                                                children: [
+                                                  SizedBox(
+                                                    width: isPortrait
+                                                        ? screenWidth * 0.302
+                                                        : screenWidth * 0.214,
+                                                    child: Text(
+                                                      texts[258],
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                        fontSize: portraitFullHD
+                                                            ? 14
+                                                            : 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Text(
+                                                  maxLines: 2,
+                                                  tracking.events[0]["time"]!,
+                                                  style: TextStyle(
+                                                      fontSize:
+                                                          fullHD ? 15 : 16),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -375,21 +413,38 @@ class ViewGrid {
                         ],
                       ),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.only(top: 3, bottom: 3),
-                            constraints: isPortrait
-                                ? BoxConstraints(
-                                    maxHeight: screenHeight * 0.0582,
-                                    maxWidth: screenWidth * 0.344,
-                                  )
-                                : BoxConstraints(
-                                    maxHeight: screenHeight * 0.095,
-                                    maxWidth: screenWidth * 0.2,
-                                  ),
-                            child: serviceLogo,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 8),
+                                child: isPortrait
+                                    ? SizedBox(
+                                        width: screenWidth * 0.275,
+                                        child: serviceLogo,
+                                      )
+                                    : SizedBox(
+                                        width: screenWidth * 0.18,
+                                        child: serviceLogo,
+                                      ),
+                              ),
+                            ],
                           ),
+                          Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 8, right: 10),
+                                child: Icon(
+                                  statusIcon,
+                                  size: 28,
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ],
@@ -399,7 +454,8 @@ class ViewGrid {
             ),
           ),
         ),
-        if (!premiumUser) const AdNative("medium"),
+        if (!premiumUser)
+          const SizedBox(height: 166, child: AdNative("medium")),
       ],
     );
   }

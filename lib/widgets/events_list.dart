@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../data/preferences.dart';
 import '../data/tracking_functions.dart';
-import '../data/status.dart';
 
 import '../widgets/ad_native.dart';
 
@@ -13,33 +13,11 @@ class EventsList extends StatefulWidget {
   const EventsList(this.events, this.service, {Key? key}) : super(key: key);
 
   @override
-  EventsListState createState() => EventsListState();
+  State<EventsList> createState() => _EventsListState();
 }
 
-class EventsListState extends State<EventsList> {
-  late ScrollController _controller;
-
-  _scrollListener() {
-    if (_controller.offset == _controller.position.maxScrollExtent &&
-        !_controller.position.outOfRange) {
-      Provider.of<Status>(context, listen: false).toggleEventsEndStatus(true);
-    } else {
-      Provider.of<Status>(context, listen: false).toggleEventsEndStatus(false);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = ScrollController();
-    _controller.addListener(_scrollListener);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class _EventsListState extends State<EventsList> {
+  bool expanded = true;
 
   List<Map<String, dynamic>> eventData(
       String service, Map<dynamic, String> event) {
@@ -69,22 +47,74 @@ class EventsListState extends State<EventsList> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 6, bottom: 6),
-      child: ListView.builder(
-        padding: const EdgeInsets.only(top: 2, right: 2, left: 2),
-        controller: _controller,
-        itemCount: widget.events.length,
-        itemBuilder: (context, index) {
-          return Event(
-            widget.events[index],
-            index,
-            widget.events.length,
-            index == widget.events.length,
-            eventData(widget.service, widget.events[index]),
-          );
-        },
-      ),
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Column(
+      children: [
+        SizedBox(
+          width: isPortrait ? screenWidth : screenWidth * 0.6,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(
+                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                child: Icon(MdiIcons.calendarMultiple),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Text(
+                    texts[264],
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Theme.of(context).primaryColor),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                child: IconButton(
+                  onPressed: () => setState(() {
+                    expanded = !expanded;
+                  }),
+                  icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                ),
+              )
+            ],
+          ),
+        ),
+        if (expanded)
+          Divider(
+            color: Theme.of(context).primaryColor,
+            thickness: 0.5,
+            height: 1.5,
+          ),
+        if (expanded)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, bottom: 6),
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 2, right: 2, left: 2),
+              controller: ScrollController(),
+              shrinkWrap: true,
+              itemCount: widget.events.length,
+              itemBuilder: (context, index) {
+                return Event(
+                  widget.events[index],
+                  index,
+                  widget.events.length,
+                  index == widget.events.length,
+                  eventData(widget.service, widget.events[index]),
+                );
+              },
+            ),
+          )
+      ],
     );
   }
 }
@@ -103,7 +133,7 @@ class Event extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String formatedDate =
-        TrackingFunctions.formatEventDate(context, event['date']!, true);
+        TrackingFunctions.formatEventDate(context, event['date']!);
     final bool premiumUser = context.select(
         (UserPreferences userPreferences) => userPreferences.premiumStatus);
     bool lastItem = false;
@@ -120,10 +150,10 @@ class Event extends StatelessWidget {
           if (index == 0 && !premiumUser)
             const Padding(
               padding: EdgeInsets.only(top: 3, bottom: 3),
-              child: AdNative("medium"),
+              child: AdNative("small"),
             ),
           if (index == 0 && !premiumUser)
-            Divider(color: Theme.of(context).primaryColor, thickness: 1),
+            Divider(color: Theme.of(context).primaryColor, thickness: .5),
           SizedBox(
             height: isPortrait ? 45 : 42,
             child: Row(
@@ -154,7 +184,7 @@ class Event extends StatelessWidget {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.only(
-                                          top: 2, bottom: 2, right: 15),
+                                          top: 1, bottom: 1, right: 15),
                                       // width: 158,
                                       child: Text(
                                         formatedDate,
@@ -187,7 +217,7 @@ class Event extends StatelessWidget {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.only(
-                                          top: 2, bottom: 2),
+                                          top: 1, bottom: 1),
                                       // width: 158,
                                       child: Text(
                                         event['time']!,
@@ -245,14 +275,14 @@ class Event extends StatelessWidget {
               )
               .toList(),
           if (!premiumUser)
-            Divider(color: Theme.of(context).primaryColor, thickness: 1),
+            Divider(color: Theme.of(context).primaryColor, thickness: .5),
           if (!premiumUser)
             const Padding(
               padding: EdgeInsets.only(top: 3, bottom: 3),
               child: AdNative("medium"),
             ),
           if (!lastItem)
-            Divider(color: Theme.of(context).primaryColor, thickness: 1),
+            Divider(color: Theme.of(context).primaryColor, thickness: .5),
         ],
       ),
     );

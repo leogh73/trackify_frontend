@@ -4,7 +4,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:http/http.dart';
 
 import '../database.dart';
-import '../initial_data.dart';
 
 import '../data/http_connection.dart';
 import '../data/classes.dart';
@@ -14,22 +13,6 @@ import '../widgets/dialog_error.dart';
 
 class Status with ChangeNotifier {
   StoredData storedData = StoredData();
-
-  late String lastSync;
-
-  Status(StartData startData) {
-    lastSync = startData.lastSyncDate;
-  }
-
-  String get getLastSyncDate => lastSync;
-
-  void setNewSyncDate() async {
-    final String newDate = DateTime.now().toString();
-    lastSync = newDate;
-    final UserData storedPreferences = [...await storedData.loadUserData()][0];
-    final UserData newPreferences = storedPreferences.edit(lastSync: newDate);
-    storedData.updatePreferences(newPreferences);
-  }
 
   String searchInput = "";
   String get getSearchInput => searchInput;
@@ -106,6 +89,7 @@ class Status with ChangeNotifier {
     showOverlayNotification((context) {
       return Card(
         margin: const EdgeInsets.symmetric(horizontal: 4),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
             child: ListTile(
           leading: SizedBox.fromSize(
@@ -121,7 +105,7 @@ class Status with ChangeNotifier {
           ),
         )),
       );
-    }, duration: const Duration(milliseconds: 0));
+    }, duration: const Duration(milliseconds: 2500));
   }
 
   String userEmail = '';

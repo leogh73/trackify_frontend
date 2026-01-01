@@ -27,6 +27,10 @@ class ServiceSelect extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) {
+        final List<ServiceItemModel> servicesToFilter = servicesList
+            .map((s) => ServiceItemModel(
+                s.logo, Services.filterString(s.name), s.exampleCode))
+            .toList();
         return Dialog(
           insetPadding: const EdgeInsets.all(15),
           shape: const RoundedRectangleBorder(
@@ -62,8 +66,11 @@ class ServiceSelect extends StatelessWidget {
                           autofocus: serviceController.text.isNotEmpty,
                           onChanged: (_) {
                             Provider.of<Services>(context, listen: false)
-                                .filterServicesList(context,
-                                    serviceController.text, servicesList, "");
+                                .filterServicesList(
+                                    context,
+                                    serviceController.text,
+                                    servicesToFilter,
+                                    "");
                           }),
                     ),
                     ElevatedButton(

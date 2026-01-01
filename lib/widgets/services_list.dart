@@ -111,7 +111,7 @@ class ServiceItem extends StatelessWidget {
                     service.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: fullHD ? 17 : 16),
+                    style: TextStyle(fontSize: fullHD ? 16 : 15),
                   ),
                 )
               ],

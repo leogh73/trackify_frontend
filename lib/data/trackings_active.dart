@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:trackify/data/services.dart';
+import 'package:trackify/data/tracking_functions.dart';
 
 import '../database.dart';
 import '../data/classes.dart';
@@ -31,6 +33,7 @@ class ActiveTrackings extends ChangeNotifier {
       title: trackingData["title"],
       code: trackingData["code"],
       service: trackingData["service"],
+      animate: false,
       events: [],
       moreData: [],
       lastEvent: "Not checked yet",
@@ -49,6 +52,12 @@ class ActiveTrackings extends ChangeNotifier {
         .map((e) => Map<String, String>.from(e))
         .toList();
     _trackings[trackingIndex].lastEvent = itemData['lastEvent'];
+    _trackings[trackingIndex].active = itemData['active'];
+    _trackings[trackingIndex].status = itemData['status'];
+    _trackings[trackingIndex].url = itemData['url'];
+    _trackings[trackingIndex].serviceLogoUrl =
+        Provider.of<Services>(context, listen: false)
+            .servicesData[tracking.service]['logoUrl'];
     _trackings[trackingIndex].moreData =
         List<Map<String, dynamic>>.from(itemData['moreData'] ?? []);
     String dateAndTime = '${itemData['checkDate']} - ${itemData['checkTime']}';
@@ -110,12 +119,91 @@ class ActiveTrackings extends ChangeNotifier {
     notifyListeners();
   }
 
-  late ItemTracking _loadedTracking;
-  ItemTracking get loadedTracking => _loadedTracking;
-
-  void loadCurrentTracking(ItemTracking tracking) {
-    _loadedTracking = tracking;
+  void trackingDataUpdate(
+      BuildContext context, int index, Map<String, dynamic> itemData) async {
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    trackingsList[index].animate = true;
+    trackingsList[index].lastEvent =
+        itemData['result']['lastEvent'] ?? trackingsList[index].lastEvent;
+    trackingsList[index].active = itemData['active'];
+    trackingsList[index].status = itemData['status'];
+    final String checkDate = itemData['checkDate'];
+    final String checkTime = itemData['checkTime'];
+    trackingsList[index].lastCheck = '$checkDate - $checkTime';
+    final List<Map<String, String>> updatedEventsList =
+        trackingEventsUpdate(context, index, itemData['result']);
+    if (updatedEventsList.isNotEmpty) {
+      trackingsList[index].events = updatedEventsList;
+    }
+    if (itemData['moreData'] != null) {
+      for (Map<String, dynamic> element in itemData['moreData']) {
+        int dataIndex = trackingsList[index]
+            .moreData!
+            .indexWhere((d) => d["title"] == element["title"]);
+        trackingsList[index].moreData![dataIndex]['data'] = element["data"];
+      }
+    }
     notifyListeners();
+    storedData.updateActiveTracking(trackingsList[index]);
+  }
+
+  toggleAnimate(List<ItemTracking> trackingsList, int index) {
+    trackingsList[index].animate = false;
+    notifyListeners();
+  }
+
+  List<Map<String, String>> trackingEventsUpdate(
+      BuildContext context, int index, Map<String, dynamic> itemData) {
+    final List<ItemTracking> trackingsList =
+        Provider.of<ActiveTrackings>(context, listen: false).trackings;
+    final List<dynamic> updatedEvents = itemData['events'];
+    final List<String> currentEvents =
+        trackingsList[index].events.map((e) => e.values.join(" - ")).toList();
+    final List<dynamic> filteredEvents = updatedEvents
+        .where((uEvent) =>
+            currentEvents.firstWhere(
+                (cEvent) => cEvent == uEvent.values.join(" - "),
+                orElse: () => "not found") ==
+            "not found")
+        .toList();
+    if (filteredEvents.isEmpty) {
+      return [];
+    }
+    final List<Map<String, String>> newEventList = [
+      ...trackingsList[index].events
+    ];
+    for (dynamic event in filteredEvents) {
+      newEventList.add(Map<String, String>.from(event));
+    }
+    newEventList.sort((e1, e2) {
+      List<int> date1Splitted = [];
+      List<int> time1Splitted = [];
+      List<int> date2Splitted = [];
+      List<int> time2Splitted = [];
+      date1Splitted = TrackingFunctions.parseDate(e1["date"]!);
+      time1Splitted = TrackingFunctions.parseTime(e1["time"]!);
+      date2Splitted = TrackingFunctions.parseDate(e2["date"]!);
+      time2Splitted = TrackingFunctions.parseTime(e2["time"]!);
+      final DateTime date1 = DateTime(
+        date1Splitted[2],
+        date1Splitted[1],
+        date1Splitted[0],
+        time1Splitted[0],
+        time1Splitted[1],
+        time1Splitted.length == 3 ? time1Splitted[2] : 00,
+      );
+      final DateTime date2 = DateTime(
+        date2Splitted[2],
+        date2Splitted[1],
+        date2Splitted[0],
+        time2Splitted[0],
+        time2Splitted[1],
+        time2Splitted.length == 3 ? time2Splitted[2] : 00,
+      );
+      return date2.compareTo(date1);
+    });
+    return newEventList;
   }
 
   bool selectionMode = false;

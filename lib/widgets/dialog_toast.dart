@@ -289,7 +289,8 @@ class ShowDialog {
       [
         Container(
           padding: const EdgeInsets.only(top: 5),
-          child: const Icon(Icons.workspace_premium, size: 55),
+          child: Icon(Icons.workspace_premium,
+              size: 55, color: Theme.of(context).primaryColor),
         ),
         Container(
           padding: const EdgeInsets.all(15),
@@ -328,6 +329,49 @@ class ShowDialog {
     );
   }
 
+  static void mustUpdateDialog(BuildContext context) {
+    final Map<int, dynamic> texts =
+        Provider.of<UserPreferences>(context, listen: false).selectedLanguage;
+    show(
+      true,
+      false,
+      "",
+      '',
+      context,
+      [
+        Container(
+          padding: const EdgeInsets.only(top: 5),
+          child: const Icon(Icons.error, size: 55),
+        ),
+        Container(
+          padding: const EdgeInsets.all(15),
+          child: Text(
+            texts[256],
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 110,
+          child: ElevatedButton(
+            child: Text(
+              texts[257]!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fullHD(context) ? 16 : 15,
+              ),
+            ),
+            onPressed: () => launchPlayStore(),
+          ),
+        ),
+      ],
+      [],
+      texts,
+    );
+  }
+
   static void aboutThisApp(
       BuildContext context, bool premiumUser, Map<int, dynamic> texts) {
     final bool fHD = fullHD(context);
@@ -341,7 +385,7 @@ class ShowDialog {
         ),
       ),
       Text(
-        "Versión 1.3.0 ${premiumUser ? 'Premium ' : ''}",
+        "Versión 1.3.5 ${premiumUser ? 'Premium ' : ''}",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fHD ? 16 : 15,
@@ -516,7 +560,6 @@ class GlobalToast {
       reverseEndOffset: const Offset(0.0, 5.0),
       position: StyledToastPosition.center,
       duration: const Duration(seconds: 4),
-      // Animation duration   animDuration * 2 <= duration
       animDuration: const Duration(seconds: 1),
       curve: Curves.elasticOut,
       reverseCurve: Curves.fastOutSlowIn,

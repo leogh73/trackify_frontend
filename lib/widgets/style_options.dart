@@ -43,10 +43,6 @@ class StyleOptions extends StatelessWidget {
       icon: const Icon(Icons.brush),
       iconSize: 25,
       tooltip: texts[183],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      ),
-      elevation: 2,
       onSelected: (String value) {
         switch (value) {
           case "color":
@@ -91,10 +87,11 @@ class StyleOptions extends StatelessWidget {
                         color: Theme.of(context).iconTheme.color,
                       ),
                     ),
-                    Text(e["text"],
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color)),
+                    Text(
+                      e["text"],
+                      style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyMedium!.color),
+                    ),
                   ],
                 ),
               ),

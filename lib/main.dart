@@ -29,15 +29,7 @@ void main() async {
   tz.initializeTimeZones();
   await dotenv.load();
   await MobileAds.instance.initialize();
-  await Firebase.initializeApp(
-    name: "TrackeAR",
-    options: FirebaseOptions(
-      apiKey: "${dotenv.env['FIRBASE_API_KEY']}",
-      appId: "${dotenv.env['FIREBASE_APP_ID']}",
-      messagingSenderId: "${dotenv.env['FIREBASE_MS_SENDER_ID']}",
-      projectId: "${dotenv.env['FIREBASE_PROJECT_ID']}",
-    ),
-  );
+  await Firebase.initializeApp();
   runApp(
     Phoenix(child: const TrackeAR()),
   );
@@ -56,7 +48,7 @@ class TrackeAR extends StatelessWidget {
             return MultiProvider(
               providers: [
                 ChangeNotifierProvider(
-                  create: (context) => Status(snapshot.data as StartData),
+                  create: (context) => Status(),
                 ),
                 ChangeNotifierProvider(
                   create: (context) =>
@@ -157,7 +149,8 @@ class _AppState extends State<App> {
           }
           Future.delayed(
             const Duration(seconds: 2),
-            () => TrackingFunctions.syncronizeUserData(navKey.currentContext!),
+            () => TrackingFunctions.syncronizeUserData(
+                navKey.currentContext!, false),
           );
         }
       },
@@ -184,7 +177,9 @@ class _AppState extends State<App> {
         (UserPreferences userPreferences) => userPreferences.selectedLanguage);
     final bool premiumUser = context.select(
         (UserPreferences userPreferences) => userPreferences.premiumStatus);
-    if (premiumUser != isPremium) togglePremiumStatus();
+    if (premiumUser != isPremium) {
+      togglePremiumStatus();
+    }
     final MaterialColor mainColor =
         context.select((UserTheme theme) => theme.startColor);
     final bool darkMode =
@@ -194,6 +189,7 @@ class _AppState extends State<App> {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: mainColor,
+      iconColor: Colors.white,
       foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       shape: const RoundedRectangleBorder(
@@ -228,7 +224,7 @@ class _AppState extends State<App> {
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
         ),
-        dialogBackgroundColor: Colors.grey[100],
+        dialogTheme: DialogTheme(backgroundColor: Colors.grey[100]),
         scaffoldBackgroundColor: Colors.grey[100],
         drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[100]),
         tabBarTheme: TabBarTheme(
@@ -271,7 +267,7 @@ class _AppState extends State<App> {
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
         ),
-        dialogBackgroundColor: Colors.grey[850],
+        dialogTheme: DialogTheme(backgroundColor: Colors.grey[850]),
         scaffoldBackgroundColor: Colors.grey[850],
         drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[850]),
         tabBarTheme: const TabBarTheme(
@@ -289,7 +285,6 @@ class _AppState extends State<App> {
       ),
       themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
       home: const MainScreen(),
-      // home: const FormAdd(storeName: ""),
     );
   }
 }

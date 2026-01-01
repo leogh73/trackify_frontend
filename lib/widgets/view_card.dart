@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/classes.dart';
 import '../data/tracking_functions.dart';
@@ -9,7 +8,10 @@ import '../widgets/ad_native.dart';
 class ViewCard {
   Widget widget(
     BuildContext context,
+    Map<int, dynamic> texts,
     Image serviceLogo,
+    Color? backgroundColor,
+    IconData statusIcon,
     ItemTracking tracking,
     String daysInTransit,
     VoidCallback onTap,
@@ -38,48 +40,29 @@ class ViewCard {
                 borderRadius: const BorderRadius.all(
                   Radius.circular(18.0),
                 ),
-                color: tracking.selected! ? Colors.black12 : null,
+                color: tracking.selected! ? Colors.black12 : backgroundColor,
               ),
               padding: const EdgeInsets.only(left: 14, top: 1, bottom: 8),
               child: Column(
                 children: [
                   SizedBox(
-                    height: 40,
+                    height: 48,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
+                          width: isPortrait ? 75 : 100,
+                          padding: const EdgeInsets.only(left: 4),
+                          height: 35,
+                          child: serviceLogo,
+                        ),
+                        Container(
                           padding: selectionMode
-                              ? const EdgeInsets.only(top: 3, left: 25)
-                              : const EdgeInsets.only(top: 3, left: 25),
-                          width: tracking.checkError! == false
-                              ? isPortrait
-                                  ? selectionMode && tracking.archived == true
-                                      ? screenWidth - 110
-                                      : !selectionMode &&
-                                              tracking.archived == false
-                                          ? screenWidth - 80
-                                          : !selectionMode
-                                              ? screenWidth - 110
-                                              : screenWidth - 80
-                                  : selectionMode && tracking.archived == true
-                                      ? screenWidth - 110
-                                      : !selectionMode &&
-                                              tracking.archived == false
-                                          ? screenWidth - 80
-                                          : !selectionMode
-                                              ? screenWidth - 110
-                                              : screenWidth - 80
-                              : isPortrait
-                                  ? selectionMode && tracking.archived == true
-                                      ? screenWidth - 110
-                                      : !selectionMode &&
-                                              tracking.archived == false
-                                          ? screenWidth - 110
-                                          : !selectionMode
-                                              ? screenWidth - 110
-                                              : screenWidth - 110
-                                  : screenWidth - 110,
+                              ? const EdgeInsets.only(top: 3)
+                              : const EdgeInsets.only(top: 3),
+                          width: isPortrait
+                              ? screenWidth - 195
+                              : screenWidth - 220,
                           alignment: Alignment.center,
                           child: Container(
                             padding: tracking.checkError!
@@ -87,6 +70,8 @@ class ViewCard {
                                 : EdgeInsets.zero,
                             child: Text(
                               title,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: fullHD ? 16 : 15,
@@ -95,16 +80,15 @@ class ViewCard {
                             ),
                           ),
                         ),
-                        if (tracking.archived == true)
-                          Container(
-                            width: 38,
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.archive),
-                          ),
+                        Container(
+                          width: 38,
+                          alignment: Alignment.center,
+                          child: Icon(statusIcon, size: 28),
+                        ),
                         if (!tracking.archived! && tracking.checkError!) button,
                         if (selectionMode && tracking.selected!)
                           Padding(
-                            padding: const EdgeInsets.only(top: 1, right: 6),
+                            padding: const EdgeInsets.only(top: 1, right: 9),
                             child: Icon(
                               Icons.check_box,
                               size: 32,
@@ -113,7 +97,7 @@ class ViewCard {
                           ),
                         if (selectionMode && !tracking.selected!)
                           Padding(
-                            padding: const EdgeInsets.only(top: 1, right: 6),
+                            padding: const EdgeInsets.only(top: 1, right: 9),
                             child: Icon(
                               Icons.check_box_outline_blank,
                               size: 32,
@@ -123,7 +107,7 @@ class ViewCard {
                         if (!selectionMode)
                           SizedBox(
                             // padding: EdgeInsets.only(top: 6),
-                            width: 38,
+                            width: 41,
                             child: optionsButton,
                           ),
                       ],
@@ -138,7 +122,7 @@ class ViewCard {
                         Padding(
                           padding: const EdgeInsets.only(left: 12),
                           child: Text(
-                            'Ultimo movimiento:',
+                            texts[252],
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: fullHD ? 16 : 15),
@@ -156,8 +140,8 @@ class ViewCard {
                           child: tracking.checkError!
                               ? const Text("Sin datos")
                               : Text(
-                                  TrackingFunctions.formatEventDate(
-                                      context, tracking.lastEvent!, false),
+                                  TrackingFunctions.formatEventDetail(
+                                      tracking.events[0]),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
                                   style: TextStyle(
@@ -188,12 +172,12 @@ class ViewCard {
                                     children: [
                                       const Padding(
                                         padding: EdgeInsets.only(right: 7),
-                                        child: Icon(Icons.check),
+                                        child: Icon(Icons.calendar_month),
                                       ),
                                       Column(
                                         children: [
                                           Text(
-                                            'Ultimo chequeo:',
+                                            texts[89],
                                             style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -212,7 +196,11 @@ class ViewCard {
                                         child: tracking.checkError!
                                             ? const Text("Sin datos")
                                             : Text(
-                                                tracking.lastCheck!,
+                                                TrackingFunctions
+                                                    .formatEventDate(
+                                                        context,
+                                                        tracking.events[0]
+                                                            ["date"]!),
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: fullHD ? 16 : 15,
@@ -225,17 +213,44 @@ class ViewCard {
                               ),
                             ),
                             SizedBox(
-                              width: isPortrait ? 127 : 224,
-                              child: Row(
+                              width: isPortrait
+                                  ? screenWidth * 0.441
+                                  : screenWidth * 0.275,
+                              child: Column(
                                 children: [
-                                  Container(
-                                    width: isPortrait ? 87 : 180,
-                                    // alignment: Alignment.bottomCenter,
-                                    padding: EdgeInsets.zero,
-                                    height: 35,
-                                    child: serviceLogo,
+                                  Row(
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(right: 7),
+                                        child: Icon(Icons.access_time),
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            texts[258],
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                fontSize: fullHD ? 16 : 15),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  button,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: Text(
+                                          tracking.events[0]["time"]!,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: fullHD ? 16 : 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -244,116 +259,6 @@ class ViewCard {
                       ),
                     ],
                   ),
-                  if (expand)
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 12, bottom: 4, right: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(top: 4),
-                            width: isPortrait
-                                // ? fullHD
-                                ? screenWidth * 0.421
-                                // : 134
-                                : screenWidth * 0.331,
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 7),
-                                      child: Icon(MdiIcons.calendarClock),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          'Días en tránsito:',
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 2, bottom: 2),
-                                      // width: 158,
-                                      child: tracking.checkError!
-                                          ? const Text("Sin datos")
-                                          : Text(
-                                              daysInTransit,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: fullHD ? 16 : 15,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.only(top: 4, left: 5),
-                            width: isPortrait
-                                // ? fullHD
-                                ? screenWidth * 0.421
-                                // : 134
-                                : screenWidth * 0.331,
-                            child: Column(
-                              children: [
-                                Row(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 7),
-                                      child: Icon(Icons.short_text),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          'Código:',
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              fontSize: fullHD ? 16 : 15),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 2, bottom: 2),
-                                      width: isPortrait
-                                          ? screenWidth * 0.404
-                                          : screenWidth * 0.318,
-                                      child: Text(
-                                        tracking.code,
-                                        overflow: TextOverflow.ellipsis,
-                                        // maxLines: 2,
-                                        style: TextStyle(
-                                          fontSize: fullHD ? 16 : 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),

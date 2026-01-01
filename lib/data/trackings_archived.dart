@@ -31,13 +31,14 @@ class ArchivedTrackings with ChangeNotifier {
     }
   }
 
-  void removeTracking(
+  bool removeTracking(
       List<ItemTracking> trackings, BuildContext? context, bool startError) {
     for (ItemTracking tracking in trackings) {
       storedData.removeArchivedTracking(tracking);
       _trackings.remove(tracking);
     }
     notifyListeners();
+    return true;
   }
 
   void updateRenamedTracking(ItemTracking editedTracking) async {

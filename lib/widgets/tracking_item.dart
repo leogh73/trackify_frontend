@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:trackify/data/tracking_functions.dart';
 import 'package:trackify/widgets/dialog_toast.dart';
@@ -20,7 +21,7 @@ import '../widgets/view_grid.dart';
 import '../widgets/view_row.dart';
 
 class TrackingItem extends StatefulWidget {
-  final ItemTracking tracking;
+  final ItemTracking? tracking;
   const TrackingItem(this.tracking, {Key? key}) : super(key: key);
 
   @override
@@ -35,13 +36,18 @@ class _TrackingItemState extends State<TrackingItem> {
   @override
   void initState() {
     super.initState();
-    providerFunctions = widget.tracking.archived!
+    providerFunctions = widget.tracking!.archived!
         ? Provider.of<ArchivedTrackings>(context, listen: false)
         : Provider.of<ActiveTrackings>(context, listen: false);
+
     interstitialAd.createInterstitialAd();
   }
 
   seeTrackingDetail(premiumUser) {
+    if (widget.tracking == null) {
+      Navigator.of(context).pop();
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -59,21 +65,21 @@ class _TrackingItemState extends State<TrackingItem> {
     if (!selectionMode) {
       providerFunctions.addSelected(widget.tracking);
     }
-    widget.tracking.selected = !widget.tracking.selected!;
+    widget.tracking!.selected = !widget.tracking!.selected!;
     providerFunctions.toggleSelectionMode();
   }
 
   void trackingClick() {
-    widget.tracking.selected!
-        ? providerFunctions.removeSelected(widget.tracking.idSB)
+    widget.tracking!.selected!
+        ? providerFunctions.removeSelected(widget.tracking!.idSB)
         : providerFunctions.addSelected(widget.tracking);
-    widget.tracking.selected = !widget.tracking.selected!;
+    widget.tracking!.selected = !widget.tracking!.selected!;
   }
 
   void clickItem(selectionMode, premiumUser) {
-    if (selectionMode && widget.tracking.checkError != null) {
+    if (selectionMode && widget.tracking!.checkError != null) {
       trackingClick();
-    } else if (!selectionMode && !widget.tracking.checkError!) {
+    } else if (!selectionMode && !widget.tracking!.checkError!) {
       seeTrackingDetail(premiumUser);
     }
   }
@@ -82,7 +88,9 @@ class _TrackingItemState extends State<TrackingItem> {
   Widget build(BuildContext context) {
     final bool premiumUser = context.select(
         (UserPreferences userPreferences) => userPreferences.premiumStatus);
-    final dynamic providerData = widget.tracking.archived!
+    final Map<int, dynamic> texts = context.select(
+        (UserPreferences userPreferences) => userPreferences.selectedLanguage);
+    final dynamic providerData = widget.tracking!.archived!
         ? Provider.of<ArchivedTrackings>(context)
         : Provider.of<ActiveTrackings>(context);
     final bool selectionMode = providerData.selectionModeStatus;
@@ -102,13 +110,26 @@ class _TrackingItemState extends State<TrackingItem> {
     };
     final Image serviceLogo = Image.network(
         Provider.of<Services>(context, listen: false)
-            .servicesData[widget.tracking.service]['logoUrl']);
-    return widget.tracking.checkError == null
-        ? TrackingCheck(widget.tracking)
-        : widget.tracking.checkError == true
+            .servicesData[widget.tracking!.service]['logoUrl']);
+    final Map<String, IconData> statusIcon = {
+      "in transit": MdiIcons.truckDeliveryOutline,
+      "delayed": MdiIcons.timerAlertOutline,
+      "not delivered": MdiIcons.packageVariantRemove,
+      "delivered": MdiIcons.packageVariantClosedCheck,
+      "error": MdiIcons.alertCircleOutline,
+      "": MdiIcons.helpRhombusOutline,
+    };
+    final Color? backgroundColor =
+        widget.tracking!.animate! ? const Color.fromRGBO(0, 0, 0, 0.18) : null;
+    return widget.tracking!.checkError == null
+        ? TrackingCheck(widget.tracking!)
+        : widget.tracking!.checkError == true
             ? trackingWidget[chosenView].widget(
                 context,
+                texts,
                 serviceLogo,
+                backgroundColor,
+                statusIcon["error"],
                 widget.tracking,
                 "",
                 () => clickItem(selectionMode, premiumUser),
@@ -125,7 +146,7 @@ class _TrackingItemState extends State<TrackingItem> {
                         ShowDialog.goPremiumDialog(context);
                       }
                       setState(() {
-                        widget.tracking.checkError = null;
+                        widget.tracking!.checkError = null;
                       });
                     },
                   ),
@@ -136,26 +157,29 @@ class _TrackingItemState extends State<TrackingItem> {
                 premiumUser,
                 fullHD,
                 TrackingOptions(
-                  tracking: widget.tracking,
-                  menu: true,
+                  tracking: widget.tracking!,
+                  option: "menu",
                   action: '',
                   detail: false,
                 ),
               )
             : trackingWidget[chosenView].widget(
                 context,
+                texts,
                 serviceLogo,
+                backgroundColor,
+                statusIcon[widget.tracking!.status],
                 widget.tracking,
                 TrackingFunctions.daysInTransit(
                   context,
-                  widget.tracking.events[0]["date"]!,
-                  widget.tracking.events[widget.tracking.events.length - 1]
+                  widget.tracking!.events[0]["date"]!,
+                  widget.tracking!.events[widget.tracking!.events.length - 1]
                       ["date"]!,
                 ),
                 () => clickItem(selectionMode, premiumUser),
                 () => toggleSelectionMode(selectionMode),
                 screenWidth,
-                widget.tracking.title,
+                widget.tracking!.title,
                 SizedBox(
                   width: 38,
                   child: IconButton(
@@ -173,8 +197,8 @@ class _TrackingItemState extends State<TrackingItem> {
                 premiumUser,
                 fullHD,
                 TrackingOptions(
-                  tracking: widget.tracking,
-                  menu: true,
+                  tracking: widget.tracking!,
+                  option: "menu",
                   action: '',
                   detail: false,
                 ),

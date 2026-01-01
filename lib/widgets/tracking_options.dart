@@ -7,13 +7,11 @@ import '../data/http_connection.dart';
 import '../data/preferences.dart';
 import '../data/services.dart';
 import '../data/status.dart';
-
 import '../data/trackings_active.dart';
 import '../data/trackings_archived.dart';
 
 import '../screens/claim.dart';
 import '../screens/tracking_detail.dart';
-import '../screens/tracking_more.dart';
 
 import '../widgets/ad_interstitial.dart';
 import '../widgets/dialog_error.dart';
@@ -21,14 +19,13 @@ import '../widgets/dialog_toast.dart';
 
 class TrackingOptions extends StatefulWidget {
   final ItemTracking tracking;
-  final bool menu;
+  final String option;
   final String action;
   final bool detail;
-
   const TrackingOptions({
     Key? key,
     required this.tracking,
-    required this.menu,
+    required this.option,
     required this.action,
     required this.detail,
   }) : super(key: key);
@@ -63,14 +60,14 @@ class _TrackingOptionsState extends State<TrackingOptions> {
 
   void screenPopToast(String message) {
     Navigator.pop(context);
-    Provider.of<Status>(context, listen: false).restartListEnd();
-    GlobalToast.displayToast(context, message);
     final List<ItemTracking> trackingsList =
         Provider.of<ActiveTrackings>(context, listen: false).trackings;
     if (!premiumUser && trackingsList.isNotEmpty) {
       interstitialAd.showInterstitialAd();
       ShowDialog.goPremiumDialog(context);
     }
+    Provider.of<Status>(context, listen: false).restartListEnd();
+    GlobalToast.displayToast(context, message);
   }
 
   void seeTrackingDetail() {
@@ -78,19 +75,6 @@ class _TrackingOptionsState extends State<TrackingOptions> {
       context,
       MaterialPageRoute(
         builder: (_) => TrackingDetail(widget.tracking),
-      ),
-    );
-    if (!premiumUser) {
-      interstitialAd.showInterstitialAd();
-      ShowDialog.goPremiumDialog(context);
-    }
-  }
-
-  void seeMoreTrackingData() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TrackingMore(widget.tracking.moreData!),
       ),
     );
     if (!premiumUser) {
@@ -250,26 +234,22 @@ class _TrackingOptionsState extends State<TrackingOptions> {
     provider.toggleSelectionMode();
     provider.addSelected(widget.tracking);
     widget.tracking.selected = true;
-    if (widget.detail) Navigator.pop(context);
   }
 
-  void removeTracking(Map<int, dynamic> texts) async {
+  void removeTracking(Map<int, dynamic> texts, BuildContext context) async {
+    if (widget.detail) {
+      Navigator.pop(context);
+    }
     final BuildContext ctx = context;
-    bool success = await selectProvider()
+    final bool success = await selectProvider()
         .removeTracking([widget.tracking], context, widget.tracking.checkError);
-    if (success == false) {
+    if (!ctx.mounted || success == false) {
       return;
     }
     screenPopToast(texts[197]!);
-    if (!ctx.mounted) {
-      return;
-    }
-    if (widget.detail) {
-      Navigator.pop(ctx);
-    }
   }
 
-  void removeSelection(Map<int, dynamic> texts) async {
+  void removeSelection(Map<int, dynamic> texts, BuildContext context) async {
     dynamic provider = selectProvider();
     bool success = await provider.removeSelection(context);
     provider.toggleSelectionMode();
@@ -281,25 +261,22 @@ class _TrackingOptionsState extends State<TrackingOptions> {
   }
 
   void archiveTracking(Map<int, dynamic> texts) async {
+    if (widget.detail) {
+      Navigator.pop(context);
+    }
     final BuildContext ctx = context;
-    bool success = await selectProvider()
-        .removeTracking([widget.tracking], ctx, widget.tracking.checkError);
-    if (success == false) {
+    final bool success = await Provider.of<ActiveTrackings>(ctx, listen: false)
+        .removeTracking([widget.tracking], ctx, widget.tracking.checkError!);
+    if (!ctx.mounted || success == false) {
       return;
     }
     widget.tracking.archived = true;
-    if (!ctx.mounted) {
-      return;
-    }
     Provider.of<ArchivedTrackings>(ctx, listen: false)
         .addTracking(widget.tracking, ctx);
     screenPopToast(texts[195]!);
-    if (widget.detail) {
-      Navigator.pop(ctx);
-    }
   }
 
-  void archiveSelection(Map<int, dynamic> texts) async {
+  void archiveSelection(Map<int, dynamic> texts, BuildContext context) async {
     dynamic provider = selectProvider();
     List<ItemTracking> selection = provider.selectionElements;
     final BuildContext ctx = context;
@@ -340,8 +317,12 @@ class _TrackingOptionsState extends State<TrackingOptions> {
     VoidCallback dialogFunction;
     String buttonText = action == texts[190]! ? texts[189]! : texts[191]!;
     dialogFunction = action == texts[190]!
-        ? () => widget.menu ? archiveTracking(texts) : archiveSelection(texts)
-        : () => widget.menu ? removeTracking(texts) : removeSelection(texts);
+        ? () => widget.option == "menu" || widget.option == "elevatedButtons"
+            ? archiveTracking(texts)
+            : archiveSelection(texts, context)
+        : () => widget.option == "menu" || widget.option == "elevatedButtons"
+            ? removeTracking(texts, context)
+            : removeSelection(texts, context);
     ShowDialog.actionConfirmation(
         context, action, buttonText, dialogFunction, texts);
   }
@@ -395,6 +376,67 @@ class _TrackingOptionsState extends State<TrackingOptions> {
     final bool fullHD = MediaQuery.of(context).size.width *
             MediaQuery.of(context).devicePixelRatio >
         1079;
+    final Map<String, Map<String, dynamic>> buttons = {
+      "iconButtons": {
+        "rename": IconButton(
+          icon: const Icon(Icons.edit),
+          iconSize: 24,
+          onPressed: () => renameTrackingDialog(
+              isPortrait, screenWidth, fullHD, trackingsList, texts),
+        ),
+        "archive": IconButton(
+            icon: const Icon(Icons.archive),
+            iconSize: 24,
+            onPressed: () => displayDialog(texts[189]!, texts)),
+        "remove": IconButton(
+          icon: const Icon(Icons.delete),
+          iconSize: 24,
+          onPressed: () => displayDialog(texts[192]!, texts),
+        ),
+      },
+      "elevatedButtons": {
+        "rename": Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 4),
+          child: SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              onPressed: () => renameTrackingDialog(
+                  isPortrait, screenWidth, fullHD, trackingsList, texts),
+              child: Text(
+                texts[187]!,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ),
+        "archive": Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 4),
+          child: SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              onPressed: () => displayDialog(texts[189]!, texts),
+              child: Text(
+                texts[189]!,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ),
+        "remove": Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 8),
+          child: SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              onPressed: () => displayDialog(texts[192]!, texts),
+              child: Text(
+                texts[191]!,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ),
+      }
+    };
     final String trackingType = widget.tracking.archived! ? "archived" : "main";
     final Map<String, dynamic> optionsList = {
       "main": {
@@ -409,9 +451,6 @@ class _TrackingOptionsState extends State<TrackingOptions> {
           onSelected: (String value) {
             if (value == texts[185]) {
               seeTrackingDetail();
-            }
-            if (value == texts[186]) {
-              seeMoreTrackingData();
             }
             if (value == texts[187]) {
               renameTrackingDialog(
@@ -431,10 +470,8 @@ class _TrackingOptionsState extends State<TrackingOptions> {
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            if (!widget.detail && widget.tracking.checkError == false)
+            if (widget.tracking.checkError == false)
               optionMenu(texts[185]!, Icons.info_outline),
-            if (!widget.tracking.checkError!)
-              optionMenu(texts[186]!, Icons.info),
             optionMenu(texts[187]!, Icons.edit),
             optionMenu(texts[188]!, Icons.select_all_sharp),
             if (!widget.tracking.checkError!)
@@ -443,18 +480,7 @@ class _TrackingOptionsState extends State<TrackingOptions> {
             optionMenu(texts[193]!, Icons.warning),
           ],
         ),
-        "buttons": {
-          "remove": IconButton(
-            icon: const Icon(Icons.delete),
-            iconSize: 24,
-            onPressed: () => displayDialog(texts[192]!, texts),
-          ),
-          "archive": IconButton(
-            icon: const Icon(Icons.archive),
-            iconSize: 24,
-            onPressed: () => displayDialog(texts[190]!, texts),
-          )
-        }
+        "buttons": buttons,
       },
       "archived": {
         "menu": PopupMenuButton<String>(
@@ -468,9 +494,6 @@ class _TrackingOptionsState extends State<TrackingOptions> {
           onSelected: (String value) {
             if (value == texts[185]) {
               seeTrackingDetail();
-            }
-            if (value == texts[186]) {
-              seeMoreTrackingData();
             }
             if (value == texts[187]) {
               renameTrackingDialog(
@@ -487,27 +510,19 @@ class _TrackingOptionsState extends State<TrackingOptions> {
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            if (!widget.detail && !widget.tracking.checkError!)
+            if (!!widget.tracking.checkError!)
               optionMenu(texts[185]!, Icons.info_outline),
-            if (!widget.tracking.checkError!)
-              optionMenu(texts[186]!, Icons.info),
             optionMenu(texts[187]!, Icons.edit),
             optionMenu(texts[188]!, Icons.select_all_sharp),
             optionMenu(texts[191]!, Icons.delete),
           ],
         ),
-        "buttons": {
-          "remove": IconButton(
-            icon: const Icon(Icons.delete),
-            iconSize: 24,
-            onPressed: () => displayDialog(texts[192]!, texts),
-          ),
-        }
+        "buttons": buttons,
       }
     };
 
-    return widget.menu
-        ? optionsList[trackingType]['menu']
-        : optionsList[trackingType]['buttons'][widget.action];
+    return widget.action.isEmpty
+        ? optionsList[trackingType][widget.option]
+        : optionsList[trackingType]["buttons"][widget.option][widget.action];
   }
 }

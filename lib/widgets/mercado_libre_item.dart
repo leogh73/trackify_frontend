@@ -57,7 +57,7 @@ class MercadoLibreItemState extends State<MercadoLibreItem> {
                       alignment: Alignment.center,
                       child: Text(
                         widget.itemML.title,
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: fullHD ? 16 : 15,

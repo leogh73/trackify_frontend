@@ -27,7 +27,6 @@ class AdOpen {
   void loadAd() {
     AppOpenAd.load(
       adUnitId: "${dotenv.env['AD_LOAD_UNIT_ID']}",
-      orientation: AppOpenAd.orientationPortrait,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {

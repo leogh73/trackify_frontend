@@ -73,7 +73,6 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
           ),
         ),
         controller: widget.serviceController,
-        textInputAction: TextInputAction.next,
         onChanged: (String? value) {
           Provider.of<Services>(context, listen: false).filterServicesList(
               context, value!, widget.servicesList, codeInput);
@@ -96,11 +95,13 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       height: 46,
-                      width: isPortrait ? screenWidth * .75 : screenWidth * .38,
+                      width:
+                          isPortrait ? screenWidth * 0.745 : screenWidth * .4,
                       alignment: Alignment.centerLeft,
                       child: isAutodetecting
                           ? Row(
@@ -133,7 +134,11 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
                               ],
                             )
                           : widget.preLoadedService == null
-                              ? serviceSearch
+                              ? SizedBox(
+                                  width: isPortrait
+                                      ? screenWidth * .7
+                                      : screenWidth * 0.51,
+                                  child: serviceSearch)
                               : Row(
                                   children: [
                                     Container(
@@ -162,7 +167,7 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
                     ),
                     if (!isAutodetecting)
                       Padding(
-                        padding: const EdgeInsets.only(right: 20),
+                        padding: const EdgeInsets.only(right: 25.0),
                         child: IconButton(
                           icon: Icon(
                               expand ? Icons.expand_less : Icons.expand_more),
@@ -183,8 +188,11 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
                       ),
                       if (widget.preLoadedService != null)
                         Padding(
-                          padding: const EdgeInsets.only(left: 3, right: 22),
-                          child: serviceSearch,
+                          padding: const EdgeInsets.only(left: 3, right: 25.5),
+                          child: SizedBox(
+                            height: 45,
+                            child: serviceSearch,
+                          ),
                         ),
                       if (widget.preLoadedService != null)
                         Divider(
