@@ -27,10 +27,14 @@ class ServiceSelect extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        final List<ServiceItemModel> servicesToFilter = servicesList
-            .map((s) => ServiceItemModel(
-                s.logo, Services.filterString(s.name), s.exampleCode))
-            .toList();
+        final List<Map<String, dynamic>> servicesToFilter =
+            servicesList.map((s) {
+          return {
+            "logo": s.logo,
+            "name": Services.filterString(s.name),
+            "originalName": s.name,
+          };
+        }).toList();
         return Dialog(
           insetPadding: const EdgeInsets.all(15),
           shape: const RoundedRectangleBorder(

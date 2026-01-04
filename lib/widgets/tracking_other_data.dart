@@ -30,20 +30,28 @@ class _TrackingOtherDataState extends State<TrackingOtherData> {
         screenWidth * MediaQuery.of(context).devicePixelRatio > 1079;
     return Column(
       children: [
-        SizedBox(
-          width: isPortrait ? screenWidth : screenWidth * 0.6,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: Icon(MdiIcons.informationVariantCircleOutline),
-              ),
-              Container(
-                alignment: Alignment.center,
-                width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12),
+        InkWell(
+          onTap: () => setState(() {
+            expanded = !expanded;
+          }),
+          child: SizedBox(
+            height: 45,
+            width: isPortrait ? screenWidth : screenWidth * 0.6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  width: screenWidth * 0.2,
+                  child: Padding(
+                    padding: isPortrait
+                        ? const EdgeInsets.only(left: 40)
+                        : const EdgeInsets.only(right: 0),
+                    child: Icon(MdiIcons.informationVariantCircleOutline),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: isPortrait ? screenWidth * 0.6 : screenWidth * 0.2,
                   child: Text(
                     texts[265],
                     style: TextStyle(
@@ -52,17 +60,18 @@ class _TrackingOtherDataState extends State<TrackingOtherData> {
                         color: Theme.of(context).primaryColor),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: IconButton(
-                  onPressed: () => setState(() {
-                    expanded = !expanded;
-                  }),
-                  icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                ),
-              )
-            ],
+                SizedBox(
+                  width: screenWidth * 0.2,
+                  child: Padding(
+                    padding: isPortrait
+                        ? const EdgeInsets.only(right: 40)
+                        : const EdgeInsets.only(right: 0),
+                    child:
+                        Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
         if (expanded)
@@ -102,11 +111,6 @@ class _TrackingOtherDataState extends State<TrackingOtherData> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Column(
                       children: [
-                        if (!premiumUser)
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 8),
-                            child: AdNative("small"),
-                          ),
                         ...widget.moreDataList
                             .map(
                               (moreData) => Column(

@@ -22,10 +22,7 @@ class Services with ChangeNotifier {
   List<ServiceItemModel> itemModelList(bool showStores) {
     final List<ServiceItemModel> servicesItemModels = servicesData.values
         .map((service) => ServiceItemModel(
-              Image.network(service["logoUrl"]),
-              service['name'],
-              service['exampleCode'],
-            ))
+            Image.network(service["logoUrl"]), service['name']))
         .toList();
     if (!showStores) {
       servicesItemModels
@@ -90,12 +87,14 @@ class Services with ChangeNotifier {
   void filterServicesList(
     BuildContext context,
     String value,
-    List<ServiceItemModel> services,
+    List<Map<String, dynamic>> services,
     String code,
   ) async {
     final String filteredValue = filterString(value);
-    filteredList =
-        services.where((s) => s.name.contains(filteredValue)).toList();
+    filteredList = services
+        .where((s) => s["name"].contains(filteredValue))
+        .map((s) => ServiceItemModel(s["logo"], s["originalName"]))
+        .toList();
     if (filteredList.isEmpty &&
         value.trim().isNotEmpty &&
         code.trim().isNotEmpty) {
@@ -208,6 +207,5 @@ class ServicesData {
 class ServiceItemModel {
   final Image? logo;
   final String name;
-  final String exampleCode;
-  ServiceItemModel(this.logo, this.name, this.exampleCode);
+  ServiceItemModel(this.logo, this.name);
 }

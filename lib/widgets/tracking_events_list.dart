@@ -7,16 +7,17 @@ import '../data/tracking_functions.dart';
 
 import '../widgets/ad_native.dart';
 
-class EventsList extends StatefulWidget {
+class TrackingEventsList extends StatefulWidget {
   final List<Map<dynamic, String>> events;
   final String service;
-  const EventsList(this.events, this.service, {Key? key}) : super(key: key);
+  const TrackingEventsList(this.events, this.service, {Key? key})
+      : super(key: key);
 
   @override
-  State<EventsList> createState() => _EventsListState();
+  State<TrackingEventsList> createState() => _TrackingEventsListState();
 }
 
-class _EventsListState extends State<EventsList> {
+class _TrackingEventsListState extends State<TrackingEventsList> {
   bool expanded = true;
 
   List<Map<String, dynamic>> eventData(
@@ -54,39 +55,46 @@ class _EventsListState extends State<EventsList> {
     final screenWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
-        SizedBox(
-          width: isPortrait ? screenWidth : screenWidth * 0.6,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: Icon(MdiIcons.calendarMultiple),
-              ),
-              Container(
-                alignment: Alignment.center,
-                width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12),
-                  child: Text(
-                    texts[264],
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Theme.of(context).primaryColor),
+        InkWell(
+          onTap: () => setState(() {
+            expanded = !expanded;
+          }),
+          child: SizedBox(
+            height: 45,
+            width: isPortrait ? screenWidth : screenWidth * 0.6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                  child: Icon(MdiIcons.calendarMultiple),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 12),
+                    child: Text(
+                      texts[264],
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Theme.of(context).primaryColor),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: IconButton(
-                  onPressed: () => setState(() {
-                    expanded = !expanded;
-                  }),
-                  icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                ),
-              )
-            ],
+                SizedBox(
+                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                  child: IconButton(
+                    onPressed: () => setState(() {
+                      expanded = !expanded;
+                    }),
+                    icon:
+                        Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
         if (expanded)
@@ -147,13 +155,6 @@ class Event extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8, left: 8),
       child: Column(
         children: [
-          if (index == 0 && !premiumUser)
-            const Padding(
-              padding: EdgeInsets.only(top: 3, bottom: 3),
-              child: AdNative("small"),
-            ),
-          if (index == 0 && !premiumUser)
-            Divider(color: Theme.of(context).primaryColor, thickness: .5),
           SizedBox(
             height: isPortrait ? 45 : 42,
             child: Row(
@@ -274,9 +275,9 @@ class Event extends StatelessWidget {
                 ),
               )
               .toList(),
-          if (!premiumUser)
+          if (!premiumUser && index.isEven)
             Divider(color: Theme.of(context).primaryColor, thickness: .5),
-          if (!premiumUser)
+          if (!premiumUser && index.isEven)
             const Padding(
               padding: EdgeInsets.only(top: 3, bottom: 3),
               child: AdNative("medium"),

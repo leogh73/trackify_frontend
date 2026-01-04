@@ -56,6 +56,14 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
         context.select((UserTheme userTheme) => userTheme.startColor);
     final String codeInput =
         context.select((Status status) => status.codeInput);
+    final List<Map<String, dynamic>> servicesToFilter =
+        widget.servicesList.map((s) {
+      return {
+        "logo": s.logo,
+        "name": Services.filterString(s.name),
+        "originalName": s.name,
+      };
+    }).toList();
     final Widget serviceSearch = Padding(
       padding: const EdgeInsets.only(left: 8, top: 2),
       child: TextFormField(
@@ -67,15 +75,15 @@ class _ServicesTextFieldSmartState extends State<ServicesTextFieldSmart> {
             onPressed: () {
               widget.serviceController.text = "";
               Provider.of<Services>(context, listen: false)
-                  .filterServicesList(context, "", widget.servicesList, "");
+                  .filterServicesList(context, "", servicesToFilter, "");
             },
             icon: const Icon(Icons.close, size: 17),
           ),
         ),
         controller: widget.serviceController,
         onChanged: (String? value) {
-          Provider.of<Services>(context, listen: false).filterServicesList(
-              context, value!, widget.servicesList, codeInput);
+          Provider.of<Services>(context, listen: false)
+              .filterServicesList(context, value!, servicesToFilter, codeInput);
         },
       ),
     );

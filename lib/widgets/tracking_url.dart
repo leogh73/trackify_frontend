@@ -6,7 +6,6 @@ import '../data/http_connection.dart';
 import '../data/services.dart';
 import '../data/preferences.dart';
 
-import '../widgets/ad_native.dart';
 import '../widgets/dialog_error.dart';
 import '../widgets/dialog_toast.dart';
 
@@ -28,8 +27,6 @@ class _TrackingUrlState extends State<TrackingUrl> {
   Widget build(BuildContext context) {
     final Map<int, dynamic> texts = context.select(
         (UserPreferences userPreferences) => userPreferences.selectedLanguage);
-    final bool premiumUser = context.select(
-        (UserPreferences userPreferences) => userPreferences.premiumStatus);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -38,39 +35,40 @@ class _TrackingUrlState extends State<TrackingUrl> {
             .servicesData[widget.serviceName]['logoUrl']);
     return Column(
       children: [
-        SizedBox(
-          width: isPortrait ? screenWidth : screenWidth * 0.6,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: const Icon(Icons.link),
-              ),
-              Container(
-                alignment: Alignment.center,
-                width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12),
-                  child: Text(
-                    texts[266],
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 19,
-                        color: Theme.of(context).primaryColor),
+        InkWell(
+          onTap: () => setState(() {
+            expanded = !expanded;
+          }),
+          child: SizedBox(
+            height: 45,
+            width: isPortrait ? screenWidth : screenWidth * 0.6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                  child: const Icon(Icons.link),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 12),
+                    child: Text(
+                      texts[266],
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 19,
+                          color: Theme.of(context).primaryColor),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                child: IconButton(
-                  onPressed: () => setState(() {
-                    expanded = !expanded;
-                  }),
-                  icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                ),
-              )
-            ],
+                SizedBox(
+                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                  child: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                )
+              ],
+            ),
           ),
         ),
         if (expanded)
@@ -141,11 +139,6 @@ class _TrackingUrlState extends State<TrackingUrl> {
                     ),
                   ),
                 ),
-                if (!premiumUser)
-                  const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: AdNative("small"),
-                  )
               ],
             ),
           ),

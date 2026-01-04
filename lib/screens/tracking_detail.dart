@@ -15,7 +15,7 @@ import '../widgets/ad_interstitial.dart';
 import '../widgets/ad_native.dart';
 import '../widgets/ad_banner.dart';
 import '../widgets/dialog_toast.dart';
-import '../widgets/events_list.dart';
+import '../widgets/tracking_events_list.dart';
 import '../widgets/tracking_options.dart';
 import '../widgets/tracking_other_data.dart';
 import '../widgets/tracking_summary.dart';
@@ -287,7 +287,7 @@ class _TrackingDetailState extends State<TrackingDetail> {
                       ),
                     TrackingSummary(tracking),
                     divider,
-                    EventsList(tracking.events, serviceName),
+                    TrackingEventsList(tracking.events, serviceName),
                     divider,
                     TrackingOtherData(tracking.moreData!),
                     divider,
@@ -317,38 +317,3 @@ class _TrackingDetailState extends State<TrackingDetail> {
     );
   }
 }
-
-// class TrackingData {
-//   static Widget sectionTitle(BuildContext context, String title) {
-//     Widget divider = Expanded(
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//         children: [
-//           Divider(
-//             color: Theme.of(context).primaryColor,
-//             thickness: 1.5,
-//             height: 3,
-//           ),
-//         ],
-//       ),
-//     );
-
-//     return SizedBox(
-//       height: 35,
-//       child: Column(children: <Widget>[
-//         divider,
-//         Padding(
-//           padding: const EdgeInsets.only(left: 12, right: 12),
-//           child: Text(
-//             title,
-//             style: TextStyle(
-//                 fontWeight: FontWeight.bold,
-//                 fontSize: 20,
-//                 color: Theme.of(context).primaryColor),
-//           ),
-//         ),
-//         divider,
-//       ]),
-//     );
-//   }
-// }

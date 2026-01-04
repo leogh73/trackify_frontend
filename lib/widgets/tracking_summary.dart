@@ -85,40 +85,41 @@ class _TrackingSummaryState extends State<TrackingSummary> {
     return SizedBox(
       child: Column(
         children: [
-          SizedBox(
-            width: isPortrait ? screenWidth : screenWidth * 0.6,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                SizedBox(
-                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                  child: Icon(MdiIcons.informationVariantCircle),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 12),
-                    child: Text(
-                      texts[263],
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 19,
-                          color: Theme.of(context).primaryColor),
+          InkWell(
+            onTap: () => setState(() {
+              expanded = !expanded;
+            }),
+            child: SizedBox(
+              height: 45,
+              width: isPortrait ? screenWidth : screenWidth * 0.6,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                    child: Icon(MdiIcons.informationVariantCircle),
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    width: isPortrait ? screenWidth * 0.4 : screenWidth * 0.2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 12),
+                      child: Text(
+                        texts[263],
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 19,
+                            color: Theme.of(context).primaryColor),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
-                  child: IconButton(
-                    onPressed: () => setState(() {
-                      expanded = !expanded;
-                    }),
-                    icon:
+                  SizedBox(
+                    width: isPortrait ? screenWidth * 0.3 : screenWidth * 0.2,
+                    child:
                         Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
           if (expanded)
@@ -190,6 +191,7 @@ class _TrackingSummaryState extends State<TrackingSummary> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 5),
                 if (!premiumUser) smallAd,
               ],
             ),
